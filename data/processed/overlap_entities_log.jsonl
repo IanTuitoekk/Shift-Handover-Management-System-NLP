@@ -1,0 +1,667 @@
+{"entity_text": "engine", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "injini", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Inspector", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "plug", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "plug", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "SAN", "entity_type": "LOCATION", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Minimum Equipment List", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "filter housing", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Next shift", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "actuator", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "NLG", "entity_type": "LOCATION", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "NLG", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "NLG", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "supervisor", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "pilot", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "anticipator", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "spring", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "tube", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "bulk cargo door", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "spring", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "roller", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "chupa", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Celsius/Bs", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "vertical stabilizer", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "aft fairing", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Celsius/Bs", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Celsius/Bs", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "AMM steps", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "elevator", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "shift inayoingia", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "elevator", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "RII", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "cannon plug", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "kubadilisha mafuta ya strut", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "sensor ya weight-on-wheels", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "R main landing gear strut", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "wheel speed transducers", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "WOW sensor", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "LVDT", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "LVDT", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "dayshift", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "dayshift", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "mchana", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "dayshift", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Next shift", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "aileron", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "flap", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "speed brake interlock cable", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "gear door", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "milango ya gear", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "interlock cable", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "gear door", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "FIM 26-XX Task XXX", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "reverser", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "mfumo wa bleed", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "valve ya FAMV", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "thrust reverser", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "reverser", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "connector", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "connector", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "clamp", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "clamp", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "duct", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "engine mount", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "mount", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "engine mount", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "mount", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "flap gearbox", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "flap gear", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Saturday", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "shift inayofuata", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "gearbox ya flap", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "gearbox", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "gear", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "oil filter", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "engine namba moja", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "fundi", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "oil filter", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "#1 engine", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "zamu inayofuata", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "rafu ya FDR", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "next shift", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "hydraulic pump", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "wire", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "hydraulic pump", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "next crew", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "beam", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "rub blocks", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "generator", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "AMM", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "plate part numbers", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "plate", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "plate", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Auxiliary Power Unit hour meter", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Block 7", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "drive motor", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Next shift", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "drive motor", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Next shift", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "fuel nozzle", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "bolt", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Minimum Equipment List", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "fuel tank slat can", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "down-line crew", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "tank sniffer", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "next shift", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "slat can", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "tank sniffer", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "entry form", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "slat can", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "next shift", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "valve", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "brake", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "STA:395", "entity_type": "LOCATION", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "STA:395", "entity_type": "LOCATION", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "pulley brackets", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "intercostal", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "STA:395", "entity_type": "LOCATION", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "winglet", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "cowl", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "cowl", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "cowl", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "lower torque box", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "L engine", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "torque box", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "job card", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "fundi", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "gear", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "gia", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "turnover", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "logbook", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Constant Speed Drive", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "ZZZ", "entity_type": "LOCATION", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "next shift", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "bottle", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "door 1R slide", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "seatbelt", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "mkanda wa usalama", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "seat build", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "pax seat", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "seat", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "fasteners", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "bolti", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "crank pad cover", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "#1 engine", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "injini namba 1", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "crank pad cover", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "cover", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "aileron", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "rigging", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Airworthiness Release", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Airworthiness Release", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "flap", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "access panels", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "panels", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "panels", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "fuel drain valve", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "keeper lock", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "valve", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "valve", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "power run", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "tachometer", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "fan assembly", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "SEC 1", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "EEC", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Control Display Unit", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "next shift", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "EEC", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "fuel nozzle", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "nozzle", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "nozzles", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "logbook", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "drain valve circuit", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "drain valve circuit", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "door", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "seal", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "mlango mkuu wa abiria", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "ukaguzi", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "seal", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "seal", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "cap", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "valve stem", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "back shop", "entity_type": "LOCATION", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "pump", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "pump", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "BPSU", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "flap", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "torque tube", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "pump", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "kifuniko", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "wiring", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "left engine", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "B-nut", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "L engine", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "B-nut", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "tow collar", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "tow collar", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "spinner", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "extension", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "spinner", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "fairing", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "spinner", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "ZZZ", "entity_type": "LOCATION", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "ZZZ", "entity_type": "LOCATION", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "supervisor", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "supervisor", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "#1 Engine", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "bottle", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "slide", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "chupa", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "slide", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "continuity check", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "slide bottle", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "time change", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "work card", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "bottle", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "slide", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "AMM", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "masks", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "inspector", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "EC/Resolution Advisory", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "oil filter", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "kichujio kipya cha mafuta", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "waya wa usalama", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "oil filter", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Next shift", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "magneto", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "sensor", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "gia", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Next shift", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "actuators", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "actuator", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "#1 pylon", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "CVR ULB", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "ULB Tester", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "ULB", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Aircraft Y", "entity_type": "AIRCRAFT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "NLG", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "torque links za NLG", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "mfumo wa Proximity", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Proximity System", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "NLG", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "rudder Power Control Unit", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "rudder Power Control Unit", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "rig pin", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Rudder Power Control Unit", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Rudder Power Control Unit", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Rudder", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "rudder", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "rudder", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "jackscrew", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "spar", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "jackscrew", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "sliding seal", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "spar", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "tail cone", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "ukaguzi wa RII", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "tail cone", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "RII", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "bulkhead", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "spinner", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "prop", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "bulkhead", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "propela", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "spinner", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "bulkhead", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "avionics coupler", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "zamu ya jioni", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "avionics coupler", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "#5 bearing scavenge line", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "#1 engine lube na scavenge pump", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "line", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "brake system", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "valve", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "gear", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "shift change", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "mechanic", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "sehemu ya kuunganisha", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "shift change", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "fasteners", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "mechanic", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "screw", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "kiongozi wa kwanza", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "mfumo wa oksijeni", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "masaa mawili", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "mask quick-disconnect fitting", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "2 hours", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "milango ya L4 na R4", "entity_type": "LOCATION", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "body torque tube", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "next shift", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "QA", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "trim motor", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "probe ya RH", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Y shift machinist", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "oil filter cavity", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "filter", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "shift ya Zulu Time", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "shift ya Y", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "shift ya X", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "filter", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "final powerplant inspection", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "oil filter cavity", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "inspector", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "filter", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "#1 engine pneumatic bleed system", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "L pack heater", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "slat", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "slat", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "IDG", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "pad cover", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Traffic Alert and Collision Avoidance System harness", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Specialist", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Specialist", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Specialist", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "flying door", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "linkage", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "flap track", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "attach fittings", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "flap track", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "linkage", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "technician", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "lead", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "fundi kiongozi", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "lead", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "PSU panels", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "throttle linkage", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "throttle linkage", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "stowage box", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "stowage box", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "90-day", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "gauge za hydro-unit", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Next shift", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "signoff", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Auxiliary Power Unit", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Overnight shift", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Next shift", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "#3 engine", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "day shift", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Auxiliary Power Unit", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "fuel system", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "panels", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "gia", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "pin", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Day shift", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "charger", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "breaker", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "zamu ya mchana", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "chaja", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "betri", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Day shift", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "charger", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "battery", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "rudder Positive Control Area", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "rudder Positive Control Area", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "rudder Positive Control Area", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Interphone", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Call Horn", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "pax service units", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "oxygen generator", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Avionics", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "vitengo vitatu vya huduma za abiria", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "jenereta za oksijeni", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "intercom ya abiria", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "oxygen generator", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Avionics", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "flap transmission", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "transmission", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "bearing assembly", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "transmission", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "EEC", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "mlango wa hewa", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "wa moshi", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "EEC", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "EGT red box", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "EEC", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "forward aux", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Auxiliary LOWER", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "forward aux", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Next shift", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "gear", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "ndege ya majaribio", "entity_type": "AIRCRAFT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "QC", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "tag ya serviceable", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "handset", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "QA", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "handset", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "rig", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "next shift", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "next shift", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "fan blade", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "fan blades", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "inspector", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "mechanics", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "blades", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "hub", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "mechanics", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "blade", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "card", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "hub", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "operational check", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "stringer doubler/filler", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "stringer", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "lead", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "cowl", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "safety pins", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "maintenance", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "PSU", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "PSU", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "release pin", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "pins", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "case drain", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "case drain", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "lift", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "case drain", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "lift", "entity_type": "LOCATION", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "QC", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "mount ya juu ya injini namba moja", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "spoiler", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "top engine mount", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "AMM", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "QC", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "bearing namba moja", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "shift inayofuata", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "shift ijayo", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "#1 engine bearing", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "ground sense control cables", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "nose landing gear", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "landing gear", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "gear door", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "strut", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "nyaya za ground sense control", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "ukaguzi wa retract", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "milango ya gear", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "landing gear", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "nosewheel", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "silinda", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "strut", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "nose landing gear", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "landing gear", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "mechanic", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "strut", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "measurement", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "accumulator", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "accumulator", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "tire", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "matairi mawili ya gurudumu la pua", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "matairi", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "engine driven fuel pump", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "fuel pump", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "pampu ya mafuta", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "shunt cap", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "shunt caps", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "aux battery connector", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "bulkhead hardware", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "tech", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "belt", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Engineering", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Uhandisi", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "fuel pump", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "fuel tank", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "harness", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "cockpit controls", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "station 395", "entity_type": "LOCATION", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "sehemu ya pua", "entity_type": "LOCATION", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "nose cone", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "P2.7 inter-compressor bleed valve", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "shift ya mchana", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "RH elevator", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "LH elevator", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "nose gear drag brace", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "installation", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "next crew", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "pin", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "pin", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "next crew", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "pin", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Rudder", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "jack", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "800", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "jack", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "page 27", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "page 27", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "#4", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "thrust reverser", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "duct", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "duct", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "pattern card", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Engineering auth", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "reverser", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "reverser", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "oil cart", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "IDG", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "trolley", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "IDG", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "IDG", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "brake accumulator", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "brake accumulator", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "work card", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "accumulator pressure", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "work card", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "nose gear", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "mechanic", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "strut", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "mechanic", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "mechanic", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "windshield", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "kioo", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "windshield", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "windshield", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "seal", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "seal", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "bottle", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "B787", "entity_type": "AIRCRAFT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "#2 engine fuel shutoff cable", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "cable guard", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "cable ya #2 engine fuel shutoff", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "pulley nut", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "next shift", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Next shift", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "kubadilisha switch", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "next shift", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Engineering", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Engineering", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "gear", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "gear", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Capt", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "volti", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "wing-walker", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "wafanyakazi wa kuongoza mabawa", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "wing walkers", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "fire detector loop", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "engine cowling closure", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "engine cowling", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "leak checks", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "coordinator", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "engine cowling", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Assist Bottle", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Assist Bottle", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "slide", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "pump removal", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "pump", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "pump", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "pump", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "wing", "entity_type": "LOCATION", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "gasket", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "fan blade", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "blade za injini", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "turnover report", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "A300", "entity_type": "AIRCRAFT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "turnover", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "A300", "entity_type": "AIRCRAFT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "nosewheel steering cable", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "nyaya za steering za nosewheel", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "rigging", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "cables", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Wing Slat Status", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Wing Slat Status", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "engine", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "zamu ya mchana", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "port", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "flap actuator", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "flap actuator", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "flap actuator", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "#4 brake", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "breki namba nne", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "#4 brake", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Maximum", "entity_type": "AIRCRAFT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "tail section", "entity_type": "LOCATION", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "leading edge slats", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "leading edge slats", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "#1 main gear brake", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "leading edge slats", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "#1 engine igniter", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Next shift", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "generator", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "tire", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "nose tires", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "nose tires", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "carbon seal", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "IDG", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Inspector", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Automatic Communications Addressing & Reporting System antenna doubler", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "doubler installation", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "doubler mbili za antenna ya Automatic Communications Addressing & Reporting System", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "metal sheet", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "skin", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "switch", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "bay", "entity_type": "LOCATION", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "seal", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "#2 engine", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "propeller", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "hub", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "item #2", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "HMU", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "HMU", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "ZZZ", "entity_type": "LOCATION", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "ZZZ", "entity_type": "LOCATION", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "ZZZ", "entity_type": "LOCATION", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "cart", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "breaker", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "#1 EDP", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "bomba", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "EDP", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "overwing exit", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "pre-dock", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Auxiliary Power Unit", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "glareshield", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "brake", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "breki", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "brake", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "next shift", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "valve", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "zamu inayofuata", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "ops check", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "gasket", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "day shift", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "landing gear", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "MLG bay", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "panel", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "panel", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Engineering", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "next shift", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "door", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "seal", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "seal ya mlango wa cargo namba 1", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "mlango", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "seal", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "door", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "seal", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "wheel", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "brake", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Truck Shield", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "sense line", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "drip stick", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "stick", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "panel", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Engineering", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "strut", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Engineering", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "tack welds", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "studs", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "repair procedure", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Engineering", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "tack weld", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "Flight Control Unit", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "crew O2", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "O2", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "mechanic", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "logbook", "entity_type": "TASK", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "cargo door", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "ramp agent", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "cargo door", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "ramp agent", "entity_type": "ROLE", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "fuel control unit", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "xshaft", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "fuel control unit", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "xshaft", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "fuel control unit", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "throttle", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "bracket", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "xshaft", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "BAM", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "VBV", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "next shift", "entity_type": "TIME", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "spoiler mixer", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "spoiler mixer", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}
+{"entity_text": "safety-wiring", "entity_type": "COMPONENT", "reason": "skipped -- overlaps a longer, already-claimed entity span"}

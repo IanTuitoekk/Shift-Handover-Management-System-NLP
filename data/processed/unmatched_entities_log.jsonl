@@ -1,0 +1,171 @@
+{"entity_text": "windscreen replacement", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kubadilishwa", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kukaziwa tena na kufunikwa na tepi mpya", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kukaza window tena na kuweka fresh protective tape", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "balance weight configuration verification", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "uthibitisho wa mpangilio wa uzani", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "IDG drain plug", "entity_type": "COMPONENT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "bore enlargement and spot-facing", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kuandaa work cards", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kulainisha mlango", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kulube door", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "Middle Marker 32-60-05 pg 201 adjustment/test", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "mwongozo 32-60-05 ukurasa 201", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "crew chief", "entity_type": "ROLE", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kupunguza mafuta", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "Dec/Fri/06", "entity_type": "TIME", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "Dec/Fri/06", "entity_type": "TIME", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kuzungusha gia", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "gear doors", "entity_type": "COMPONENT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "vibration survey", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "door slide change", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "#4 MLG wheel assembly", "entity_type": "COMPONENT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "#3 MLG tire", "entity_type": "COMPONENT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "tire pressure check", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "tairi la #3", "entity_type": "COMPONENT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kuangalia hewa ya tairi", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "#3 MLG tires", "entity_type": "COMPONENT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "R main landing gear strut", "entity_type": "COMPONENT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "mafundi wa matengenezo", "entity_type": "ROLE", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "maikrofoni za barakoa za oksijeni", "entity_type": "COMPONENT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "taa za annunciator za First Officer (six pack)", "entity_type": "COMPONENT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "Minimum Equipment List dispatch", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kipimo cha mfumo wa bleed", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "utaratibu wa Minimum Equipment List", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "ops test", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "mabomba ya hydraulic flex", "entity_type": "COMPONENT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "ku-replace accumulator", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "ukaguzi wa mfumo", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "wakaguzi", "entity_type": "ROLE", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "ukaguzi wa injini kwa nguvu ya juu", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "B757", "entity_type": "AIRCRAFT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "Lead Technician", "entity_type": "ROLE", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kurudi uwanjani", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "ndege iliyokuwa imesimama", "entity_type": "LOCATION", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "hangar move", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "technician", "entity_type": "ROLE", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "Identify/Configuration page", "entity_type": "COMPONENT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kukague upya uwekaji wa torque box", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "taa ya Flight Director/PMS", "entity_type": "COMPONENT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "Technician", "entity_type": "ROLE", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "Fundi", "entity_type": "ROLE", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "inspekta", "entity_type": "ROLE", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "Technician", "entity_type": "ROLE", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "green sheet in Air Traffic Area-79 wiring manual", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "ukaguzi wa uendeshaji kulingana na AMM", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "operational checks za AMM", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "mabadiliko ya zamu", "entity_type": "TIME", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "shift change", "entity_type": "TIME", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kusawazishwa kwa ukingo mkali", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kudeburr rough edge", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kiungio (connector)", "entity_type": "COMPONENT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "waya za injini #2", "entity_type": "COMPONENT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kufunga ile harness mbovu", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kuinstall ile bad harness", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kukaguliwa kwa uvujaji", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "fan blade installation", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "ufungaji wa blade", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "utaratibu wa uunganishaji wa waya kulingana na Minimum Equipment List", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kuelekezwa kwenye geti", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "technician", "entity_type": "ROLE", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "fundi", "entity_type": "ROLE", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "fundi", "entity_type": "ROLE", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "bilge area", "entity_type": "LOCATION", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "trim to zero degrees", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "Gear Lever Lock circuit breaker", "entity_type": "COMPONENT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "Air Data Computer VMU/MMO switch", "entity_type": "COMPONENT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "ukaguzi wa mgongano na ndege", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "Clear Air Turbulence 1 downgrade", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "upper attach rod adjustment", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "shift turnover", "entity_type": "TIME", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "mkabidhiano wa zamu", "entity_type": "TIME", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "Lead Technician", "entity_type": "ROLE", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "duct burnout (job card 21-20-02-2)", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "duct burnout job card (Middle Marker 21-20-02-2)", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "Flight Management System 'Configuration Module Fail' troubleshooting", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kutatua Configuration Module Fail", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "dakika kumi na tano kabla ya kuondoka", "entity_type": "TIME", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "Configuration Module Fail follow up", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "dakika 15 kabla ya departure", "entity_type": "TIME", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "nyaya za pampu ya hydraulic C2", "entity_type": "COMPONENT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kukarabatiwa kulingana na General Manual 2-0-15", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "ukaguzi wa mchakato wa kuagiza vipuri", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kubadilisha cable", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "Inspector", "entity_type": "ROLE", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "leak check and operational check", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "A300", "entity_type": "AIRCRAFT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "A300", "entity_type": "AIRCRAFT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "A300", "entity_type": "AIRCRAFT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kufunga motor mpya kwa bolti nne", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "waya wa ground", "entity_type": "COMPONENT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "verify serial number discrepancy", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "uthibitisho wa rekodi za matengenezo", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "turbine engine part RINX 253", "entity_type": "COMPONENT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "verification ya serial number discrepancy", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "Technician", "entity_type": "ROLE", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "Fundi", "entity_type": "ROLE", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "#2 engine hydraulic pump depressurization valve connector", "entity_type": "COMPONENT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "Technician", "entity_type": "ROLE", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "swap the handset", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "check out the new handset", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kubadilisha handset", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "First Officer windshield", "entity_type": "COMPONENT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "shelf life verification", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kuthibitisha muda wa matumizi", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "sidewall panels removal", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "Technician", "entity_type": "ROLE", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "Inspector", "entity_type": "ROLE", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kuondolewa kwa paneli za pembeni", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "sidewall panels forward removal", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "hydrostatic test", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "A300", "entity_type": "AIRCRAFT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "A300", "entity_type": "AIRCRAFT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kutoa breaker husika", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "A300", "entity_type": "AIRCRAFT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kuweka alama ya washer na waya", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "logbook update", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "Minimum Equipment List heat test procedure", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kuthibitisha kuunganishwa kwa P1-652 na 53-292-2", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "Minimum Equipment List deferral", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "Technician", "entity_type": "ROLE", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kuangalia hali ya Minimum Equipment List", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "Fundi", "entity_type": "ROLE", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "Fundi", "entity_type": "ROLE", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "verify #2 reverser status", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kufunga fan cowls na kurudisha jukwaa la kazi", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kuthibitisha hali ya reverser namba 2", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "shift change", "entity_type": "TIME", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kuthibitisha nafasi sahihi za vyombo kulingana na mchoro rasmi", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kukagua tena miunganisho yote kwa mujibu wa AMM", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "engine run to verify", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "cable retensioning", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kuweka tension cables", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "fundi wa zamu iliyopita", "entity_type": "ROLE", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kutenganisha masanduku matatu ya zana", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "masanduku magumu yenye lebo za HAZMAT", "entity_type": "COMPONENT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "filters za pressure", "entity_type": "COMPONENT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "ukaguzi wa uchafu kwenye filter", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "corrosion removal and paint sign-off", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kuondoa kutu na kusaini kazi", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "remove surface corrosion na sign off", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "Slat Track rub blocks", "entity_type": "COMPONENT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "bawa la kushoto sehemu ya 1-3", "entity_type": "LOCATION", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "Slat Track rub blocks", "entity_type": "COMPONENT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "left wing sehemu ya 1-3", "entity_type": "LOCATION", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kasoro iliyoahirishwa", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "RII sign-off", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "fundi kutoka ZZZ1", "entity_type": "ROLE", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "klipu za rotor", "entity_type": "COMPONENT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kurudisha breaker", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "ukaguzi wa uvujaji", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "#1 engine generator", "entity_type": "COMPONENT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "tire ya #2 main gear", "entity_type": "COMPONENT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kupewa presha", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "fastener layout", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "fastener layout", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "Fundi", "entity_type": "ROLE", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "Fundi", "entity_type": "ROLE", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "checking seal contact", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "paneli za sehemu za juu za kuwekea mizigo", "entity_type": "COMPONENT", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kufuatilia uwasilishaji wa gasket mpya", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
+{"entity_text": "kuweka light plate", "entity_type": "TASK", "reason": "not found in text (exact, case-insensitive, and truncation fallbacks all failed)"}
