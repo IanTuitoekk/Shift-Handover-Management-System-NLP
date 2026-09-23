@@ -49,6 +49,7 @@ CATEGORY_LABELS = [
     "Deviation/Discrepancy - Procedural",
     "Other/Rare Ground Event",
 ]
+
 CATEGORY_TO_ID = {c: i for i, c in enumerate(CATEGORY_LABELS)}
 
 ENTITY_TYPES = ["AIRCRAFT", "COMPONENT", "ROLE", "LOCATION", "TASK", "TIME"]
@@ -138,8 +139,11 @@ class MultiTaskMBERT(nn.Module):
         return category_logits, ner_logits
 
 
-def compute_loss(category_logits, ner_logits, category_labels, ner_labels):
-    category_loss_fn = nn.CrossEntropyLoss()
+def compute_loss(category_logits, ner_logits, category_labels, ner_labels, device):
+    # Class weights: [Aircraft Equipment, Deviation/Discrepancy, Other/Rare Ground Event]
+    # Weighted inversely to training frequency (354 : 315 : 15 records)
+    class_weights = torch.tensor([1.0, 1.0, 15.0]).to(device)
+    category_loss_fn = nn.CrossEntropyLoss(weight=class_weights)
     ner_loss_fn = nn.CrossEntropyLoss(ignore_index=IGNORE_INDEX)
 
     category_loss = category_loss_fn(category_logits, category_labels)
@@ -239,7 +243,7 @@ def main():
 
             optimizer.zero_grad()
             category_logits, ner_logits = model(input_ids, attention_mask)
-            loss, cat_loss, ner_loss = compute_loss(category_logits, ner_logits, category_labels, ner_labels)
+            loss, cat_loss, ner_loss = compute_loss(category_logits, ner_logits, category_labels, ner_labels, device)
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
             optimizer.step()
