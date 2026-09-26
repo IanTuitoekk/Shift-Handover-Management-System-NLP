@@ -29,7 +29,7 @@ from pathlib import Path
 
 from sklearn.model_selection import train_test_split
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
 INPUT_PATH = PROJECT_ROOT / "data/processed/synthetic_corpus.jsonl"
 OUTPUT_DIR = PROJECT_ROOT / "data/processed"
 

@@ -49,7 +49,7 @@ MODELS = {
 MAX_RETRIES = 3
 SLEEP_BETWEEN_CALLS = 0.3  # be polite to the API
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
 ASRS_PATH = PROJECT_ROOT / "data/raw/asrs_seed_corpus.csv"
 SWAHILI_PATH = PROJECT_ROOT / "data/raw/masakhaner_swahili.csv"
 LIVA_AI_PATH = PROJECT_ROOT / "data/codeswitching/liva_ai_en_sw_transcripts.csv"

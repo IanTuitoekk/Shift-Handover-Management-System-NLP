@@ -35,7 +35,7 @@ from pathlib import Path
 
 from transformers import AutoTokenizer
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
 ABBREV_PATH = PROJECT_ROOT / "data/reference/abbreviation_normalization.csv"
 INPUT_FILES = ["train.jsonl", "validation.jsonl"]  # test.jsonl deliberately excluded
 DATA_DIR = PROJECT_ROOT / "data/processed"

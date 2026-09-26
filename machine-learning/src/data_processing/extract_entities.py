@@ -48,7 +48,7 @@ MODEL = "claude-sonnet-5"
 MAX_RETRIES = 3
 SLEEP_BETWEEN_CALLS = 0.3
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
 INPUT_PATH = PROJECT_ROOT / "data/processed/synthetic_corpus.jsonl"
 REVIEW_PATH = PROJECT_ROOT / "data/processed/synthetic_corpus_v2_review.jsonl"
 LOG_PATH = PROJECT_ROOT / "data/processed/entity_extraction_log.jsonl"
