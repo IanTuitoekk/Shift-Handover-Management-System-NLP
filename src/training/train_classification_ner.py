@@ -234,9 +234,13 @@ def main():
     val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False, collate_fn=collate_fn)
 
     encoder = AutoModel.from_pretrained(MODEL_NAME)
-    model = MultiTaskMBERT(encoder, len(CATEGORY_LABELS), len(BIO_LABELS)).to(device)
+    model = MultiTaskMBERT(encoder, len(CATEGORY_LABELS), len(BIO_LABELS), dropout=0.3).to(device)
 
-    optimizer = torch.optim.AdamW(model.parameters(), lr=args.learning_rate)
+    optimizer = torch.optim.AdamW([
+        {"params": model.encoder.parameters(), "lr": args.learning_rate},
+        {"params": model.classification_head.parameters(), "lr": args.learning_rate * 10},
+        {"params": model.ner_head.parameters(), "lr": args.learning_rate * 10},
+    ], weight_decay=0.01)
     total_steps = len(train_loader) * args.epochs
     scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=int(0.1 * total_steps), num_training_steps=total_steps)
 
