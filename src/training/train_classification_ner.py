@@ -33,11 +33,12 @@ Usage:
 import argparse
 import json
 import os
+from collections import Counter
 from pathlib import Path
 
 import torch
 import torch.nn as nn
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset, DataLoader, WeightedRandomSampler
 from transformers import AutoModel, AutoTokenizer, get_linear_schedule_with_warmup
 from sklearn.metrics import f1_score as sklearn_f1
 from seqeval.metrics import f1_score as seqeval_f1, classification_report as seqeval_report
@@ -142,7 +143,7 @@ class MultiTaskMBERT(nn.Module):
 def compute_loss(category_logits, ner_logits, category_labels, ner_labels, device):
     # Class weights: [Aircraft Equipment, Deviation/Discrepancy, Other/Rare Ground Event]
     # Weighted inversely to training frequency (354 : 315 : 15 records)
-    class_weights = torch.tensor([1.0, 1.0, 15.0]).to(device)
+    class_weights = torch.tensor([1.0, 1.0, 5.0]).to(device)
     category_loss_fn = nn.CrossEntropyLoss(weight=class_weights)
     ner_loss_fn = nn.CrossEntropyLoss(ignore_index=IGNORE_INDEX)
 
@@ -218,7 +219,18 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
     collate_fn = make_collate_fn(tokenizer.pad_token_id)
 
-    train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, collate_fn=collate_fn)
+    # Oversample the minority class so it appears in every batch, rather than
+    # relying solely on the loss weight to compensate for rare exposure
+    category_ids = [ex["category_label"] for ex in train_dataset.examples]
+    class_counts = Counter(category_ids)
+    sample_weights = [1.0 / class_counts[cid] for cid in category_ids]
+    sampler = WeightedRandomSampler(
+        weights=sample_weights,
+        num_samples=len(sample_weights),
+        replacement=True,
+    )
+
+    train_loader = DataLoader(train_dataset, batch_size=args.batch_size, sampler=sampler, collate_fn=collate_fn)
     val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False, collate_fn=collate_fn)
 
     encoder = AutoModel.from_pretrained(MODEL_NAME)
