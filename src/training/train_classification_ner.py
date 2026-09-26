@@ -145,7 +145,11 @@ def compute_loss(category_logits, ner_logits, category_labels, ner_labels, devic
     # Weighted inversely to training frequency (354 : 315 : 15 records)
     class_weights = torch.tensor([1.0, 1.0, 5.0]).to(device)
     category_loss_fn = nn.CrossEntropyLoss(weight=class_weights)
-    ner_loss_fn = nn.CrossEntropyLoss(ignore_index=IGNORE_INDEX)
+    # Down-weight the dominant "O" tag so the model isn't rewarded for
+    # predicting "no entity" everywhere; up-weight all B-/I- entity tags
+    ner_class_weights = torch.ones(len(BIO_LABELS)).to(device)
+    ner_class_weights[BIO_TO_ID["O"]] = 0.3
+    ner_loss_fn = nn.CrossEntropyLoss(weight=ner_class_weights, ignore_index=IGNORE_INDEX)
 
     category_loss = category_loss_fn(category_logits, category_labels)
     ner_loss = ner_loss_fn(ner_logits.view(-1, ner_logits.size(-1)), ner_labels.view(-1))
