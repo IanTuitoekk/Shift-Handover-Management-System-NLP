@@ -3,8 +3,8 @@ const { getEntitiesByReportId } = require('../models/reportEntityModel');
 const { getTaskByReportId } = require('../models/taskRegisterModel');
 const { getNotificationByReportId } = require('../models/notificationModel');
 
-async function listReports() {
-  return getAllReports();
+async function listReports({ limit, offset } = {}) {
+  return getAllReports({ limit, offset });
 }
 
 async function getReportDetail(reportId) {

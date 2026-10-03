@@ -25,9 +25,12 @@ const createHandover = async (req, res) => {
 };
 
 const getReports = async (req, res) => {
+  const limit = Math.min(parseInt(req.query.limit, 10) || 20, 100); // cap at 100
+  const offset = parseInt(req.query.offset, 10) || 0;
+
   try {
-    const reports = await listReports();
-    res.json(reports);
+    const result = await listReports({ limit, offset });
+    res.json(result);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to fetch reports' });
