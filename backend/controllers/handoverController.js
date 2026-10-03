@@ -1,12 +1,26 @@
+const { processHandover } = require('../services/handoverService');
+
 const createHandover = async (req, res) => {
-  const { narrative_text } = req.body;
+  const { narrative_text, input_type, language_variant, shift } = req.body;
 
   if (!narrative_text) {
     return res.status(400).json({ error: 'narrative_text is required' });
   }
 
-  // Python inference microservice call goes here — later step
-  res.json({ message: 'Received', narrative_text });
+  try {
+    const result = await processHandover({
+      userId: null,
+      inputType: input_type || 'text',
+      content: narrative_text,
+      languageVariant: language_variant || null,
+      shift: shift || null,
+    });
+
+    res.status(201).json(result);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to process handover' });
+  }
 };
 
 module.exports = { createHandover };

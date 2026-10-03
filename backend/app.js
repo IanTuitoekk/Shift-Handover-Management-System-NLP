@@ -5,6 +5,7 @@ require('dotenv').config();
 
 var indexRouter = require('./routes/index');
 var handoverRouter = require('./routes/handovers');
+var authRouter = require('./routes/auth');
 
 var app = express();
 
@@ -15,6 +16,7 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use('/', indexRouter);
 app.use('/api/handovers', handoverRouter);
+app.use('/api/auth', authRouter);
 
 // 404 handler
 app.use(function (req, res) {
