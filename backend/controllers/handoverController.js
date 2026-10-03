@@ -9,7 +9,7 @@ const createHandover = async (req, res) => {
 
   try {
     const result = await processHandover({
-      userId: null,
+      userId: req.user.userId,
       inputType: input_type || 'text',
       content: narrative_text,
       languageVariant: language_variant || null,

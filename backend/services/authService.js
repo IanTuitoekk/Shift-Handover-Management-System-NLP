@@ -1,3 +1,4 @@
+const jwt = require('jsonwebtoken');
 const { createUser, getUserByEmail } = require('../models/userModel');
 const { hashPassword, verifyPassword } = require('../utils/password');
 
@@ -22,8 +23,14 @@ async function loginUser({ email, password }) {
     throw new Error('Invalid email or password');
   }
 
+  const token = jwt.sign(
+    { userId: user.user_id, role: user.role },
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_EXPIRES_IN }
+  );
+
   const { password_hash, ...safeUser } = user;
-  return safeUser;
+  return { user: safeUser, token };
 }
 
 module.exports = { registerUser, loginUser };
