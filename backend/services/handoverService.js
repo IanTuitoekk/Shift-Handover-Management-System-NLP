@@ -1,7 +1,10 @@
+const axios = require('axios');
 const { createSubmission, updateProcessingStatus } = require('../models/handoverSubmissionModel');
 const { createReport } = require('../models/handoverReportModel');
 const { createEntities } = require('../models/reportEntityModel');
 const { getCategoryByName } = require('../models/incidentCategoryModel');
+
+const INFERENCE_URL = process.env.INFERENCE_SERVICE_URL;
 
 async function processHandover({ userId, inputType, content, languageVariant, shift }) {
   const submission = await createSubmission({ userId, inputType, content, languageVariant, shift });
@@ -9,28 +12,27 @@ async function processHandover({ userId, inputType, content, languageVariant, sh
   try {
     await updateProcessingStatus(submission.submission_id, 'processing');
 
-    // TEMPORARY STUB — replace with a real call to the Python inference
-    // microservice once built
-    const fakeInferenceResult = {
-      summary: 'Stub summary — inference service not yet connected.',
-      incidentCategory: 'Aircraft Equipment Problem',
-      categoryConfidence: 0.91,
-      entities: [
-        { type: 'AIRCRAFT', text: 'B737', confidence: 0.95 },
-        { type: 'COMPONENT', text: 'hydraulic pump', confidence: 0.88 },
-      ],
-    };
+    const { data: inferenceResult } = await axios.post(`${INFERENCE_URL}/predict`, {
+      text: content,
+    });
 
-    const category = await getCategoryByName(fakeInferenceResult.incidentCategory);
+    const category = await getCategoryByName(inferenceResult.incident_category);
 
     const report = await createReport({
       submissionId: submission.submission_id,
-      summary: fakeInferenceResult.summary,
+      summary: null, // summarization not yet implemented — see dissertation limitations
       categoryId: category ? category.category_id : null,
-      categoryConfidence: fakeInferenceResult.categoryConfidence,
+      categoryConfidence: inferenceResult.category_confidence,
     });
 
-    const entities = await createEntities(report.report_id, fakeInferenceResult.entities);
+    const entities = await createEntities(
+      report.report_id,
+      inferenceResult.entities.map((e) => ({
+        type: e.type,
+        text: e.text,
+        confidence: e.confidence,
+      }))
+    );
 
     await updateProcessingStatus(submission.submission_id, 'completed');
 

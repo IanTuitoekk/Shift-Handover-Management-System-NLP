@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+*.pyc
+.env
+model/*.pt
+model/best_metrics.json
+model/training_log.json
