@@ -5,6 +5,9 @@ var { body } = require('express-validator');
 var { register, login, me } = require('../controllers/authController');
 var { requireAuth } = require('../middleware/auth');
 var { validate } = require('../middleware/validate');
+var { register, login, me, logout } = require('../controllers/authController');
+
+
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -27,5 +30,6 @@ const loginValidation = [
 router.post('/register', registerValidation, validate, register);
 router.post('/login', loginLimiter, loginValidation, validate, login);
 router.get('/me', requireAuth, me);
+router.post('/logout', requireAuth, logout);
 
 module.exports = router;

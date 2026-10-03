@@ -94,6 +94,11 @@ CREATE TABLE notification_reads (
     PRIMARY KEY (notif_id, user_id)
 );
 
+CREATE TABLE revoked_tokens (
+    token      TEXT PRIMARY KEY,
+    revoked_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 
 CREATE INDEX idx_notification_reads_user ON notification_reads(user_id);
 CREATE INDEX idx_submissions_user ON handover_submissions(user_id);

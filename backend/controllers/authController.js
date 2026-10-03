@@ -1,5 +1,6 @@
 const { registerUser, loginUser } = require('../services/authService');
 const { getUserById } = require('../models/userModel');
+const { revokeToken } = require('../models/revokedTokenModel');
 
 const register = async (req, res) => {
   const { full_name, email, password, role } = req.body;
@@ -42,4 +43,14 @@ const me = async (req, res) => {
   }
 };
 
-module.exports = { register, login, me };
+const logout = async (req, res) => {
+  try {
+    await revokeToken(req.token);
+    res.json({ message: 'Logged out successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to log out' });
+  }
+};
+
+module.exports = { register, login, me, logout };
