@@ -82,6 +82,20 @@ CREATE TABLE notifications (
     sent_at       TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- Remove per-notification read tracking (doesn't work for broadcasts)
+ALTER TABLE notifications DROP COLUMN IF EXISTS is_read;
+ALTER TABLE notifications DROP COLUMN IF EXISTS read_at;
+
+-- Join table: tracks each user's read status independently
+CREATE TABLE notification_reads (
+    notif_id   UUID NOT NULL REFERENCES notifications(notif_id) ON DELETE CASCADE,
+    user_id    UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    read_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+    PRIMARY KEY (notif_id, user_id)
+);
+
+
+CREATE INDEX idx_notification_reads_user ON notification_reads(user_id);
 CREATE INDEX idx_submissions_user ON handover_submissions(user_id);
 CREATE INDEX idx_submissions_status ON handover_submissions(processing_status);
 CREATE INDEX idx_reports_submission ON handover_reports(submission_id);

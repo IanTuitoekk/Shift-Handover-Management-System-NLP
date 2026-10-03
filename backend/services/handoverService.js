@@ -3,6 +3,8 @@ const { createSubmission, updateProcessingStatus } = require('../models/handover
 const { createReport } = require('../models/handoverReportModel');
 const { createEntities } = require('../models/reportEntityModel');
 const { getCategoryByName } = require('../models/incidentCategoryModel');
+const { createTask } = require('../models/taskRegisterModel');
+const { createNotification } = require('../models/notificationModel');
 
 const INFERENCE_URL = process.env.INFERENCE_SERVICE_URL;
 
@@ -20,7 +22,7 @@ async function processHandover({ userId, inputType, content, languageVariant, sh
 
     const report = await createReport({
       submissionId: submission.submission_id,
-      summary: inferenceResult.summary, 
+      summary: inferenceResult.summary,
       categoryId: category ? category.category_id : null,
       categoryConfidence: inferenceResult.category_confidence,
     });
@@ -34,9 +36,24 @@ async function processHandover({ userId, inputType, content, languageVariant, sh
       }))
     );
 
+    const task = await createTask({
+      reportId: report.report_id,
+      description: `New ${inferenceResult.incident_category} incident reported: ${
+        inferenceResult.summary || content.slice(0, 200)
+      }`,
+    });
+
+    const notification = await createNotification({
+      reportId: report.report_id,
+      recipientId: null,
+      message: `New handover report: ${inferenceResult.incident_category} - ${
+        inferenceResult.summary || content.slice(0, 200)
+      }`,
+    });
+
     await updateProcessingStatus(submission.submission_id, 'completed');
 
-    return { submission, report, entities };
+    return { submission, report, entities, task, notification };
   } catch (err) {
     await updateProcessingStatus(submission.submission_id, 'failed');
     throw err;
