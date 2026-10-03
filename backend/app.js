@@ -1,20 +1,30 @@
 var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var cors = require('cors');
+require('dotenv').config();
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+var handoverRouter = require('./routes/handovers');
 
 var app = express();
 
 app.use(logger('dev'));
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/api/handovers', handoverRouter);
+
+// 404 handler
+app.use(function (req, res) {
+  res.status(404).json({ error: 'Not found' });
+});
+
+// Error handler
+app.use(function (err, req, res, next) {
+  console.error(err.stack);
+  res.status(err.status || 500).json({ error: err.message });
+});
 
 module.exports = app;
