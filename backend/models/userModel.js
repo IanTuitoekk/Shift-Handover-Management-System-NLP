@@ -15,4 +15,12 @@ async function getUserByEmail(email) {
   return result.rows[0];
 }
 
-module.exports = { createUser, getUserByEmail };
+async function getUserById(userId) {
+  const result = await pool.query(
+    `SELECT user_id, full_name, email, role, is_active, created_at FROM users WHERE user_id = $1`,
+    [userId]
+  );
+  return result.rows[0];
+}
+
+module.exports = { createUser, getUserByEmail, getUserById };

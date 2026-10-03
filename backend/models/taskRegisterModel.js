@@ -24,6 +24,11 @@ async function getTaskById(taskId) {
   return result.rows[0];
 }
 
+async function getTaskByReportId(reportId) {
+  const result = await pool.query(`SELECT * FROM task_register WHERE report_id = $1`, [reportId]);
+  return result.rows[0];
+}
+
 async function resolveTask(taskId, resolvedBy) {
   const result = await pool.query(
     `UPDATE task_register
@@ -43,4 +48,11 @@ async function assignTask(taskId, assignedTo) {
   return result.rows[0];
 }
 
-module.exports = { createTask, getAllTasks, getTaskById, resolveTask, assignTask };
+module.exports = {
+  createTask,
+  getAllTasks,
+  getTaskById,
+  getTaskByReportId,
+  resolveTask,
+  assignTask,
+};

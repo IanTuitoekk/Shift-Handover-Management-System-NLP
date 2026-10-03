@@ -26,6 +26,11 @@ async function getNotificationsForUser(userId) {
   return result.rows;
 }
 
+async function getNotificationByReportId(reportId) {
+  const result = await pool.query(`SELECT * FROM notifications WHERE report_id = $1`, [reportId]);
+  return result.rows[0];
+}
+
 async function markAsRead(notifId, userId) {
   const result = await pool.query(
     `INSERT INTO notification_reads (notif_id, user_id)
@@ -37,4 +42,9 @@ async function markAsRead(notifId, userId) {
   return result.rows[0];
 }
 
-module.exports = { createNotification, getNotificationsForUser, markAsRead };
+module.exports = {
+  createNotification,
+  getNotificationsForUser,
+  getNotificationByReportId,
+  markAsRead,
+};

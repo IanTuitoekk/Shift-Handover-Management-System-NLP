@@ -1,5 +1,5 @@
 const { registerUser, loginUser } = require('../services/authService');
-
+const { getUserById } = require('../models/userModel');
 
 const register = async (req, res) => {
   const { full_name, email, password, role } = req.body;
@@ -29,4 +29,17 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { register, login };
+const me = async (req, res) => {
+  try {
+    const user = await getUserById(req.user.userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch user' });
+  }
+};
+
+module.exports = { register, login, me };
