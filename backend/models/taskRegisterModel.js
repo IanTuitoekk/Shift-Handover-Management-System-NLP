@@ -32,7 +32,7 @@ async function getTaskByReportId(reportId) {
 async function resolveTask(taskId, resolvedBy) {
   const result = await pool.query(
     `UPDATE task_register
-     SET status = 'resolved', resolved_by = $1, resolved_at = now()
+     SET status = 'resolved', resolved_by = $1, resolved_at = now(), updated_at = now()
      WHERE task_id = $2
      RETURNING *`,
     [resolvedBy, taskId]
@@ -42,7 +42,7 @@ async function resolveTask(taskId, resolvedBy) {
 
 async function assignTask(taskId, assignedTo) {
   const result = await pool.query(
-    `UPDATE task_register SET assigned_to = $1 WHERE task_id = $2 RETURNING *`,
+    `UPDATE task_register SET assigned_to = $1, updated_at = now() WHERE task_id = $2 RETURNING *`,
     [assignedTo, taskId]
   );
   return result.rows[0];

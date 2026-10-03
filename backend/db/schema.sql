@@ -69,6 +69,7 @@ CREATE TABLE task_register (
     resolved_by   UUID REFERENCES users(user_id),
     resolved_at   TIMESTAMPTZ,
     created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+    updated_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
 );
 
 -- NotificationService
