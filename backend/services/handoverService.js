@@ -20,7 +20,7 @@ async function processHandover({ userId, inputType, content, languageVariant, sh
 
     const report = await createReport({
       submissionId: submission.submission_id,
-      summary: null, // summarization not yet implemented — see dissertation limitations
+      summary: inferenceResult.summary, 
       categoryId: category ? category.category_id : null,
       categoryConfidence: inferenceResult.category_confidence,
     });

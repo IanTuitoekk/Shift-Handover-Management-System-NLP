@@ -1,6 +1,8 @@
 import json
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
+import pysbd
 from pathlib import Path
 from transformers import AutoModel, AutoTokenizer
 
@@ -56,6 +58,9 @@ class InferenceModel:
             torch.load(MODEL_DIR / "best_model.pt", map_location=self.device)
         )
         self.model.eval()
+
+        self.segmenter = pysbd.Segmenter(language="en", clean=False)
+
         print("Model ready.")
 
     @torch.no_grad()
@@ -85,11 +90,13 @@ class InferenceModel:
         bio_tags = [self.id_to_bio[i] for i in ner_pred_ids]
 
         entities = self._extract_entities(text, bio_tags, offsets, ner_probs)
+        summary = self.summarize(text)
 
         return {
             "incident_category": category,
             "category_confidence": round(category_confidence, 4),
             "entities": entities,
+            "summary": summary,
         }
 
     def _extract_entities(self, text, bio_tags, offsets, ner_probs):
@@ -133,3 +140,44 @@ class InferenceModel:
             }
             for e in entities
         ]
+
+    def summarize(self, text: str, max_sentences: int = 2):
+        """Centroid-based extractive summarization: splits the narrative
+        into sentences, embeds each using the fine-tuned mBERT encoder's
+        pooled output, and returns the sentence(s) most similar to the
+        whole document's embedding."""
+        sentences = self.segmenter.segment(text)
+
+        # Too short to meaningfully summarize -- return as-is
+        if len(sentences) <= max_sentences:
+            return text.strip()
+
+        sentence_embeddings = self._embed_sentences(sentences)
+        document_embedding = self._embed_sentences([text])[0]
+
+        scores = F.cosine_similarity(
+            sentence_embeddings, document_embedding.unsqueeze(0), dim=1
+        )
+
+        top_indices = torch.topk(scores, k=max_sentences).indices.tolist()
+        top_indices.sort()  # preserve original sentence order
+
+        return " ".join(sentences[i].strip() for i in top_indices)
+
+    @torch.no_grad()
+    def _embed_sentences(self, sentences):
+        """Returns pooled [CLS] embeddings for a list of sentences, using
+        the same fine-tuned encoder as classification/NER."""
+        encoding = self.tokenizer(
+            sentences,
+            padding=True,
+            truncation=True,
+            max_length=512,
+            return_tensors="pt",
+        ).to(self.device)
+
+        outputs = self.model.encoder(
+            input_ids=encoding["input_ids"],
+            attention_mask=encoding["attention_mask"],
+        )
+        return outputs.pooler_output
