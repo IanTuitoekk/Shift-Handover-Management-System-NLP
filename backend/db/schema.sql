@@ -61,15 +61,15 @@ CREATE TABLE report_entities (
 
 -- TaskRegister
 CREATE TABLE task_register (
-    task_id       UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    report_id     UUID NOT NULL REFERENCES handover_reports(report_id) ON DELETE CASCADE,
-    description   TEXT NOT NULL,
-    status        VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'resolved')),
-    assigned_to   UUID REFERENCES users(user_id),
-    resolved_by   UUID REFERENCES users(user_id),
-    resolved_at   TIMESTAMPTZ,
-    created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
-    updated_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+    task_id      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    report_id    UUID NOT NULL REFERENCES handover_reports(report_id) ON DELETE CASCADE,
+    description  TEXT NOT NULL,
+    status       VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'resolved')),
+    assigned_to  UUID REFERENCES users(user_id),
+    resolved_by  UUID REFERENCES users(user_id),
+    resolved_at  TIMESTAMPTZ,
+    created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at   TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- NotificationService
