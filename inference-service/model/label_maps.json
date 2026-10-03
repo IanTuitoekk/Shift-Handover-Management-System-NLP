@@ -1,0 +1,22 @@
+{
+  "category_labels": [
+    "Aircraft Equipment Problem",
+    "Deviation/Discrepancy - Procedural",
+    "Other/Rare Ground Event"
+  ],
+  "bio_labels": [
+    "O",
+    "B-AIRCRAFT",
+    "I-AIRCRAFT",
+    "B-COMPONENT",
+    "I-COMPONENT",
+    "B-ROLE",
+    "I-ROLE",
+    "B-LOCATION",
+    "I-LOCATION",
+    "B-TASK",
+    "I-TASK",
+    "B-TIME",
+    "I-TIME"
+  ]
+}

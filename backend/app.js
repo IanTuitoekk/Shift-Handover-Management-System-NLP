@@ -1,0 +1,45 @@
+var express = require('express');
+var logger = require('morgan');
+var cors = require('cors');
+require('dotenv').config();
+
+var indexRouter = require('./routes/index');
+var handoverRouter = require('./routes/handovers');
+var authRouter = require('./routes/auth');
+var taskRouter = require('./routes/tasks');
+var notificationRouter = require('./routes/notifications');
+var helmet = require('helmet');
+
+
+
+
+var app = express();
+
+app.use(logger('dev'));
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(helmet());
+
+app.use('/', indexRouter);
+app.use('/api/handovers', handoverRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/tasks', taskRouter);
+app.use('/api/notifications', notificationRouter);
+
+// 404 handler
+app.use(function (req, res) {
+  res.status(404).json({ error: 'Not found' });
+});
+
+// Error handler
+app.use(function (err, req, res, next) {
+  console.error(err.stack); // full detail stays server-side only
+
+  const status = err.status || 500;
+  const message = status === 500 ? 'Internal server error' : err.message;
+
+  res.status(status).json({ error: message });
+});
+
+module.exports = app;
