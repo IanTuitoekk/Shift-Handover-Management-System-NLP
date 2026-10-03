@@ -1,0 +1,170 @@
+/*
+ * Central theme for the Shift Handover frontend.
+ * Every colour in the app is defined here as a CSS custom property;
+ * components only ever reference these tokens.
+ *
+ * Colour roles:
+ *   --color-accent*    Calm blue. All everyday interaction: buttons, links, focus, selection.
+ *   --color-critical*  Kenya Airways crimson (#ED1C24). Reserved for critical / urgent
+ *                      states only: classifications needing review, overdue tasks,
+ *                      blocking errors. Never use it for routine UI.
+ *
+ * #ED1C24 on a light surface is ~4.4:1, just under WCAG AA for small text, so
+ * small critical *text* uses --color-critical-text; the brand crimson itself
+ * is used for fills, borders, rules and icons.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* Surfaces */
+  --color-bg: #f2f4f7;
+  --color-surface: #fcfdfe;
+  --color-surface-sunken: #eceff4;
+  --color-surface-hover: #f4f7fb;
+  --color-border: #d9dfe7;
+  --color-border-strong: #b9c2ce;
+
+  /* Header band (the deep block the dashboard sits on, after the reference) */
+  --color-band: #13324f;
+  --color-band-raised: #1b4266;
+  --color-band-text: #f1f5fa;
+  --color-band-text-muted: #b7c6d8;
+
+  /* Text */
+  --color-text: #18212c;
+  --color-text-muted: #536071;
+  --color-text-subtle: #6b7787;
+
+  /* Interactive accent: calm blue */
+  --color-accent: #1d5fa8;
+  --color-accent-hover: #174e8c;
+  --color-accent-soft: #e5eef8;
+  --color-accent-text: #1a5698;
+  --color-on-accent: #fcfdfe;
+  --color-focus: #2f74c4;
+
+  /* Critical: Kenya Airways crimson, critical states only */
+  --color-critical: #ed1c24;
+  --color-critical-text: #b3131a;
+  --color-critical-soft: #fdecec;
+  --color-on-critical: #fffafa;
+
+  /* Supporting status colours */
+  --color-success: #1d7348;
+  --color-success-soft: #e4f3ea;
+
+  /* Effects */
+  --shadow-panel: 0 1px 2px rgb(19 50 79 / 0.06), 0 4px 16px rgb(19 50 79 / 0.06);
+  --shadow-raised: 0 8px 32px rgb(19 50 79 / 0.18);
+  --overlay: rgb(12 22 34 / 0.45);
+
+  /* Type */
+  --font-sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.25rem;
+
+  /* Shape: one documented scale. Controls 8px, panels 14px, badges full pill. */
+  --radius-control: 8px;
+  --radius-panel: 14px;
+  --radius-pill: 999px;
+
+  /* Spacing */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+
+  /* Layers */
+  --z-header: 10;
+  --z-drawer: 20;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+
+    --color-bg: #0e131a;
+    --color-surface: #151c25;
+    --color-surface-sunken: #1b2430;
+    --color-surface-hover: #1c2632;
+    --color-border: #283342;
+    --color-border-strong: #3a4757;
+
+    --color-band: #0b2138;
+    --color-band-raised: #133152;
+    --color-band-text: #eef3f9;
+    --color-band-text-muted: #a3b4c8;
+
+    --color-text: #e5eaf0;
+    --color-text-muted: #a0acba;
+    --color-text-subtle: #8693a3;
+
+    --color-accent: #5d9de6;
+    --color-accent-hover: #7cb0ec;
+    --color-accent-soft: #1a2c44;
+    --color-accent-text: #8ab9f0;
+    --color-on-accent: #0b1422;
+    --color-focus: #7cb0ec;
+
+    --color-critical: #ed1c24;
+    --color-critical-text: #ff7a7f;
+    --color-critical-soft: #3a1619;
+    --color-on-critical: #fffafa;
+
+    --color-success: #5cc590;
+    --color-success-soft: #14301f;
+
+    --shadow-panel: 0 1px 2px rgb(0 0 0 / 0.3);
+    --shadow-raised: 0 8px 32px rgb(0 0 0 / 0.5);
+    --overlay: rgb(3 7 12 / 0.6);
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --color-bg: #0e131a;
+  --color-surface: #151c25;
+  --color-surface-sunken: #1b2430;
+  --color-surface-hover: #1c2632;
+  --color-border: #283342;
+  --color-border-strong: #3a4757;
+
+  --color-band: #0b2138;
+  --color-band-raised: #133152;
+  --color-band-text: #eef3f9;
+  --color-band-text-muted: #a3b4c8;
+
+  --color-text: #e5eaf0;
+  --color-text-muted: #a0acba;
+  --color-text-subtle: #8693a3;
+
+  --color-accent: #5d9de6;
+  --color-accent-hover: #7cb0ec;
+  --color-accent-soft: #1a2c44;
+  --color-accent-text: #8ab9f0;
+  --color-on-accent: #0b1422;
+  --color-focus: #7cb0ec;
+
+  --color-critical: #ed1c24;
+  --color-critical-text: #ff7a7f;
+  --color-critical-soft: #3a1619;
+  --color-on-critical: #fffafa;
+
+  --color-success: #5cc590;
+  --color-success-soft: #14301f;
+
+  --shadow-panel: 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-raised: 0 8px 32px rgb(0 0 0 / 0.5);
+  --overlay: rgb(3 7 12 / 0.6);
+}
