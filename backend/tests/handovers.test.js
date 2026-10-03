@@ -43,6 +43,9 @@ describe('Handover endpoints', () => {
   test('GET /api/handovers lists reports', async () => {
     const res = await request(app).get('/api/handovers').set('Authorization', `Bearer ${token}`);
     expect(res.statusCode).toBe(200);
-    expect(res.body).toBeInstanceOf(Array);
+    expect(res.body.reports).toBeInstanceOf(Array);
+    expect(res.body).toHaveProperty('total');
+    expect(res.body).toHaveProperty('limit');
+    expect(res.body).toHaveProperty('offset');
   });
 });

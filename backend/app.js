@@ -34,8 +34,12 @@ app.use(function (req, res) {
 
 // Error handler
 app.use(function (err, req, res, next) {
-  console.error(err.stack);
-  res.status(err.status || 500).json({ error: err.message });
+  console.error(err.stack); // full detail stays server-side only
+
+  const status = err.status || 500;
+  const message = status === 500 ? 'Internal server error' : err.message;
+
+  res.status(status).json({ error: message });
 });
 
 module.exports = app;
