@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 
 .env
+
+# Superdesign scratch HTML
+.superdesign/tmp/

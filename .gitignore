@@ -16,3 +16,4 @@ machine-learning/models/*
 .claude/skills/
 .agents/
 skills-lock.json
+frontend/.superdesign/

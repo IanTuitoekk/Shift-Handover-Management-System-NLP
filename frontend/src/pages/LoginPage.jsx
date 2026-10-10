@@ -61,7 +61,7 @@ export function LoginPage() {
       <form className="auth-form" onSubmit={handleSubmit} noValidate>
         <div aria-live="polite">
           {formError && (
-            <p className="alert alert-critical" role="alert">
+            <p className="notice notice--critical" role="alert">
               <WarningOctagon size={18} weight="fill" aria-hidden="true" />
               {formError}
             </p>

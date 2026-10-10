@@ -1,9 +1,49 @@
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { BellSlash, X } from '@phosphor-icons/react';
-import { formatDateTime, formatRelative } from '../utils/format';
+import { BellSlash, Bell, X } from '@phosphor-icons/react';
+import { formatAge, formatTime } from '../utils/format';
+import { Strip, StripList, StripSkeleton } from './ui/Strip';
+import { EmptyState, ErrorState } from './ui/Layout';
 
-export function NotificationsDrawer({ open, onClose, notifications, loading, error, onRetry, onMarkRead }) {
+/** Alerts as strips. Shared by the drawer and the ground crew Alerts page. */
+export function AlertStrips({ notifications, onMarkRead, onOpen, now }) {
+  return (
+    <StripList label="Alerts">
+      {notifications.map((n) => (
+        <Strip
+          key={n.notif_id}
+          tone={n.is_read ? 'neutral' : 'accent'}
+          icon={Bell}
+          iconLabel={n.is_read ? 'Read' : 'Unread'}
+          time={n.sent_at}
+          timeSub={<span className="age">{formatAge(n.sent_at, now)}</span>}
+          className={n.is_read ? 'strip--read' : ''}
+          title={
+            <Link
+              to={`/reports/${n.report_id}`}
+              className="strip__link"
+              onClick={() => {
+                if (!n.is_read) onMarkRead([n.notif_id]);
+                onOpen?.();
+              }}
+            >
+              {n.message}
+            </Link>
+          }
+          actions={
+            !n.is_read && (
+              <button type="button" className="btn btn-ghost" onClick={() => onMarkRead([n.notif_id])}>
+                Mark as read
+              </button>
+            )
+          }
+        />
+      ))}
+    </StripList>
+  );
+}
+
+export function NotificationsDrawer({ open, onClose, notifications, loading, error, onRetry, onMarkRead, now }) {
   const dialogRef = useRef(null);
 
   useEffect(() => {
@@ -20,100 +60,45 @@ export function NotificationsDrawer({ open, onClose, notifications, loading, err
     <dialog
       ref={dialogRef}
       className="drawer"
-      aria-labelledby="notifications-title"
+      aria-labelledby="drawer-title"
       onClose={onClose}
       onClick={(event) => {
-        // Clicking the backdrop (the dialog element itself) closes the drawer.
         if (event.target === event.currentTarget) onClose();
       }}
     >
-      <div className="drawer-inner">
-        <div className="drawer-header">
-          <h2 id="notifications-title" className="panel-title">
-            Notifications
+      <div className="drawer__inner">
+        <div className="drawer__head">
+          <h2 id="drawer-title" className="section__title">
+            Alerts {unread.length > 0 && <span className="count count--accent">{unread.length}</span>}
           </h2>
-          <div className="drawer-header-actions">
+          <div className="drawer__actions">
             {unread.length > 0 && (
-              <button
-                type="button"
-                className="btn btn-ghost btn-sm"
-                onClick={() => onMarkRead(unread.map((n) => n.notif_id))}
-              >
+              <button type="button" className="btn btn-ghost" onClick={() => onMarkRead(unread.map((n) => n.notif_id))}>
                 Mark all as read
               </button>
             )}
-            <button type="button" className="icon-btn" onClick={onClose} aria-label="Close notifications">
+            <button type="button" className="icon-btn" onClick={onClose} aria-label="Close alerts">
               <X size={20} aria-hidden="true" />
             </button>
           </div>
         </div>
-
-        <div className="drawer-body">
-          {loading && (
-            <div className="stack-skeleton" role="status" aria-label="Loading notifications…">
-              {[0, 1, 2].map((i) => (
-                <span key={i} className="skeleton" style={{ height: '4.5rem' }} />
-              ))}
-            </div>
-          )}
-
+        <div className="drawer__body">
+          {loading && <StripSkeleton rows={4} />}
           {error && !loading && list.length === 0 && (
-            <div className="empty">
-              <strong>Couldn’t load notifications</strong>
-              <p>Check your connection, then try again.</p>
-              <button type="button" className="btn btn-secondary btn-sm" onClick={onRetry}>
-                Try again
-              </button>
-            </div>
+            <ErrorState message="Couldn’t load alerts." onRetry={onRetry} />
           )}
-
           {!loading && !error && list.length === 0 && (
-            <div className="empty">
-              <BellSlash size={28} aria-hidden="true" />
-              <strong>No notifications</strong>
-              <p>You’ll be alerted here when a new handover is processed.</p>
-            </div>
+            <EmptyState icon={BellSlash} title="No alerts">
+              You’ll be alerted here when a new handover is processed.
+            </EmptyState>
           )}
-
           {list.length > 0 && (
-            <ul className="notif-list">
-              {list.map((n) => (
-                <li key={n.notif_id} className={`notif ${n.is_read ? '' : 'notif-unread'}`}>
-                  <p className="notif-message">
-                    {!n.is_read && <span className="visually-hidden">Unread: </span>}
-                    {n.message}
-                  </p>
-                  <div className="notif-meta">
-                    <time dateTime={n.sent_at} title={formatDateTime(n.sent_at)}>
-                      {formatRelative(n.sent_at)}
-                    </time>
-                    <div className="notif-actions">
-                      <Link
-                        to={`/reports/${n.report_id}`}
-                        className="btn btn-ghost btn-sm"
-                        onClick={() => {
-                          if (!n.is_read) onMarkRead([n.notif_id]);
-                          onClose();
-                        }}
-                      >
-                        Open report
-                      </Link>
-                      {!n.is_read && (
-                        <button
-                          type="button"
-                          className="btn btn-ghost btn-sm"
-                          onClick={() => onMarkRead([n.notif_id])}
-                        >
-                          Mark as read
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
+            <AlertStrips notifications={list} onMarkRead={onMarkRead} onOpen={onClose} now={now} />
           )}
         </div>
+        <p className="drawer__foot field-hint">
+          Latest at <span className="num">{list[0] ? formatTime(list[0].sent_at) : '--:--'}</span>
+        </p>
       </div>
     </dialog>
   );

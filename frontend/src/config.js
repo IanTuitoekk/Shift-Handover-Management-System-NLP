@@ -13,10 +13,18 @@ export const OVERDUE_HOURS = 12;
 export const DAY_SHIFT_START = 6;
 export const NIGHT_SHIFT_START = 18;
 
-// How many recent reports the status tiles look at.
-export const STATS_WINDOW = 100;
+// The backend caps one page of reports at 100; lists that need "everything"
+// page through up to this many.
+export const REPORTS_FETCH_CAP = 500;
 
-export const REPORTS_PAGE_SIZE = 20;
+// Recurring aircraft/components need entity data, which only the report detail
+// endpoint returns, so insights fetch detail for this many recent reports.
+export const INSIGHT_DETAIL_WINDOW = 30;
+
+// How many past shifts the supervisor trend chart shows (including the current one).
+export const TREND_SHIFTS = 6;
+
+export const REFRESH_MS = 60_000;
 
 export const ROLES = [
   { value: 'ground_crew', label: 'Ground crew' },
