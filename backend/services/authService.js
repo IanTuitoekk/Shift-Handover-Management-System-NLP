@@ -14,7 +14,7 @@ async function registerUser({ fullName, email, password, role }) {
 
 async function loginUser({ email, password }) {
   const user = await getUserByEmail(email);
-  if (!user) {
+  if (!user || !user.is_active) {
     throw new Error('Invalid email or password');
   }
 

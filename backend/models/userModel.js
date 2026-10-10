@@ -23,4 +23,15 @@ async function getUserById(userId) {
   return result.rows[0];
 }
 
-module.exports = { createUser, getUserByEmail, getUserById };
+// New: minimal fields only, for the supervisor's task assignment dropdown
+async function listActiveUsers() {
+  const result = await pool.query(
+    `SELECT user_id, full_name, role
+       FROM users
+      WHERE is_active = true
+      ORDER BY full_name ASC`
+  );
+  return result.rows;
+}
+
+module.exports = { createUser, getUserByEmail, getUserById, listActiveUsers };
