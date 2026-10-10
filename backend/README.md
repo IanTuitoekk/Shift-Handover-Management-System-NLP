@@ -28,6 +28,7 @@ npm run dev
 | PATCH | /api/tasks/:taskId/assign | Yes (supervisor only) | Assign a task to a user |
 | GET | /api/notifications | Yes | List notifications for current user, with per-user read status |
 | PATCH | /api/notifications/:notifId/read | Yes | Mark a notification read (per-user, does not affect other recipients) |
+| GET | /api/users | Yes (supervisor) | List active users for task assignment |
 
 
 
