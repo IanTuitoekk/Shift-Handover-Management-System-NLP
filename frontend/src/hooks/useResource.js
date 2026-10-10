@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 /**
  * Fetches data for `key` and refetches when the key changes or `reload()` is called.
  * Previous data stays visible while a refetch is in flight, so lists don't flash.
+ * Pass `null` as the key to skip fetching entirely.
  */
 export function useResource(key, fetcher) {
   const fetcherRef = useRef(fetcher);
@@ -15,6 +16,7 @@ export function useResource(key, fetcher) {
   });
 
   useEffect(() => {
+    if (key === null) return;
     let cancelled = false;
     fetcherRef.current().then(
       (data) => {
@@ -27,7 +29,7 @@ export function useResource(key, fetcher) {
     return () => {
       cancelled = true;
     };
-  }, [requestKey]);
+  }, [key, requestKey]);
 
   const reload = useCallback(() => setNonce((n) => n + 1), []);
   const mutate = useCallback((update) => setState((prev) => ({ ...prev, data: update(prev.data) })), []);
@@ -35,7 +37,7 @@ export function useResource(key, fetcher) {
   return {
     data: state.data,
     error: state.error,
-    loading: state.key !== requestKey,
+    loading: key !== null && state.key !== requestKey,
     reload,
     mutate,
   };

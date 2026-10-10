@@ -3,11 +3,12 @@ import { Link } from 'react-router-dom';
 import { CheckCircle, WarningOctagon } from '@phosphor-icons/react';
 import { OVERDUE_HOURS } from '../config';
 import { formatDateTime, formatRelative, isOverdue } from '../utils/format';
+import { AssignControl } from './AssignControl';
 
 const COLLAPSED_COUNT = 6;
 const CONFIRM_WINDOW_MS = 5000;
 
-function TaskItem({ task, overdue, currentUserId, onResolve }) {
+function TaskItem({ task, overdue, currentUserId, users, onResolve, onAssign }) {
   const [confirming, setConfirming] = useState(false);
   const [resolving, setResolving] = useState(false);
   const [error, setError] = useState('');
@@ -41,14 +42,15 @@ function TaskItem({ task, overdue, currentUserId, onResolve }) {
             Overdue
           </span>
         )}
-        {task.assigned_to && task.assigned_to === currentUserId && <span className="badge badge-accent">Assigned to You</span>}
+        {task.assigned_to && task.assigned_to === currentUserId && <span className="badge badge-accent">Assigned to you</span>}
         <time dateTime={task.created_at} title={formatDateTime(task.created_at)}>
           Raised {formatRelative(task.created_at)}
         </time>
       </div>
+      {users && <AssignControl task={task} users={users} currentUserId={currentUserId} onAssign={onAssign} />}
       <div className="task-actions">
         <Link to={`/reports/${task.report_id}`} className="btn btn-ghost btn-sm">
-          Open Report
+          Open report
         </Link>
         {confirming ? (
           <>
@@ -56,12 +58,12 @@ function TaskItem({ task, overdue, currentUserId, onResolve }) {
               Cancel
             </button>
             <button type="button" className="btn btn-primary btn-sm" onClick={handleConfirm} disabled={resolving}>
-              {resolving ? 'Resolving…' : 'Confirm Resolved'}
+              {resolving ? 'Resolving…' : 'Confirm resolved'}
             </button>
           </>
         ) : (
           <button type="button" className="btn btn-secondary btn-sm" onClick={() => setConfirming(true)}>
-            Mark Resolved
+            Mark resolved
           </button>
         )}
       </div>
@@ -70,7 +72,11 @@ function TaskItem({ task, overdue, currentUserId, onResolve }) {
   );
 }
 
-export function TasksPanel({ tasks, loading, error, now, currentUserId, onResolve, onRetry }) {
+/**
+ * `users` is the GET /api/users resource, passed only for supervisors; when present,
+ * each task gets an assignment control and `onAssign(taskId, userId)` is called on selection.
+ */
+export function TasksPanel({ tasks, loading, error, now, currentUserId, users, onResolve, onAssign, onRetry }) {
   const [expanded, setExpanded] = useState(false);
   const [announcement, setAnnouncement] = useState('');
 
@@ -89,7 +95,7 @@ export function TasksPanel({ tasks, loading, error, now, currentUserId, onResolv
     <section className="panel" aria-labelledby="tasks-title">
       <div className="panel-header">
         <h2 id="tasks-title" className="panel-title">
-          Open Tasks
+          Open tasks
         </h2>
         {tasks && <span className="badge num">{tasks.length}</span>}
       </div>
@@ -111,7 +117,7 @@ export function TasksPanel({ tasks, loading, error, now, currentUserId, onResolv
           <strong>Couldn’t load tasks</strong>
           <p>Check your connection, then try again.</p>
           <button type="button" className="btn btn-secondary btn-sm" onClick={onRetry}>
-            Try Again
+            Try again
           </button>
         </div>
       )}
@@ -133,7 +139,9 @@ export function TasksPanel({ tasks, loading, error, now, currentUserId, onResolv
                 task={task}
                 overdue={overdue}
                 currentUserId={currentUserId}
+                users={users}
                 onResolve={handleResolve}
+                onAssign={onAssign}
               />
             ))}
           </ul>
@@ -149,7 +157,7 @@ export function TasksPanel({ tasks, loading, error, now, currentUserId, onResolv
             aria-expanded={expanded}
             onClick={() => setExpanded((v) => !v)}
           >
-            {expanded ? 'Show Fewer' : `Show All ${sorted.length} Tasks`}
+            {expanded ? 'Show fewer' : `Show all ${sorted.length} tasks`}
           </button>
         </div>
       )}

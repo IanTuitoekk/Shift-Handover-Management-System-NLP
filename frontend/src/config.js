@@ -19,7 +19,7 @@ export const STATS_WINDOW = 100;
 export const REPORTS_PAGE_SIZE = 20;
 
 export const ROLES = [
-  { value: 'ground_crew', label: 'Ground Crew' },
+  { value: 'ground_crew', label: 'Ground crew' },
   { value: 'supervisor', label: 'Supervisor' },
 ];
 

@@ -47,13 +47,13 @@ export function LoginPage() {
 
   return (
     <AuthLayout
-      title="Log In"
+      title="Log in"
       intro="Use your Kenya Airways work email."
       footer={
         <p>
           New to the handover system?{' '}
           <Link to="/register" state={location.state}>
-            Create an Account
+            Create an account
           </Link>
         </p>
       }
@@ -90,7 +90,7 @@ export function LoginPage() {
         />
 
         <button type="submit" className="btn btn-primary btn-block" disabled={submitting}>
-          {submitting ? 'Logging In…' : 'Log In'}
+          {submitting ? 'Logging in…' : 'Log in'}
         </button>
       </form>
     </AuthLayout>

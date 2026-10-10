@@ -26,6 +26,9 @@ export function DashboardPage() {
   );
   const recent = useResource('recent', () => api.listReports({ limit: STATS_WINDOW, offset: 0 }));
   const tasks = useResource('tasks:pending', () => api.listTasks('pending'));
+  const isSupervisor = user?.role === 'supervisor';
+  // GET /api/users is supervisor-only, so other roles never request it.
+  const users = useResource(isSupervisor ? 'users' : null, api.listUsers);
 
   const { reload: reloadReports } = reports;
   const { reload: reloadRecent } = recent;
@@ -66,6 +69,12 @@ export function DashboardPage() {
     mutateTasks((list = []) => list.filter((t) => t.task_id !== taskId));
   }
 
+  async function assignTask(taskId, userId) {
+    const updated = await api.assignTask(taskId, userId);
+    mutateTasks((list = []) => list.map((t) => (t.task_id === taskId ? { ...t, ...updated } : t)));
+    reloadTasks();
+  }
+
   function changePage(next) {
     setSearchParams(next > 1 ? { page: String(next) } : {});
     document.getElementById('reports-title')?.scrollIntoView({ block: 'start' });
@@ -75,7 +84,7 @@ export function DashboardPage() {
     <>
       <div className="page-band">
         <div className="page-container page-band-inner">
-          <h1 className="page-title">Shift Handover Board</h1>
+          <h1 className="page-title">Shift handover board</h1>
           <p className="page-subtitle">
             {shift.name} shift, {formatLongDate(now)}. Welcome back, {firstName(user?.full_name)}.
           </p>
@@ -115,7 +124,9 @@ export function DashboardPage() {
               error={tasks.error}
               now={now}
               currentUserId={user?.user_id}
+              users={isSupervisor ? users : null}
               onResolve={resolveTask}
+              onAssign={assignTask}
               onRetry={reloadTasks}
             />
           </div>

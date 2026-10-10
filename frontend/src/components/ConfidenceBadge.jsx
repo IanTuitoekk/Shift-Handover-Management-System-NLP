@@ -9,7 +9,7 @@ export function ConfidenceBadge({ report }) {
     return (
       <span className="badge badge-critical num" title="Low classification confidence. Check this report.">
         <WarningOctagon size={14} weight="fill" aria-hidden="true" />
-        Needs Review, {label}
+        Needs review, {label}
       </span>
     );
   }

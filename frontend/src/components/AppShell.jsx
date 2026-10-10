@@ -46,7 +46,7 @@ export function AppShell() {
   return (
     <div className="shell">
       <a className="skip-link" href="#main">
-        Skip to Main Content
+        Skip to main content
       </a>
 
       <header className="app-header">
@@ -84,7 +84,7 @@ export function AppShell() {
               disabled={loggingOut}
             >
               <SignOut size={16} aria-hidden="true" />
-              {loggingOut ? 'Logging Out…' : 'Log Out'}
+              {loggingOut ? 'Logging out…' : 'Log out'}
             </button>
           </div>
         </div>

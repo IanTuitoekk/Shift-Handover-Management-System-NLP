@@ -64,7 +64,7 @@ export function HandoverForm({ defaultShift, onSubmitted }) {
     <section className="panel" aria-labelledby="handover-form-title">
       <div className="panel-header">
         <h2 id="handover-form-title" className="panel-title">
-          New Handover
+          New handover
         </h2>
       </div>
 
@@ -137,7 +137,7 @@ export function HandoverForm({ defaultShift, onSubmitted }) {
               <CheckCircle size={18} weight="fill" aria-hidden="true" />
               <p>
                 Handover submitted. A task and alert have been raised.{' '}
-                <Link to={`/reports/${result.reportId}`}>View the Report</Link>
+                <Link to={`/reports/${result.reportId}`}>View the report</Link>
               </p>
             </div>
           )}
@@ -145,7 +145,7 @@ export function HandoverForm({ defaultShift, onSubmitted }) {
 
         <button type="submit" className="btn btn-primary" disabled={submitting}>
           <PaperPlaneTilt size={16} aria-hidden="true" />
-          {submitting ? 'Submitting…' : 'Submit Handover'}
+          {submitting ? 'Submitting…' : 'Submit handover'}
         </button>
       </form>
     </section>

@@ -39,7 +39,7 @@ export function NotificationsDrawer({ open, onClose, notifications, loading, err
                 className="btn btn-ghost btn-sm"
                 onClick={() => onMarkRead(unread.map((n) => n.notif_id))}
               >
-                Mark All as Read
+                Mark all as read
               </button>
             )}
             <button type="button" className="icon-btn" onClick={onClose} aria-label="Close notifications">
@@ -62,7 +62,7 @@ export function NotificationsDrawer({ open, onClose, notifications, loading, err
               <strong>Couldn’t load notifications</strong>
               <p>Check your connection, then try again.</p>
               <button type="button" className="btn btn-secondary btn-sm" onClick={onRetry}>
-                Try Again
+                Try again
               </button>
             </div>
           )}
@@ -96,7 +96,7 @@ export function NotificationsDrawer({ open, onClose, notifications, loading, err
                           onClose();
                         }}
                       >
-                        Open Report
+                        Open report
                       </Link>
                       {!n.is_read && (
                         <button
@@ -104,7 +104,7 @@ export function NotificationsDrawer({ open, onClose, notifications, loading, err
                           className="btn btn-ghost btn-sm"
                           onClick={() => onMarkRead([n.notif_id])}
                         >
-                          Mark as Read
+                          Mark as read
                         </button>
                       )}
                     </div>

@@ -72,7 +72,9 @@ export function firstName(fullName = '') {
 }
 
 export function roleLabel(role) {
-  return role ? role.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) : '';
+  if (!role) return '';
+  const text = role.replace(/_/g, ' ');
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 /** Turns an axios error into a message that tells the user what to do next. */

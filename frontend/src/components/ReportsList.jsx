@@ -15,7 +15,7 @@ export function ReportsList({ data, loading, error, page, pageSize, onPageChange
     <section className="panel reports" aria-labelledby="reports-title">
       <div className="panel-header">
         <h2 id="reports-title" className="panel-title">
-          Handover Reports
+          Handover reports
         </h2>
         <button
           type="button"

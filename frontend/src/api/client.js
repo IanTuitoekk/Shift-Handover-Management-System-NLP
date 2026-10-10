@@ -68,6 +68,8 @@ export const api = {
   assignTask: (taskId, assignedTo) =>
     client.patch(`/tasks/${taskId}/assign`, { assigned_to: assignedTo }).then((r) => r.data),
 
+  listUsers: () => client.get('/users').then((r) => r.data),
+
   listNotifications: () => client.get('/notifications').then((r) => r.data),
   markNotificationRead: (notifId) => client.patch(`/notifications/${notifId}/read`).then((r) => r.data),
 };

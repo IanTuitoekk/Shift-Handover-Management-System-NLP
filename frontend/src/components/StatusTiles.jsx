@@ -27,14 +27,14 @@ export function StatusTiles({ shiftName, stats, loading, onOpenNotifications }) 
     <section className="tiles" aria-label="Shift status">
       <Tile
         icon={ClipboardText}
-        label="Reports This Shift"
+        label="Reports this shift"
         value={windowFull ? `${reportsThisShift}+` : reportsThisShift}
         detail={`Since the ${shiftName.toLowerCase()} shift started`}
         loading={loading.reports}
       />
       <Tile
         icon={overdueTasks > 0 ? WarningOctagon : ListChecks}
-        label="Open Tasks"
+        label="Open tasks"
         value={openTasks}
         critical={overdueTasks > 0}
         detail={overdueTasks > 0 ? `${overdueTasks} overdue` : 'None overdue'}
@@ -42,7 +42,7 @@ export function StatusTiles({ shiftName, stats, loading, onOpenNotifications }) 
       />
       <Tile
         icon={WarningOctagon}
-        label="Needs Review"
+        label="Needs review"
         value={needsReview}
         critical={needsReview > 0}
         detail={`Below ${formatPercent(LOW_CONFIDENCE_THRESHOLD)} confidence, latest ${STATS_WINDOW} reports`}
@@ -50,14 +50,14 @@ export function StatusTiles({ shiftName, stats, loading, onOpenNotifications }) 
       />
       <Tile
         icon={Bell}
-        label="Unread Alerts"
+        label="Unread alerts"
         value={unread}
         detail={unread > 0 ? 'New handovers since you last checked' : 'You’re up to date'}
         loading={loading.notifications}
         action={
           unread > 0 && (
             <button type="button" className="tile-action" onClick={onOpenNotifications}>
-              View Alerts
+              View alerts
             </button>
           )
         }

@@ -1,7 +1,9 @@
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, WarningOctagon } from '@phosphor-icons/react';
 import { api } from '../api/client';
+import { useAuth } from '../auth/useAuth';
 import { useResource } from '../hooks/useResource';
+import { AssignControl } from '../components/AssignControl';
 import { ConfidenceBadge } from '../components/ConfidenceBadge';
 import { LOW_CONFIDENCE_THRESHOLD } from '../config';
 import { formatDateTime, formatPercent, isOverdue, needsReview } from '../utils/format';
@@ -13,7 +15,7 @@ const ENTITY_LABELS = {
   COMPONENT: 'Components',
   LOCATION: 'Locations',
   ROLE: 'Roles',
-  TASK: 'Tasks Mentioned',
+  TASK: 'Tasks mentioned',
   TIME: 'Times',
 };
 
@@ -29,7 +31,20 @@ function groupEntities(entities = []) {
 
 export function ReportDetailPage() {
   const { reportId } = useParams();
-  const { data: report, error, loading, reload } = useResource(`report:${reportId}`, () => api.getReport(reportId));
+  const { user } = useAuth();
+  const { data: report, error, loading, reload, mutate } = useResource(`report:${reportId}`, () =>
+    api.getReport(reportId),
+  );
+  const isSupervisor = user?.role === 'supervisor';
+  // GET /api/users is supervisor-only, so other roles never request it.
+  const users = useResource(isSupervisor ? 'users' : null, api.listUsers);
+
+  async function assignTask(taskId, userId) {
+    const updated = await api.assignTask(taskId, userId);
+    mutate((current) => (current?.task ? { ...current, task: { ...current.task, ...updated } } : current));
+    reload();
+  }
+
   const notFound = error?.response?.status === 404 || error?.response?.status === 400;
 
   return (
@@ -38,9 +53,9 @@ export function ReportDetailPage() {
         <div className="page-container page-band-inner report-band">
           <Link to="/" className="back-link">
             <ArrowLeft size={16} aria-hidden="true" />
-            Back to Handover Board
+            Back to handover board
           </Link>
-          <h1 className="page-title">{report?.category_name ?? (loading ? 'Loading Report…' : 'Handover Report')}</h1>
+          <h1 className="page-title">{report?.category_name ?? (loading ? 'Loading report…' : 'Handover report')}</h1>
           {report && <p className="page-subtitle">Processed {formatDateTime(report.generated_at)}</p>}
         </div>
       </div>
@@ -64,23 +79,30 @@ export function ReportDetailPage() {
             </p>
             {notFound ? (
               <Link to="/" className="btn btn-secondary btn-sm">
-                Back to Handover Board
+                Back to handover board
               </Link>
             ) : (
               <button type="button" className="btn btn-secondary btn-sm" onClick={reload}>
-                Try Again
+                Try again
               </button>
             )}
           </div>
         )}
 
-        {report && <ReportBody report={report} />}
+        {report && (
+          <ReportBody
+            report={report}
+            currentUserId={user?.user_id}
+            users={isSupervisor ? users : null}
+            onAssign={assignTask}
+          />
+        )}
       </div>
     </>
   );
 }
 
-function ReportBody({ report }) {
+function ReportBody({ report, currentUserId, users, onAssign }) {
   const flagged = needsReview(report);
   const groups = groupEntities(report.entities);
   const task = report.task;
@@ -111,7 +133,7 @@ function ReportBody({ report }) {
         <section className="panel" aria-labelledby="entities-title">
           <div className="panel-header">
             <h2 id="entities-title" className="panel-title">
-              Extracted Details
+              Extracted details
             </h2>
           </div>
           {groups.length === 0 ? (
@@ -162,6 +184,9 @@ function ReportBody({ report }) {
                   Raised {formatDateTime(task.created_at)}
                   {task.resolved_at && `. Resolved ${formatDateTime(task.resolved_at)}`}
                 </p>
+                {users && task.status !== 'resolved' && (
+                  <AssignControl task={task} users={users} currentUserId={currentUserId} onAssign={onAssign} />
+                )}
               </>
             ) : (
               <p className="field-hint">No task was raised for this report.</p>
@@ -173,7 +198,7 @@ function ReportBody({ report }) {
           <section className="panel" aria-labelledby="alert-title">
             <div className="panel-header">
               <h2 id="alert-title" className="panel-title">
-                Alert Sent
+                Alert sent
               </h2>
             </div>
             <div className="panel-body report-side">

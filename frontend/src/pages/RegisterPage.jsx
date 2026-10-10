@@ -58,13 +58,13 @@ export function RegisterPage() {
 
   return (
     <AuthLayout
-      title="Create an Account"
+      title="Create an account"
       intro="You’ll be logged in straight away."
       footer={
         <p>
           Already have an account?{' '}
           <Link to="/login" state={location.state}>
-            Log In
+            Log in
           </Link>
         </p>
       }
@@ -126,7 +126,7 @@ export function RegisterPage() {
         </fieldset>
 
         <button type="submit" className="btn btn-primary btn-block" disabled={submitting}>
-          {submitting ? 'Creating Account…' : 'Create Account'}
+          {submitting ? 'Creating account…' : 'Create account'}
         </button>
       </form>
     </AuthLayout>
