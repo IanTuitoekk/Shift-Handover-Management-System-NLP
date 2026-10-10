@@ -13,3 +13,6 @@ machine-learning/models/*
 *.bin
 *.safetensors
 .DS_Store
+.claude/skills/
+.agents/
+skills-lock.json
