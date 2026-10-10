@@ -73,6 +73,7 @@ class InferenceModel:
             return_tensors="pt",
         )
         offsets = encoding.pop("offset_mapping")[0].tolist()
+        word_ids = encoding.word_ids(0)
         input_ids = encoding["input_ids"].to(self.device)
         attention_mask = encoding["attention_mask"].to(self.device)
 
@@ -89,7 +90,7 @@ class InferenceModel:
         ner_pred_ids = ner_probs.argmax(dim=-1).tolist()
         bio_tags = [self.id_to_bio[i] for i in ner_pred_ids]
 
-        entities = self._extract_entities(text, bio_tags, offsets, ner_probs)
+        entities = self._extract_entities(text, bio_tags, offsets, ner_probs, word_ids)
         summary = self.summarize(text)
 
         return {
@@ -99,18 +100,30 @@ class InferenceModel:
             "summary": summary,
         }
 
-    def _extract_entities(self, text, bio_tags, offsets, ner_probs):
+    def _extract_entities(self, text, bio_tags, offsets, ner_probs, word_ids):
         """Converts per-token BIO tags back into entity spans with the
-        original text and a confidence score (mean token probability)."""
+        original text and a confidence score (mean token probability).
+
+        Decoding is word-aware: subword continuations (e.g. "##k" in
+        "lea", "##k") follow the tag of their word's first token, so an
+        entity can never end or start in the middle of a word."""
         entities = []
         current = None
+        bio_to_id = {t: i for i, t in self.id_to_bio.items()}
+        word_head_tag = None
 
         for i, tag in enumerate(bio_tags):
             start, end = offsets[i]
             if start == end:  # special tokens ([CLS], [SEP], padding)
                 continue
 
-            token_confidence = ner_probs[i, ner_probs[i].argmax()].item()
+            if i > 0 and word_ids[i] is not None and word_ids[i] == word_ids[i - 1]:
+                # Continuation subword: inherit the word head's decision
+                tag = "O" if word_head_tag == "O" else "I-" + word_head_tag[2:]
+            else:
+                word_head_tag = tag
+
+            token_confidence = ner_probs[i, bio_to_id[tag]].item()
 
             if tag.startswith("B-"):
                 if current:
