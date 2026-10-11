@@ -1,4 +1,4 @@
-import { DAY_SHIFT_START, NIGHT_SHIFT_START, LOW_CONFIDENCE_THRESHOLD, OVERDUE_HOURS } from '../config';
+import { DAY_SHIFT_START, NIGHT_SHIFT_START, LOW_CONFIDENCE_THRESHOLD } from '../config';
 
 const timeFormat = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
 const dayFormat = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' });
@@ -112,8 +112,31 @@ export function needsReview(report) {
   return !report.category_name || confidence === null || confidence < LOW_CONFIDENCE_THRESHOLD;
 }
 
+/** A pending task is overdue once its due time has passed. No due time means never overdue. */
 export function isOverdue(task, now = Date.now()) {
-  return task.status === 'pending' && now - new Date(task.created_at).getTime() > OVERDUE_HOURS * 3600000;
+  return task.status === 'pending' && Boolean(task.due_at) && new Date(now) > new Date(task.due_at);
+}
+
+/** Due-time state for display: { state: 'overdue' | 'soon' | 'due' | 'none', text }. */
+export function dueInfo(task, now = Date.now()) {
+  if (task.status !== 'pending' || !task.due_at) return { state: 'none', text: 'No due time' };
+  const ms = new Date(task.due_at) - new Date(now);
+  if (ms < 0) return { state: 'overdue', text: `Overdue by ${formatAge(task.due_at, now)}` };
+  const due = new Date(task.due_at);
+  const when = isToday(due, new Date(now)) ? formatTime(due) : formatDateTime(due);
+  if (ms <= 2 * 3600000) return { state: 'soon', text: `Due ${when}` };
+  return { state: 'due', text: `Due ${when}` };
+}
+
+/** Sort: overdue first, then soonest due, then tasks with no due time (oldest first). */
+export function byDue(a, b, now = Date.now()) {
+  const ao = isOverdue(a, now);
+  const bo = isOverdue(b, now);
+  if (ao !== bo) return ao ? -1 : 1;
+  const ad = a.due_at ? new Date(a.due_at).getTime() : Infinity;
+  const bd = b.due_at ? new Date(b.due_at).getTime() : Infinity;
+  if (ad !== bd) return ad - bd;
+  return new Date(a.created_at) - new Date(b.created_at);
 }
 
 const TASK_PREFIX = /^New (.+?) incident reported:\s*/i;

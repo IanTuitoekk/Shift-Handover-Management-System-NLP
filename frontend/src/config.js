@@ -5,8 +5,6 @@ export const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000/ap
 // Classifications below this confidence (0-1) are flagged for human review.
 export const LOW_CONFIDENCE_THRESHOLD = 0.6;
 
-// A pending task older than this many hours is shown as overdue.
-export const OVERDUE_HOURS = 12;
 
 // Shift boundaries in local time (24h clock). Day shift runs from
 // DAY_SHIFT_START until NIGHT_SHIFT_START; night shift covers the rest.

@@ -5,21 +5,20 @@ import { useShell } from '../../components/shell/ShellContext';
 import { PageHeader, EmptyState, ErrorState } from '../../components/ui/Layout';
 import { StripList, StripSkeleton } from '../../components/ui/Strip';
 import { TaskStrip } from '../../components/tasks/TaskStrip';
-import { OVERDUE_HOURS } from '../../config';
-import { isOverdue } from '../../utils/format';
+import { byDue, isOverdue } from '../../utils/format';
 import { leastLoaded } from '../../utils/insights';
 
 const BAYS = [
   { key: 'unassigned', title: 'Unassigned', icon: CircleDashed, empty: 'Every open task has an owner.' },
   { key: 'assigned', title: 'Assigned', icon: Clock, empty: 'Nothing assigned and in progress.' },
-  { key: 'overdue', title: 'Overdue', icon: WarningOctagon, empty: `Nothing open longer than ${OVERDUE_HOURS} hours.` },
+  { key: 'overdue', title: 'Overdue', icon: WarningOctagon, empty: 'Nothing past its due time.' },
 ];
 
 export function TriagePage() {
   const { me, now, tasks, users, usersById, assignTask } = useShell();
   const [params, setParams] = useSearchParams();
   const view = params.get('view') === 'resolved' ? 'resolved' : 'open';
-  const sort = params.get('sort') === 'newest' ? 'newest' : 'oldest';
+  const sort = ['newest', 'oldest'].includes(params.get('sort')) ? params.get('sort') : 'due';
   const assignee = params.get('assignee') ?? 'all';
   const focusLane = params.get('lane');
   const t = now.getTime();
@@ -39,7 +38,8 @@ export function TriagePage() {
   const all = tasks.data ?? [];
   const matchesAssignee = (task) =>
     assignee === 'all' || (assignee === 'unassigned' ? !task.assigned_to : task.assigned_to === assignee);
-  const byAge = (a, b) => (sort === 'oldest' ? 1 : -1) * (new Date(a.created_at) - new Date(b.created_at));
+  const byAge = (a, b) =>
+    sort === 'due' ? byDue(a, b, t) : (sort === 'oldest' ? 1 : -1) * (new Date(a.created_at) - new Date(b.created_at));
   const pending = all.filter((x) => x.status === 'pending' && matchesAssignee(x));
   const bays = {
     unassigned: pending.filter((x) => !x.assigned_to && !isOverdue(x, t)).sort(byAge),
@@ -82,7 +82,8 @@ export function TriagePage() {
         <div className="toolbar__filters">
           <label className="inline-field inline-field--row">
             <span>Sort</span>
-            <select className="select" value={sort} onChange={(e) => setParam('sort', e.target.value, 'oldest')} autoComplete="off">
+            <select className="select" value={sort} onChange={(e) => setParam('sort', e.target.value, 'due')} autoComplete="off">
+              <option value="due">Due soonest</option>
               <option value="oldest">Oldest first</option>
               <option value="newest">Newest first</option>
             </select>

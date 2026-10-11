@@ -1,6 +1,6 @@
-import { CheckCircle, CircleDashed, Clock, PencilSimpleLine, UserCircle, WarningOctagon } from '@phosphor-icons/react';
+import { CalendarBlank, CheckCircle, CircleDashed, Clock, PencilSimpleLine, UserCircle, WarningOctagon } from '@phosphor-icons/react';
 import { categoryMeta } from '../../utils/categories';
-import { isOverdue, roleLabel } from '../../utils/format';
+import { dueInfo, isOverdue, roleLabel } from '../../utils/format';
 
 /** Category: neutral badge with a fixed icon per category (identity is never colour-only). */
 export function CategoryBadge({ name, short = false }) {
@@ -76,6 +76,33 @@ export function SubmitterBadge({ submittedBy, currentUserId, withRole = false })
       <PencilSimpleLine size={14} aria-hidden="true" />
       {mine ? 'By you' : `By ${submittedBy.full_name}`}
       {withRole && !mine ? `, ${roleLabel(submittedBy.role).toLowerCase()}` : ''}
+    </span>
+  );
+}
+
+/** Due time: red only when overdue; "due soon" (within 2h) is emphasised with weight, not red. */
+export function DueBadge({ task, now, showNone = false }) {
+  const info = dueInfo(task, now);
+  if (info.state === 'none') {
+    return showNone ? (
+      <span className="badge">
+        <CalendarBlank size={14} aria-hidden="true" />
+        No due time
+      </span>
+    ) : null;
+  }
+  if (info.state === 'overdue') {
+    return (
+      <span className="badge badge--critical">
+        <WarningOctagon size={14} weight="fill" aria-hidden="true" />
+        {info.text}
+      </span>
+    );
+  }
+  return (
+    <span className={`badge ${info.state === 'soon' ? 'badge--soon' : ''}`}>
+      <CalendarBlank size={14} aria-hidden="true" />
+      {info.text}
     </span>
   );
 }

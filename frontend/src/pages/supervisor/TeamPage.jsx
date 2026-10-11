@@ -5,9 +5,11 @@ import { PageHeader, Section, EmptyState, ErrorState } from '../../components/ui
 import { StripList } from '../../components/ui/Strip';
 import { TaskStrip } from '../../components/tasks/TaskStrip';
 import { BarList } from '../../components/charts/BarList';
-import { inShift, isOverdue, roleLabel, shiftAt } from '../../utils/format';
+import { byDue, inShift, roleLabel, shiftAt } from '../../utils/format';
 import { leastLoaded, workload } from '../../utils/insights';
 import { useAllReports } from '../../hooks/useData';
+import { api } from '../../api/client';
+import { RoleControl } from '../../components/tasks/RoleControl';
 
 export function TeamPage() {
   const { me, now, tasks, users, usersById, assignTask } = useShell();
@@ -18,6 +20,10 @@ export function TeamPage() {
   const suggestion = users?.data ? leastLoaded(users.data, all) : null;
   const unassigned = all.filter((x) => x.status === 'pending' && !x.assigned_to);
   const reports = useAllReports();
+  const changeRole = async (userId, role) => {
+    await api.setUserRole(userId, role);
+    users.reload();
+  };
   const handoversThisShift = (userId) =>
     (reports.data?.reports ?? []).filter((r) => r.submitted_by?.user_id === userId && inShift(r.generated_at, shift)).length;
   const resolvedThisShift = (userId) =>
@@ -51,7 +57,7 @@ export function TeamPage() {
           {rows.map(({ user, open, overdue }) => {
             const theirs = all
               .filter((x) => x.status === 'pending' && x.assigned_to === user.user_id)
-              .sort((a, b) => Number(isOverdue(b, t)) - Number(isOverdue(a, t)) || new Date(a.created_at) - new Date(b.created_at));
+              .sort((a, b) => byDue(a, b, t));
             return (
               <Section
                 key={user.user_id}
@@ -70,6 +76,7 @@ export function TeamPage() {
                   </span>
                 }
               >
+                {user.user_id !== me.user_id && <RoleControl user={user} onChange={changeRole} />}
                 {theirs.length === 0 ? (
                   <p className="bay__empty">No open tasks.</p>
                 ) : (

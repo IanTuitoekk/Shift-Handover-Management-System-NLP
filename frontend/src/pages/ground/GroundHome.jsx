@@ -11,7 +11,7 @@ import { StripList, StripSkeleton } from '../../components/ui/Strip';
 import { TaskStrip } from '../../components/tasks/TaskStrip';
 import { AlertStrips } from '../../components/NotificationsDrawer';
 import { useMyReports } from '../../hooks/useData';
-import { firstName, formatAge, formatTime, inShift, isOverdue, previousShift, shiftAt } from '../../utils/format';
+import { firstName, formatAge, formatTime, inShift, byDue, isOverdue, previousShift, shiftAt } from '../../utils/format';
 import { myShiftEvents } from './events';
 
 const BRIEFING_LIMIT = 4;
@@ -24,7 +24,7 @@ export function GroundHome() {
   const t = now.getTime();
 
   const pending = useMemo(() => (tasks.data ?? []).filter((x) => x.status === 'pending'), [tasks.data]);
-  const byUrgency = (a, b) => Number(isOverdue(b, t)) - Number(isOverdue(a, t)) || new Date(a.created_at) - new Date(b.created_at);
+  const byUrgency = (a, b) => byDue(a, b, t);
   const mine = pending.filter((x) => x.assigned_to === me.user_id).sort(byUrgency);
   const overdueUnassigned = pending.filter((x) => !x.assigned_to && isOverdue(x, t)).sort(byUrgency);
 

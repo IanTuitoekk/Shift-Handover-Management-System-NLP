@@ -169,6 +169,10 @@ Everything is built on existing endpoints; anything the API does not provide is 
 client-side and labelled where that matters. See "Backend gaps" in the final report.
 
 - Shift windows: client clock with day 06:00 to 18:00 (`config.js`).
+- Overdue: a pending task whose `due_at` has passed (set per task by supervisors).
+- Roles: sign-up always creates ground crew; supervisors change roles on the Team page
+  (`PATCH /api/users/:id/role`). The backend reads the current role from the database on every
+  request, so changes apply immediately.
 - "Mine": `task.assigned_to === me` and `task.resolved_by === me`.
 - "Handovers I submitted": `GET /api/handovers?submitted_by=me`.
 - Previous-shift handovers to read: notifications whose `sent_at` falls in the previous shift
@@ -243,9 +247,9 @@ working around missing data, with the endpoint or field that would remove the wo
    id. The UI shows "By …" on report strips and the report page, supervisors can filter Reports by
    submitter, Team shows handovers per person this shift, and the ground crew timeline comes from
    the server instead of this browser's storage.
-2. **The original narrative.** The detail endpoint returns only `submission_id`, so nobody can
-   check a low-confidence summary against what was written. Add to `GET /api/handovers/:id`:
-   `"submission": { "content": "...", "language_variant": "mixed", "shift": "Night", "input_type": "text", "submitted_at": "iso" }`.
+2. ~~**The original narrative.**~~ **Done (12 Oct).** `GET /api/handovers/:id` returns
+   `submission` (original text, shift, detected language, submitted time); the report page shows it
+   as "Original handover", and the low-confidence warning points to it.
 3. **Server-side report filters.** Filters run client-side over at most 500 reports. Support
    `GET /api/handovers?category_id=&min_confidence=&max_confidence=&from=&to=&limit=&offset=`
    returning the same `{ reports, total, limit, offset }` shape, with `total` reflecting the filter.
@@ -258,8 +262,10 @@ working around missing data, with the endpoint or field that would remove the wo
 6. **Task context.** Category and summary are parsed out of `task.description`
    ("New <category> incident reported: <summary>"). Include the report fields on each task in
    `GET /api/tasks`: `"report": { "category_name": "...", "summary": "...", "category_confidence": "0.93" }`.
-7. **Due times.** "Overdue" is a flat 12-hour client rule (`config.js`), so week-old test tasks
-   are permanently red. Add `due_at` (and optionally `priority`) to `task_register` and return it.
+7. ~~**Due times.**~~ **Done (12 Oct).** `task_register.due_at` (migration in
+   `backend/db/migrations/`), new tasks due `DEFAULT_TASK_DUE_HOURS` (12) after creation,
+   `PATCH /api/tasks/:id/due` for supervisors, and `task:updated` pushed live. "Overdue" now means past
+   the due time; tasks with no due time are never red. Lists sort by due time.
 8. **Workload.** Computed from all tasks plus `GET /api/users`. Add `GET /api/users/workload`
    returning `[{ "user_id", "full_name", "role", "open": 2, "overdue": 1, "resolved_since": 3 }]`.
 9. **Bulk mark-as-read.** "Mark all as read" sends one request per alert. Add

@@ -6,12 +6,7 @@ import { AuthLayout } from './AuthLayout';
 import { TextField } from '../components/TextField';
 import { PasswordField } from '../components/PasswordField';
 import { errorMessage } from '../utils/format';
-import { ROLES } from '../config';
 
-const ROLE_HINTS = {
-  ground_crew: 'Submit handovers, resolve tasks',
-  supervisor: 'Also assigns tasks to crew',
-};
 
 export function RegisterPage() {
   const { register } = useAuth();
@@ -30,7 +25,6 @@ export function RegisterPage() {
       fullName: String(data.get('full_name') ?? '').trim(),
       email: String(data.get('email') ?? '').trim(),
       password: String(data.get('password') ?? ''),
-      role: String(data.get('role') ?? ''),
     };
 
     const errors = {};
@@ -112,18 +106,9 @@ export function RegisterPage() {
           error={fieldErrors.password}
         />
 
-        <fieldset className="role-options">
-          <legend className="field-label">Role</legend>
-          {ROLES.map((role, index) => (
-            <label key={role.value} className="role-option">
-              <input type="radio" name="role" value={role.value} defaultChecked={index === 0} />
-              <span>
-                {role.label}
-                <small>{ROLE_HINTS[role.value]}</small>
-              </span>
-            </label>
-          ))}
-        </fieldset>
+        <p className="field-hint">
+          New accounts start as ground crew. A supervisor can give you supervisor access from the Team page.
+        </p>
 
         <button type="submit" className="btn btn-primary btn-block" disabled={submitting}>
           {submitting ? 'Creating account…' : 'Create account'}

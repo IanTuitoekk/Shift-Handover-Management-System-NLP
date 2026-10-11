@@ -71,6 +71,8 @@ export const api = {
     client.patch(`/tasks/${taskId}/assign`, { assigned_to: assignedTo }).then((r) => r.data),
 
   listUsers: () => client.get('/users').then((r) => r.data),
+  setTaskDue: (taskId, dueAt) => client.patch(`/tasks/${taskId}/due`, { due_at: dueAt }).then((r) => r.data),
+  setUserRole: (userId, role) => client.patch(`/users/${userId}/role`, { role }).then((r) => r.data),
 
   listNotifications: () => client.get('/notifications').then((r) => r.data),
   markNotificationRead: (notifId) => client.patch(`/notifications/${notifId}/read`).then((r) => r.data),

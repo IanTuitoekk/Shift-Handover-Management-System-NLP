@@ -4,7 +4,8 @@ import { api } from '../api/client';
 import { useShell } from '../components/shell/ShellContext';
 import { useResource } from '../hooks/useResource';
 import { Section, ErrorState } from '../components/ui/Layout';
-import { AssigneeBadge, CategoryBadge, SubmitterBadge, TaskStatusBadge } from '../components/ui/Badges';
+import { AssigneeBadge, CategoryBadge, DueBadge, SubmitterBadge, TaskStatusBadge } from '../components/ui/Badges';
+import { DueControl } from '../components/tasks/DueControl';
 import { ConfidenceMeter } from '../components/ui/ConfidenceMeter';
 import { EntityGroups } from '../components/report/EntityGroups';
 import { AssignControl } from '../components/tasks/AssignControl';
@@ -31,6 +32,12 @@ export function ReportDetailPage() {
 
   async function resolve() {
     const updated = await api.resolveTask(task.task_id);
+    mutate((r) => (r ? { ...r, task: { ...r.task, ...updated } } : r));
+    applyTaskUpdate(task, updated);
+  }
+
+  async function setDue(taskId, dueAt) {
+    const updated = await api.setTaskDue(taskId, dueAt);
     mutate((r) => (r ? { ...r, task: { ...r.task, ...updated } } : r));
     applyTaskUpdate(task, updated);
   }
@@ -101,11 +108,12 @@ export function ReportDetailPage() {
                 <WarningOctagon size={18} weight="fill" aria-hidden="true" />
                 <span>
                   The classifier is {confidence === null ? 'unsure' : `only ${formatPercent(confidence)} confident`} about
-                  this category (below {formatPercent(LOW_CONFIDENCE_THRESHOLD)}). Please double-check the summary and
-                  details against what actually happened{supervisor ? ' before assigning work from it' : ''}.
+                  this category (below {formatPercent(LOW_CONFIDENCE_THRESHOLD)}). Compare the summary and details with the
+                  original handover below{supervisor ? ' before assigning work from it' : ''}.
                 </span>
               </p>
             )}
+            {report.submission && <OriginalHandover submission={report.submission} />}
             <Section id="details" title="Extracted details" variant="raised">
               <EntityGroups entities={report.entities} ruled />
             </Section>
@@ -118,6 +126,7 @@ export function ReportDetailPage() {
                   <p>{taskSummary(task)}</p>
                   <div className="detail-block__meta">
                     <AssigneeBadge task={task} currentUserId={me.user_id} usersById={usersById} />
+                    {task.status === 'pending' && <DueBadge task={task} now={now} showNone />}
                     <span className="field-hint">
                       Raised <span className="num">{formatDateTime(task.created_at)}</span>
                     </span>
@@ -131,6 +140,7 @@ export function ReportDetailPage() {
                   {task.status === 'pending' && (
                     <div className="detail-block__actions">
                       {supervisor && <AssignControl task={task} users={users} currentUserId={me.user_id} suggestion={suggestion} onAssign={assign} />}
+                      {supervisor && <DueControl task={task} now={now} onSave={setDue} />}
                       <ResolveButton onResolve={resolve} />
                     </div>
                   )}
@@ -175,5 +185,24 @@ export function ReportDetailPage() {
         </div>
       )}
     </>
+  );
+}
+
+const LANGUAGE_LABELS = { en: 'English', sw: 'Swahili', mixed: 'English and Swahili' };
+
+/** The handover exactly as the crew member wrote it, so the model's summary can be checked. */
+function OriginalHandover({ submission }) {
+  const language = LANGUAGE_LABELS[submission.language_variant] ?? submission.language_variant;
+  return (
+    <Section id="original" title="Original handover" variant="raised">
+      <blockquote className="original">{submission.content}</blockquote>
+      <p className="original__meta">
+        {submission.shift && <span>{submission.shift} shift</span>}
+        {language && <span>{language}</span>}
+        <span>
+          Submitted <span className="num">{formatDateTime(submission.submitted_at)}</span>
+        </span>
+      </p>
+    </Section>
   );
 }

@@ -12,9 +12,9 @@ import { ReportStrip } from '../../components/report/ReportStrip';
 import { BarList } from '../../components/charts/BarList';
 import { ShiftTrend } from '../../components/charts/ShiftTrend';
 import { useAllReports, useRecentReportDetails } from '../../hooks/useData';
-import { INSIGHT_DETAIL_WINDOW, LOW_CONFIDENCE_THRESHOLD, OVERDUE_HOURS, TREND_SHIFTS } from '../../config';
+import { INSIGHT_DETAIL_WINDOW, LOW_CONFIDENCE_THRESHOLD, TREND_SHIFTS } from '../../config';
 import { categoryMeta } from '../../utils/categories';
-import { formatDateTime, formatPercent, inShift, isOverdue, needsReview, operationalDay, shiftAt } from '../../utils/format';
+import { byDue, formatAge, formatDateTime, formatPercent, inShift, isOverdue, needsReview, operationalDay, shiftAt } from '../../utils/format';
 import { categoryMix, leastLoaded, recurringEntities, reportsPerHour, reportsPerShift, reviewOrder, workload } from '../../utils/insights';
 import { OverviewTiles } from './OverviewTiles';
 
@@ -38,7 +38,7 @@ export function OverviewPage() {
   const thisShift = reports.filter((r) => inShift(r.generated_at, shift));
 
   const attention = [...new Set([...overdue, ...unassigned])]
-    .sort((a, b) => Number(isOverdue(b, t)) - Number(isOverdue(a, t)) || new Date(a.created_at) - new Date(b.created_at))
+    .sort((a, b) => byDue(a, b, t))
     .slice(0, ATTENTION_LIMIT);
 
   const team = users?.data ? workload(users.data, allTasks, t) : [];
@@ -57,7 +57,9 @@ export function OverviewPage() {
       label: 'Overdue',
       value: overdue.length,
       critical: overdue.length > 0,
-      detail: overdue.length ? `Oldest raised ${formatDateTime(overdue.reduce((a, b) => (a.created_at < b.created_at ? a : b)).created_at)}` : 'None overdue',
+      detail: overdue.length
+        ? `Most overdue by ${formatAge(overdue.reduce((a, b) => (a.due_at < b.due_at ? a : b)).due_at, t)}`
+        : 'Nothing past its due time',
       to: '/triage?lane=overdue',
       linkLabel: 'View overdue',
     },
@@ -101,7 +103,7 @@ export function OverviewPage() {
             {tasks.error && !tasks.data && <ErrorState message="Couldn’t load tasks." onRetry={tasks.reload} />}
             {tasks.data && attention.length === 0 && (
               <EmptyState icon={CheckCircle} title="Nothing overdue or unassigned">
-                Every open task has an owner and is younger than {OVERDUE_HOURS} hours.
+                Every open task has an owner and is within its due time.
               </EmptyState>
             )}
             {attention.length > 0 && (

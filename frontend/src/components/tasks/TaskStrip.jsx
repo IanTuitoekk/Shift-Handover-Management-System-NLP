@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { CheckCircle, CircleDashed, Clock, WarningOctagon } from '@phosphor-icons/react';
 import { Strip } from '../ui/Strip';
-import { AssigneeBadge, CategoryBadge } from '../ui/Badges';
+import { AssigneeBadge, CategoryBadge, DueBadge } from '../ui/Badges';
 import { ResolveButton } from './ResolveButton';
 import { AssignControl } from './AssignControl';
 import { formatAge, formatDateTime, isOverdue, taskCategory, taskSummary } from '../../utils/format';
@@ -41,12 +41,7 @@ export function TaskStrip({ task, now, currentUserId, usersById, onResolve, onRe
       className={`${leaving ? 'strip--leaving' : ''} ${compact ? 'strip--compact' : ''}`}
       meta={
         <>
-          {overdue && (
-            <span className="badge badge--critical">
-              <WarningOctagon size={14} weight="fill" aria-hidden="true" />
-              Overdue
-            </span>
-          )}
+          {!resolved && <DueBadge task={task} now={now} />}
           {category && <CategoryBadge name={category} short />}
           <AssigneeBadge task={task} currentUserId={currentUserId} usersById={usersById} />
           {resolved && task.resolved_at && (

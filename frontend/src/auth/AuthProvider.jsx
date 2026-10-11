@@ -41,12 +41,19 @@ export function AuthProvider({ children }) {
   }, []);
 
   const register = useCallback(
-    async ({ fullName, email, password, role }) => {
-      await api.register({ full_name: fullName, email, password, role });
+    async ({ fullName, email, password }) => {
+      await api.register({ full_name: fullName, email, password });
       return login(email, password);
     },
     [login],
   );
+
+  // Re-reads the profile, e.g. after a supervisor changes this user's role.
+  const refreshUser = useCallback(async () => {
+    const me = await api.me();
+    setUser(me);
+    return me;
+  }, []);
 
   const logout = useCallback(async () => {
     try {
@@ -60,8 +67,8 @@ export function AuthProvider({ children }) {
   }, []);
 
   const value = useMemo(
-    () => ({ user, status, login, register, logout }),
-    [user, status, login, register, logout],
+    () => ({ user, status, login, register, logout, refreshUser }),
+    [user, status, login, register, logout, refreshUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

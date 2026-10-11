@@ -6,7 +6,7 @@ import { Strip, StripList, StripSkeleton } from '../../components/ui/Strip';
 import { TaskStrip } from '../../components/tasks/TaskStrip';
 import { useMyReports } from '../../hooks/useData';
 import { categoryMeta } from '../../utils/categories';
-import { inShift, isOverdue, previousShift, shiftAt, shiftLabel, taskSummary } from '../../utils/format';
+import { inShift, byDue, previousShift, shiftAt, shiftLabel, taskSummary } from '../../utils/format';
 import { myShiftEvents } from './events';
 
 export function MyTasksPage() {
@@ -15,7 +15,7 @@ export function MyTasksPage() {
   const t = now.getTime();
 
   const pending = useMemo(() => (tasks.data ?? []).filter((x) => x.status === 'pending'), [tasks.data]);
-  const byUrgency = (a, b) => Number(isOverdue(b, t)) - Number(isOverdue(a, t)) || new Date(a.created_at) - new Date(b.created_at);
+  const byUrgency = (a, b) => byDue(a, b, t);
   const mine = pending.filter((x) => x.assigned_to === me.user_id).sort(byUrgency);
   const others = pending
     .filter((x) => x.assigned_to !== me.user_id)

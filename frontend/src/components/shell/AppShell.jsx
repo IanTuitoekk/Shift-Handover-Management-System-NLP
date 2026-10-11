@@ -20,7 +20,7 @@ import { ShellContext } from './ShellContext';
 import './shell.css';
 
 export function AppShell() {
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUser } = useAuth();
   const location = useLocation();
   const { theme, toggle } = useTheme();
   const now = useNow();
@@ -85,6 +85,10 @@ export function AppShell() {
         pushToast({ icon: UserCirclePlus, tone: 'neutral', title: 'A task was reassigned to someone else', text: taskSummary(task) });
       }
     },
+    'task:updated': ({ task, by }) => {
+      if (by === me) return;
+      upsertTask(task);
+    },
     'task:resolved': ({ task, by }) => {
       if (by === me) return;
       upsertTask(task);
@@ -92,6 +96,18 @@ export function AppShell() {
         pushToast({ icon: CheckCircle, tone: 'ok', title: 'A colleague resolved one of your tasks', text: taskSummary(task) });
       }
     },
+    // A supervisor changed this user's role: reload the profile so the shell switches view.
+    'user:role-changed': async ({ role }) => {
+      await refreshUser();
+      pushToast({
+        icon: UserCirclePlus,
+        title: `Your role is now ${roleConfig(role).label.toLowerCase()}`,
+        text: 'Your menu and home page have been updated.',
+        to: '/',
+        linkLabel: 'Go to home',
+      });
+    },
+    'users:changed': () => users.reload(),
     reconnected: refreshAll,
   });
   // With a live connection, polling is only a safety net; without one it keeps screens fresh.
@@ -112,7 +128,7 @@ export function AppShell() {
   const resolveTask = useCallback((task) => api.resolveTask(task.task_id), []);
   const applyTaskUpdate = useCallback(
     (task, updated) => {
-      mutateTasks((list = []) => list.map((t) => (t.task_id === task.task_id ? { ...t, ...(updated ?? {}), status: updated?.status ?? 'resolved' } : t)));
+      mutateTasks((list = []) => list.map((t) => (t.task_id === task.task_id ? { ...t, ...(updated ?? {}) } : t)));
     },
     [mutateTasks],
   );
