@@ -7,6 +7,7 @@ import { TaskStrip } from '../../components/tasks/TaskStrip';
 import { BarList } from '../../components/charts/BarList';
 import { inShift, isOverdue, roleLabel, shiftAt } from '../../utils/format';
 import { leastLoaded, workload } from '../../utils/insights';
+import { useAllReports } from '../../hooks/useData';
 
 export function TeamPage() {
   const { me, now, tasks, users, usersById, assignTask } = useShell();
@@ -16,6 +17,9 @@ export function TeamPage() {
   const rows = users?.data ? workload(users.data, all, t) : [];
   const suggestion = users?.data ? leastLoaded(users.data, all) : null;
   const unassigned = all.filter((x) => x.status === 'pending' && !x.assigned_to);
+  const reports = useAllReports();
+  const handoversThisShift = (userId) =>
+    (reports.data?.reports ?? []).filter((r) => r.submitted_by?.user_id === userId && inShift(r.generated_at, shift)).length;
   const resolvedThisShift = (userId) =>
     all.filter((x) => x.status === 'resolved' && x.resolved_by === userId && x.resolved_at && inShift(x.resolved_at, shift)).length;
   const loading = (users?.data === undefined && !users?.error) || (tasks.data === undefined && !tasks.error);
@@ -60,6 +64,7 @@ export function TeamPage() {
                     {overdue > 0 && <span className="badge badge--critical">{overdue} overdue</span>}
                     {suggestion?.user.user_id === user.user_id && <span className="badge badge--accent">Least loaded</span>}
                     <span className="field-hint">
+                      <span className="num">{handoversThisShift(user.user_id)}</span> handovers,{' '}
                       <span className="num">{resolvedThisShift(user.user_id)}</span> resolved this shift
                     </span>
                   </span>

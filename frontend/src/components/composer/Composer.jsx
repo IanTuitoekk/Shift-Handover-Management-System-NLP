@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Microphone, PaperPlaneTilt, WarningOctagon } from '@phosphor-icons/react';
 import { api } from '../../api/client';
-import { LANGUAGE_VARIANTS } from '../../config';
-import { draftStore, submissionStore } from '../../utils/deviceStore';
+import { draftStore } from '../../utils/deviceStore';
 import { errorMessage, formatTime, shiftAt } from '../../utils/format';
 import { CompletenessHints } from './CompletenessHints';
 import { SubmitResult } from './SubmitResult';
@@ -14,7 +13,6 @@ function initialDraft(userId) {
   return {
     text: saved?.text ?? '',
     shift: saved?.shift ?? shiftAt().name,
-    language: saved?.language ?? 'mixed',
     savedAt: saved?.savedAt ?? null,
   };
 }
@@ -71,7 +69,6 @@ export function Composer({ userId, variant = 'hero', onSubmitted, titleId = 'com
         narrative_text: text,
         input_type: 'text',
         shift: draft.shift,
-        language_variant: draft.language,
       });
       const reportId = created.report.report_id;
       // The create response has no category name; the detail endpoint has everything.
@@ -83,12 +80,6 @@ export function Composer({ userId, variant = 'hero', onSubmitted, titleId = 'com
         setResultWarning('Submitted, but the full result could not be loaded. Open the report to see it.');
       }
       if (userId) {
-        submissionStore.add(userId, {
-          reportId,
-          at: detail.generated_at ?? new Date().toISOString(),
-          category: detail.category_name,
-          confidence: detail.category_confidence,
-        });
         draftStore.clear(userId);
       }
       dirty.current = false;
@@ -130,8 +121,11 @@ export function Composer({ userId, variant = 'hero', onSubmitted, titleId = 'com
               value={draft.text}
               onChange={(e) => update({ text: e.target.value })}
               aria-invalid={fieldError ? 'true' : undefined}
-              aria-describedby={fieldError ? `${titleId}-error` : undefined}
+              aria-describedby={fieldError ? `${titleId}-lang ${titleId}-error` : `${titleId}-lang`}
             />
+            <p className="field-hint" id={`${titleId}-lang`}>
+              Write in English, Swahili or a mix. The language is detected automatically.
+            </p>
             {fieldError && (
               <p className="field-error" id={`${titleId}-error`}>
                 {fieldError}
@@ -166,24 +160,6 @@ export function Composer({ userId, variant = 'hero', onSubmitted, titleId = 'com
             >
               <option value="Day">Day</option>
               <option value="Night">Night</option>
-            </select>
-          </div>
-          <div className="field composer__select">
-            <label className="field-label" htmlFor={`${titleId}-language`}>
-              Language
-            </label>
-            <select
-              id={`${titleId}-language`}
-              className="select"
-              value={draft.language}
-              onChange={(e) => update({ language: e.target.value })}
-              autoComplete="off"
-            >
-              {LANGUAGE_VARIANTS.map((v) => (
-                <option key={v.value} value={v.value}>
-                  {v.label}
-                </option>
-              ))}
             </select>
           </div>
           <span className="composer__saved num" aria-live="polite">

@@ -1,13 +1,13 @@
 /**
- * Personal shift events for the rail and timeline: handovers submitted from this device
- * (the API does not record submitters) and tasks this user resolved.
+ * Personal shift events for the rail and timeline: handovers this user submitted
+ * (GET /api/handovers?submitted_by=me) and tasks this user resolved.
  */
-export function myShiftEvents({ submissions, tasks, me }) {
-  const submitted = submissions.map((s) => ({
+export function myShiftEvents({ myReports = [], tasks, me }) {
+  const submitted = myReports.map((r) => ({
     kind: 'submitted',
-    at: s.at,
-    label: s.category ? s.category : 'Handover',
-    reportId: s.reportId,
+    at: r.generated_at,
+    label: r.category_name || 'Handover',
+    reportId: r.report_id,
   }));
   const resolved = tasks
     .filter((t) => t.status === 'resolved' && t.resolved_by === me.user_id && t.resolved_at)

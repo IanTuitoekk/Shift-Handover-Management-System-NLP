@@ -170,8 +170,7 @@ client-side and labelled where that matters. See "Backend gaps" in the final rep
 
 - Shift windows: client clock with day 06:00 to 18:00 (`config.js`).
 - "Mine": `task.assigned_to === me` and `task.resolved_by === me`.
-- "Handovers I submitted": the API does not record a submitter on reports, so the composer
-  remembers submissions made on this device (`localStorage`), labelled "on this device".
+- "Handovers I submitted": `GET /api/handovers?submitted_by=me`.
 - Previous-shift handovers to read: notifications whose `sent_at` falls in the previous shift
   window, unread first, with per-item and bulk "Mark as read".
 - Recurring aircraft and components: entities exist only on `GET /api/handovers/:id`, so the
@@ -239,11 +238,11 @@ client-side and labelled where that matters. See "Backend gaps" in the final rep
 Everything above runs on the existing endpoints. These are the places where the client is
 working around missing data, with the endpoint or field that would remove the workaround.
 
-1. **Who submitted a report.** Reports carry no submitter, so the ground crew timeline only
-   shows submissions made on this device. Add `submitted_by` to every report in
-   `GET /api/handovers` and `GET /api/handovers/:id`:
-   `"submitted_by": { "user_id": "uuid", "full_name": "Jane Mwangi" }`, and support
-   `GET /api/handovers?submitted_by=me`.
+1. ~~**Who submitted a report.**~~ **Done (12 Oct).** Reports now include
+   `submitted_by: { user_id, full_name, role }` and the list accepts `?submitted_by=me` or a user
+   id. The UI shows "By …" on report strips and the report page, supervisors can filter Reports by
+   submitter, Team shows handovers per person this shift, and the ground crew timeline comes from
+   the server instead of this browser's storage.
 2. **The original narrative.** The detail endpoint returns only `submission_id`, so nobody can
    check a low-confidence summary against what was written. Add to `GET /api/handovers/:id`:
    `"submission": { "content": "...", "language_variant": "mixed", "shift": "Night", "input_type": "text", "submitted_at": "iso" }`.
@@ -269,3 +268,27 @@ working around missing data, with the endpoint or field that would remove the wo
     return a task to the unassigned pool. Accept `{ "assigned_to": null }`.
 11. **Shift definitions.** Day 06:00 to 18:00 is hard-coded client-side. Add
     `GET /api/config/shifts` returning `[{ "name": "Day", "start": "06:00", "end": "18:00" }, { "name": "Night", "start": "18:00", "end": "06:00" }]`.
+
+## Real-time updates
+
+Implemented with Socket.IO on the same port as the REST API.
+
+| Event | Emitted from (backend) | Sent to | Frontend reaction |
+|---|---|---|---|
+| `handover:created` `{ report, task, notification, submittedBy }` | `controllers/handoverController.js`, after the response | everyone signed in | add the alert and task, refresh report lists, notice "New handover: <category>" (not shown to the submitter) |
+| `task:assigned` `{ task, by, previousAssignee }` | `controllers/taskController.js`, `assign` | everyone signed in | update the task in place; the assignee gets "A task was assigned to you", the previous assignee "…reassigned to someone else" |
+| `task:resolved` `{ task, by }` | `controllers/taskController.js`, `resolve` | everyone signed in | task leaves open lists; the assignee is told if a colleague resolved it |
+
+- Backend: `backend/realtime.js` authenticates the handshake with the same checks as the REST API
+  (JWT signature and expiry, revoked tokens), joins server-chosen rooms (`authenticated`,
+  `user:<id>`, `role:<role>`) and disconnects when the token expires. Task events go to everyone
+  because every signed-in user can already list all tasks.
+- Frontend: `hooks/useRealtime.js` connects from `AppShell`, applies events to the shared task and
+  alert state, skips echoes of the user's own actions, shows notices (`components/ui/Toasts.jsx`)
+  and refetches after a reconnect. A green dot next to the bell shows the connection state.
+- Fallback: while connected, polling relaxes to 60 seconds; without a connection it is 15 seconds
+  (`LIVE_REFRESH_MS`), plus a refetch whenever the tab regains focus.
+- Measured with two browsers: an assignment reached the assignee in 0.3 s and a new handover in
+  0.5 s after the submit returned.
+- Config: `FRONTEND_ORIGIN` (comma-separated) sets the allowed socket origins; default
+  `http://localhost:5173`.

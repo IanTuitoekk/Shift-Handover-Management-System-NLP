@@ -1,17 +1,20 @@
 import { Suspense, useCallback, useMemo, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
-import { Bell, Moon, Plus, SignOut, Sun } from '@phosphor-icons/react';
-import { api } from '../../api/client';
+import { Bell, CheckCircle, ClipboardText, Moon, Plus, SignOut, Sun, UserCirclePlus } from '@phosphor-icons/react';
+import { api, tokenStore } from '../../api/client';
 import { useAuth } from '../../auth/useAuth';
-import { REFRESH_MS } from '../../config';
+import { LIVE_REFRESH_MS, REFRESH_MS } from '../../config';
 import { useNow } from '../../hooks/useData';
-import { useInterval, useResource } from '../../hooks/useResource';
+import { useInterval, useRefetchOnFocus, useResource } from '../../hooks/useResource';
 import { useTheme } from '../../hooks/useTheme';
+import { REPORTS_CHANGED, useRealtime } from '../../hooks/useRealtime';
 import { roleConfig } from '../../roles';
-import { isOverdue } from '../../utils/format';
+import { isOverdue, taskSummary } from '../../utils/format';
+import { categoryMeta } from '../../utils/categories';
 import { NotificationsDrawer } from '../NotificationsDrawer';
 import { Composer } from '../composer/Composer';
 import { Dialog } from '../ui/Dialog';
+import { Toasts } from '../ui/Toasts';
 import { StripSkeleton } from '../ui/Strip';
 import { ShellContext } from './ShellContext';
 import './shell.css';
@@ -40,7 +43,59 @@ export function AppShell() {
     reloadTasks();
     reloadNotifications();
   }, [reloadTasks, reloadNotifications]);
-  useInterval(refreshAll, REFRESH_MS);
+  useRefetchOnFocus(refreshAll);
+
+  // Real-time push. Our own actions are already applied locally, so their echoes are skipped.
+  const [toasts, setToasts] = useState([]);
+  const pushToast = useCallback((toast) => setToasts((list) => [...list.slice(-3), { id: crypto.randomUUID(), ...toast }]), []);
+  const dismissToast = useCallback((id) => setToasts((list) => list.filter((t) => t.id !== id)), []);
+  const me = user?.user_id;
+  const upsertTask = useCallback(
+    (task) =>
+      mutateTasks((list = []) =>
+        list.some((t) => t.task_id === task.task_id) ? list.map((t) => (t.task_id === task.task_id ? { ...t, ...task } : t)) : [task, ...list],
+      ),
+    [mutateTasks],
+  );
+  const live = useRealtime(tokenStore.get(), {
+    'handover:created': ({ report, task, notification, submittedBy }) => {
+      if (task) upsertTask(task);
+      if (notification) {
+        mutateNotifications((list = []) =>
+          list.some((n) => n.notif_id === notification.notif_id) ? list : [notification, ...list],
+        );
+      }
+      window.dispatchEvent(new CustomEvent(REPORTS_CHANGED));
+      if (submittedBy !== me) {
+        pushToast({
+          icon: ClipboardText,
+          title: `New handover: ${categoryMeta(report?.category_name).short}`,
+          text: report?.summary,
+          to: `/reports/${report?.report_id}`,
+          linkLabel: 'Open report',
+        });
+      }
+    },
+    'task:assigned': ({ task, by, previousAssignee }) => {
+      if (by === me) return;
+      upsertTask(task);
+      if (task.assigned_to === me) {
+        pushToast({ icon: UserCirclePlus, title: 'A task was assigned to you', text: taskSummary(task), to: `/reports/${task.report_id}`, linkLabel: 'Open report' });
+      } else if (previousAssignee === me) {
+        pushToast({ icon: UserCirclePlus, tone: 'neutral', title: 'A task was reassigned to someone else', text: taskSummary(task) });
+      }
+    },
+    'task:resolved': ({ task, by }) => {
+      if (by === me) return;
+      upsertTask(task);
+      if (task.assigned_to === me) {
+        pushToast({ icon: CheckCircle, tone: 'ok', title: 'A colleague resolved one of your tasks', text: taskSummary(task) });
+      }
+    },
+    reconnected: refreshAll,
+  });
+  // With a live connection, polling is only a safety net; without one it keeps screens fresh.
+  useInterval(refreshAll, live ? REFRESH_MS : LIVE_REFRESH_MS);
 
   const markRead = useCallback(
     async (ids) => {
@@ -151,6 +206,13 @@ export function AppShell() {
               >
                 {theme === 'dark' ? <Sun size={20} aria-hidden="true" /> : <Moon size={20} aria-hidden="true" />}
               </button>
+              <span
+                className={`live ${live ? 'live--on' : ''}`}
+                title={live ? 'Live updates on' : 'Live updates paused, refreshing every 15 seconds'}
+              >
+                <span className="live__dot" aria-hidden="true" />
+                <span className="visually-hidden">{live ? 'Live updates on' : 'Live updates paused'}</span>
+              </span>
               <button
                 type="button"
                 className="icon-btn bell"
@@ -193,6 +255,8 @@ export function AppShell() {
         <footer className="shell-foot">
           <Link to="/credits">Photo credits</Link>
         </footer>
+
+        <Toasts toasts={toasts} onDismiss={dismissToast} />
 
         <NotificationsDrawer
           open={drawerOpen}

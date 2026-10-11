@@ -315,3 +315,104 @@
     transform: translateY(8px);
   }
 }
+
+/* Live-updates indicator: a real connection state, so a status dot is appropriate here. */
+.live {
+  display: inline-grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 44px;
+}
+
+.live__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--neutral-tab);
+  box-shadow: 0 0 0 2px var(--surface-raised);
+}
+
+.live--on .live__dot {
+  background: var(--ok);
+}
+
+/* Toasts for real-time events */
+.toasts {
+  position: fixed;
+  right: max(var(--space-5), env(safe-area-inset-right));
+  bottom: max(var(--space-5), env(safe-area-inset-bottom));
+  z-index: var(--z-toast);
+  display: grid;
+  gap: var(--space-2);
+  width: min(24rem, calc(100vw - 2 * var(--space-4)));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.toast {
+  --toast-tab: var(--accent);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--space-3);
+  align-items: start;
+  padding: var(--space-3) var(--space-2) var(--space-3) var(--space-4);
+  background: var(--surface-overlay);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-panel);
+  box-shadow: inset var(--tab-w) 0 0 var(--toast-tab), var(--elev-2);
+}
+
+.toast--ok {
+  --toast-tab: var(--ok);
+}
+
+.toast--neutral {
+  --toast-tab: var(--neutral-tab);
+}
+
+.toast__icon {
+  margin-top: 2px;
+  color: var(--toast-tab);
+}
+
+.toast__body {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.toast__title {
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.toast__text {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.toast__link {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.toast__close {
+  min-width: 36px;
+  min-height: 36px;
+  width: 36px;
+  height: 36px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .toast {
+    animation: drawer-in var(--dur-2) var(--ease-out);
+  }
+}

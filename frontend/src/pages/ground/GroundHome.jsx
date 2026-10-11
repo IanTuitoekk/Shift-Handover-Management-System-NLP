@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, BellSimpleSlash, CheckCircle, Sun } from '@phosphor-icons/react';
 import { useShell } from '../../components/shell/ShellContext';
@@ -10,7 +10,7 @@ import { PHOTOS } from '../../assets/photos';
 import { StripList, StripSkeleton } from '../../components/ui/Strip';
 import { TaskStrip } from '../../components/tasks/TaskStrip';
 import { AlertStrips } from '../../components/NotificationsDrawer';
-import { submissionStore } from '../../utils/deviceStore';
+import { useMyReports } from '../../hooks/useData';
 import { firstName, formatAge, formatTime, inShift, isOverdue, previousShift, shiftAt } from '../../utils/format';
 import { myShiftEvents } from './events';
 
@@ -18,7 +18,7 @@ const BRIEFING_LIMIT = 4;
 
 export function GroundHome() {
   const { me, now, tasks, notifications, markRead, resolveTask, applyTaskUpdate, refreshAll } = useShell();
-  const [submissions, setSubmissions] = useState(() => submissionStore.list(me.user_id));
+  const myReports = useMyReports();
   const shift = shiftAt(now);
   const prev = previousShift(now);
   const t = now.getTime();
@@ -35,11 +35,11 @@ export function GroundHome() {
   const unreadPrevious = fromPrevious.filter((n) => !n.is_read);
   const olderUnread = allAlerts.filter((n) => !n.is_read && new Date(n.sent_at) < prev.start).length;
 
-  const events = myShiftEvents({ submissions, tasks: tasks.data ?? [], me });
+  const events = myShiftEvents({ myReports: myReports.data?.reports, tasks: tasks.data ?? [], me });
   const tasksLoading = tasks.data === undefined && !tasks.error;
 
   function onSubmitted() {
-    setSubmissions(submissionStore.list(me.user_id));
+    myReports.reload();
     refreshAll();
   }
 

@@ -139,7 +139,7 @@ export function OverviewPage() {
                 {reviewOrder(reports)
                   .slice(0, REVIEW_LIMIT)
                   .map((r) => (
-                    <ReportStrip key={r.report_id} report={r} now={now} />
+                    <ReportStrip key={r.report_id} report={r} now={now} currentUserId={me.user_id} />
                   ))}
               </StripList>
             )}

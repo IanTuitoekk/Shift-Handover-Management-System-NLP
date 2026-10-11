@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { REPORTS_CHANGED } from './useRealtime';
 import { api } from '../api/client';
 import { INSIGHT_DETAIL_WINDOW, REFRESH_MS, REPORTS_FETCH_CAP } from '../config';
 import { useInterval, useResource } from './useResource';
@@ -18,7 +19,24 @@ async function fetchAllReports() {
 
 export function useAllReports({ poll = true } = {}) {
   const resource = useResource('reports:all', fetchAllReports);
-  useInterval(resource.reload, poll ? REFRESH_MS : 3_600_000);
+  const { reload } = resource;
+  useInterval(reload, poll ? REFRESH_MS : 3_600_000);
+  // Refetch as soon as the real-time push says a new report exists.
+  useEffect(() => {
+    window.addEventListener(REPORTS_CHANGED, reload);
+    return () => window.removeEventListener(REPORTS_CHANGED, reload);
+  }, [reload]);
+  return resource;
+}
+
+/** The signed-in user's own handovers (GET /api/handovers?submitted_by=me), newest first. */
+export function useMyReports() {
+  const resource = useResource('reports:mine', () => api.listReports({ limit: 100, offset: 0, submittedBy: 'me' }));
+  const { reload } = resource;
+  useEffect(() => {
+    window.addEventListener(REPORTS_CHANGED, reload);
+    return () => window.removeEventListener(REPORTS_CHANGED, reload);
+  }, [reload]);
   return resource;
 }
 

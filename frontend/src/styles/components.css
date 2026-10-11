@@ -952,7 +952,7 @@
 
 .composer__controls {
   display: grid;
-  grid-template-columns: minmax(8rem, 10rem) minmax(10rem, 13rem) minmax(0, 1fr) auto;
+  grid-template-columns: minmax(8rem, 10rem) minmax(0, 1fr) auto;
   align-items: end;
   gap: var(--space-3);
 }
@@ -1326,4 +1326,35 @@
   width: 7rem;
   height: 7rem;
   background: none;
+}
+
+/* Visible confirmation after an assignment; fades out on its own. */
+.assign__done {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--ok-text);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .assign__done {
+    animation: assign-done 5s var(--ease-out) forwards;
+  }
+}
+
+@keyframes assign-done {
+  0% {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+  6%,
+  80% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+  }
 }

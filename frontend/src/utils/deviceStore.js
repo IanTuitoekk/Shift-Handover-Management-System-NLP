@@ -1,7 +1,5 @@
 /*
- * Per-user state kept in this browser only: the composer draft and the list of handovers
- * submitted from this device. The API does not record who submitted a report, so the
- * personal timeline can only show submissions made here. Every access is guarded because
+ * Per-user state kept in this browser only: the composer draft. Every access is guarded because
  * storage can be unavailable (private mode, blocked site data).
  */
 
@@ -25,8 +23,6 @@ function write(key, value) {
 }
 
 const draftKey = (userId) => `kq-draft:${userId}`;
-const submissionsKey = (userId) => `kq-submissions:${userId}`;
-const MAX_SUBMISSIONS = 200;
 
 export const draftStore = {
   load: (userId) => read(draftKey(userId), null),
@@ -34,11 +30,3 @@ export const draftStore = {
   clear: (userId) => write(draftKey(userId), null),
 };
 
-export const submissionStore = {
-  list: (userId) => read(submissionsKey(userId), []),
-  add(userId, entry) {
-    const next = [entry, ...read(submissionsKey(userId), [])].slice(0, MAX_SUBMISSIONS);
-    write(submissionsKey(userId), next);
-    return next;
-  },
-};

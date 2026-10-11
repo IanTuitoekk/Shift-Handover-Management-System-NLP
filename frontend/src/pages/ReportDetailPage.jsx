@@ -4,7 +4,7 @@ import { api } from '../api/client';
 import { useShell } from '../components/shell/ShellContext';
 import { useResource } from '../hooks/useResource';
 import { Section, ErrorState } from '../components/ui/Layout';
-import { AssigneeBadge, CategoryBadge, TaskStatusBadge } from '../components/ui/Badges';
+import { AssigneeBadge, CategoryBadge, SubmitterBadge, TaskStatusBadge } from '../components/ui/Badges';
 import { ConfidenceMeter } from '../components/ui/ConfidenceMeter';
 import { EntityGroups } from '../components/report/EntityGroups';
 import { AssignControl } from '../components/tasks/AssignControl';
@@ -57,6 +57,12 @@ export function ReportDetailPage() {
               <h1 className="page-title detail-head__title">{report.summary || 'Handover report'}</h1>
               <p className="page-sub">
                 Processed <span className="num">{formatDateTime(report.generated_at)}</span>
+                {report.submitted_by && (
+                  <>
+                    {' '}
+                    <SubmitterBadge submittedBy={report.submitted_by} currentUserId={me.user_id} withRole />
+                  </>
+                )}
               </p>
             </div>
             {photo && (

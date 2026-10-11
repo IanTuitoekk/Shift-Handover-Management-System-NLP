@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Lightbulb } from '@phosphor-icons/react';
+import { useEffect, useState } from 'react';
+import { CheckCircle, Lightbulb } from '@phosphor-icons/react';
 
 function roleText(role) {
   return role ? role.replace(/_/g, ' ') : '';
@@ -17,6 +17,13 @@ export function AssignControl({ task, users, currentUserId, suggestion, onAssign
   const [assigning, setAssigning] = useState(false);
   const [error, setError] = useState('');
   const [announcement, setAnnouncement] = useState('');
+
+  // The confirmation is shown briefly, then cleared (also covers reduced motion, where it doesn't fade).
+  useEffect(() => {
+    if (!announcement) return;
+    const t = setTimeout(() => setAnnouncement(''), 5000);
+    return () => clearTimeout(t);
+  }, [announcement]);
 
   const id = `assign-${task.task_id}`;
   const list = users.data ?? [];
@@ -118,7 +125,12 @@ export function AssignControl({ task, users, currentUserId, suggestion, onAssign
             {error}
           </span>
         )}
-        {!assigning && !error && announcement && <span className="visually-hidden">{announcement}</span>}
+        {!assigning && !error && announcement && (
+          <span className="assign__done">
+            <CheckCircle size={14} weight="fill" aria-hidden="true" />
+            {announcement}
+          </span>
+        )}
       </div>
     </form>
   );

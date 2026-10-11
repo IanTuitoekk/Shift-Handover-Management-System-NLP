@@ -59,7 +59,7 @@ function groupByShift(reports) {
 }
 
 export function ReportsPage() {
-  const { supervisor, now } = useShell();
+  const { supervisor, now, me, users } = useShell();
   const reportsRes = useAllReports();
   const [params, setParams] = useSearchParams();
   const [limit, setLimit] = useState(PAGE);
@@ -67,6 +67,7 @@ export function ReportsPage() {
   const category = params.get('category') ?? 'all';
   const confidence = CONFIDENCE_RANGES[params.get('confidence')] ? params.get('confidence') : 'all';
   const date = DATE_RANGES[params.get('date')] ? params.get('date') : 'all';
+  const submitter = params.get('submitter') ?? 'all';
   const from = params.get('from') ?? '';
   const to = params.get('to') ?? '';
 
@@ -90,13 +91,14 @@ export function ReportsPage() {
       (r) =>
         (category === 'all' || (category === 'unclassified' ? !r.category_name : r.category_name === category)) &&
         CONFIDENCE_RANGES[confidence].test(r) &&
+        (submitter === 'all' || r.submitted_by?.user_id === submitter) &&
         byDate(r),
     );
-  }, [all, supervisor, category, confidence, date, from, to, now]);
+  }, [all, supervisor, category, confidence, submitter, date, from, to, now]);
 
   const shown = filtered.slice(0, limit);
   const groups = groupByShift(shown);
-  const activeFilters = supervisor && (category !== 'all' || confidence !== 'all' || date !== 'all');
+  const activeFilters = supervisor && (category !== 'all' || confidence !== 'all' || submitter !== 'all' || date !== 'all');
   const lowCount = all.filter(needsReview).length;
 
   return (
@@ -145,6 +147,17 @@ export function ReportsPage() {
               {Object.entries(CONFIDENCE_RANGES).map(([value, r]) => (
                 <option key={value} value={value}>
                   {r.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="inline-field">
+            <span>Submitted by</span>
+            <select className="select" value={submitter} onChange={(e) => setParam('submitter', e.target.value)} autoComplete="off">
+              <option value="all">Anyone</option>
+              {(users?.data ?? []).map((u) => (
+                <option key={u.user_id} value={u.user_id}>
+                  {u.user_id === me.user_id ? `${u.full_name} (you)` : u.full_name}
                 </option>
               ))}
             </select>
@@ -201,7 +214,7 @@ export function ReportsPage() {
           <Section key={g.shift.key} id={`shift-${g.shift.start.getTime()}`} title={shiftLabel(g.shift)} count={g.reports.length}>
             <StripList>
               {g.reports.map((r) => (
-                <ReportStrip key={r.report_id} report={r} now={now} showDay={false} />
+                <ReportStrip key={r.report_id} report={r} now={now} showDay={false} currentUserId={me.user_id} />
               ))}
             </StripList>
           </Section>

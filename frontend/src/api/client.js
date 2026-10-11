@@ -58,8 +58,10 @@ export const api = {
   logout: () => client.post('/auth/logout').then((r) => r.data),
   me: () => client.get('/auth/me').then((r) => r.data),
 
-  listReports: ({ limit, offset }) =>
-    client.get('/handovers', { params: { limit, offset } }).then((r) => r.data),
+  listReports: ({ limit, offset, submittedBy }) =>
+    client
+      .get('/handovers', { params: { limit, offset, ...(submittedBy ? { submitted_by: submittedBy } : {}) } })
+      .then((r) => r.data),
   getReport: (reportId) => client.get(`/handovers/${reportId}`).then((r) => r.data),
   submitHandover: (payload) => client.post('/handovers', payload).then((r) => r.data),
 

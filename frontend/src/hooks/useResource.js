@@ -56,3 +56,26 @@ export function useInterval(callback, ms) {
     return () => clearInterval(id);
   }, [ms]);
 }
+
+/** Calls `callback` when the tab becomes visible again or the window regains focus. */
+export function useRefetchOnFocus(callback) {
+  const callbackRef = useRef(callback);
+  useEffect(() => {
+    callbackRef.current = callback;
+  });
+  useEffect(() => {
+    let last = 0;
+    const run = () => {
+      // Focus and visibility often fire together; skip duplicates within a second.
+      if (document.visibilityState !== 'visible' || Date.now() - last < 1000) return;
+      last = Date.now();
+      callbackRef.current();
+    };
+    window.addEventListener('focus', run);
+    document.addEventListener('visibilitychange', run);
+    return () => {
+      window.removeEventListener('focus', run);
+      document.removeEventListener('visibilitychange', run);
+    };
+  }, []);
+}

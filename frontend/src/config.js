@@ -26,13 +26,12 @@ export const TREND_SHIFTS = 6;
 
 export const REFRESH_MS = 60_000;
 
+// Tasks and alerts change while people work, so they refresh more often (and on tab focus).
+// A WebSocket push from the backend would make this instant; see DESIGN.md "Real-time updates".
+export const LIVE_REFRESH_MS = 15_000;
+
 export const ROLES = [
   { value: 'ground_crew', label: 'Ground crew' },
   { value: 'supervisor', label: 'Supervisor' },
 ];
 
-export const LANGUAGE_VARIANTS = [
-  { value: 'en', label: 'English' },
-  { value: 'sw', label: 'Swahili' },
-  { value: 'mixed', label: 'English & Swahili' },
-];

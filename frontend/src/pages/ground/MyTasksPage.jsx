@@ -1,17 +1,17 @@
-import { useMemo, useState } from 'react';
-import { CheckCircle, ClockCounterClockwise, PaperPlaneTilt, Tray } from '@phosphor-icons/react';
+import { useMemo } from 'react';
+import { CheckCircle, PaperPlaneTilt, Tray } from '@phosphor-icons/react';
 import { useShell } from '../../components/shell/ShellContext';
 import { PageHeader, Section, EmptyState, ErrorState } from '../../components/ui/Layout';
 import { Strip, StripList, StripSkeleton } from '../../components/ui/Strip';
 import { TaskStrip } from '../../components/tasks/TaskStrip';
-import { submissionStore } from '../../utils/deviceStore';
+import { useMyReports } from '../../hooks/useData';
 import { categoryMeta } from '../../utils/categories';
 import { inShift, isOverdue, previousShift, shiftAt, shiftLabel, taskSummary } from '../../utils/format';
 import { myShiftEvents } from './events';
 
 export function MyTasksPage() {
   const { me, now, tasks, resolveTask, applyTaskUpdate } = useShell();
-  const [submissions] = useState(() => submissionStore.list(me.user_id));
+  const myReports = useMyReports();
   const t = now.getTime();
 
   const pending = useMemo(() => (tasks.data ?? []).filter((x) => x.status === 'pending'), [tasks.data]);
@@ -24,7 +24,7 @@ export function MyTasksPage() {
 
   const shift = shiftAt(now);
   const prev = previousShift(now);
-  const events = myShiftEvents({ submissions, tasks: tasks.data ?? [], me });
+  const events = myShiftEvents({ myReports: myReports.data?.reports, tasks: tasks.data ?? [], me });
   const timeline = [
     { shift, items: events.filter((e) => inShift(e.at, shift)) },
     { shift: prev, items: events.filter((e) => inShift(e.at, prev)) },
@@ -104,9 +104,6 @@ export function MyTasksPage() {
                 )}
               </div>
             ))}
-            <p className="field-hint timeline__note">
-              <ClockCounterClockwise size={14} aria-hidden="true" /> Submissions shown are the ones made on this device.
-            </p>
           </Section>
         </aside>
       </div>

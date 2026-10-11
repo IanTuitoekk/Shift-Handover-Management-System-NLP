@@ -1,6 +1,6 @@
-import { CheckCircle, CircleDashed, Clock, UserCircle, WarningOctagon } from '@phosphor-icons/react';
+import { CheckCircle, CircleDashed, Clock, PencilSimpleLine, UserCircle, WarningOctagon } from '@phosphor-icons/react';
 import { categoryMeta } from '../../utils/categories';
-import { isOverdue } from '../../utils/format';
+import { isOverdue, roleLabel } from '../../utils/format';
 
 /** Category: neutral badge with a fixed icon per category (identity is never colour-only). */
 export function CategoryBadge({ name, short = false }) {
@@ -63,6 +63,19 @@ export function AssigneeBadge({ task, currentUserId, usersById }) {
     <span className="badge">
       <UserCircle size={14} aria-hidden="true" />
       {name ?? 'Assigned to a colleague'}
+    </span>
+  );
+}
+
+/** Who wrote the handover behind a report ("by you" for the signed-in user). */
+export function SubmitterBadge({ submittedBy, currentUserId, withRole = false }) {
+  if (!submittedBy) return null;
+  const mine = submittedBy.user_id === currentUserId;
+  return (
+    <span className="badge" title={`Submitted by ${submittedBy.full_name}, ${roleLabel(submittedBy.role).toLowerCase()}`}>
+      <PencilSimpleLine size={14} aria-hidden="true" />
+      {mine ? 'By you' : `By ${submittedBy.full_name}`}
+      {withRole && !mine ? `, ${roleLabel(submittedBy.role).toLowerCase()}` : ''}
     </span>
   );
 }
