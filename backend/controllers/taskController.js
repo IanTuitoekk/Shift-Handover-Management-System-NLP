@@ -1,4 +1,5 @@
 const { getAllTasks, getTaskById, resolveTask, assignTask } = require('../models/taskRegisterModel');
+const realtime = require('../realtime');
 
 const listTasks = async (req, res) => {
   const { status } = req.query;
@@ -20,6 +21,8 @@ const resolve = async (req, res) => {
     }
     const task = await resolveTask(taskId, req.user.userId);
     res.json(task);
+    // Everyone can list tasks, so everyone's open lists update.
+    realtime.toAll('task:resolved', { task, by: req.user.userId });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to resolve task' });
@@ -39,6 +42,7 @@ const assign = async (req, res) => {
     }
     const task = await assignTask(taskId, assigned_to);
     res.json(task);
+    realtime.toAll('task:assigned', { task, by: req.user.userId, previousAssignee: existing.assigned_to });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to assign task' });

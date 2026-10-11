@@ -21,8 +21,8 @@ npm run dev
 | POST | /api/auth/login | No (rate-limited) | Log in, returns JWT |
 | GET | /api/auth/me | Yes | Get current user profile |
 | POST | /api/handovers | Yes | Submit a handover narrative for NLP processing |
-| GET | /api/handovers | Yes | List all handover reports |
-| GET | /api/handovers/:reportId | Yes | Get full detail for one report (entities, task, notification) |
+| GET | /api/handovers | Yes | List handover reports, newest first (`limit`, `offset`, optional `submitted_by=me` or a user id); each report includes `submitted_by: { user_id, full_name, role }` |
+| GET | /api/handovers/:reportId | Yes | Get full detail for one report (entities, task, notification, submitted_by) |
 | GET | /api/tasks | Yes | List tasks |
 | PATCH | /api/tasks/:taskId/resolve | Yes | Mark a task resolved |
 | PATCH | /api/tasks/:taskId/assign | Yes (supervisor only) | Assign a task to a user |
@@ -32,7 +32,28 @@ npm run dev
 
 
 
-## Security
+## Real-time updates (Socket.IO)
+
+The server also accepts Socket.IO connections on the same port. Connect with the JWT:
+`io('http://localhost:3000', { auth: { token } })`. The handshake applies the same checks as the
+REST API and the socket is closed when the token expires.
+
+| Event | When | Payload |
+|---|---|---|
+| `handover:created` | a handover has been processed | `{ report, task, notification, submittedBy }` |
+| `task:assigned` | a supervisor assigns or reassigns a task | `{ task, by, previousAssignee }` |
+| `task:resolved` | a task is resolved | `{ task, by }` |
+
+Set `FRONTEND_ORIGIN` (comma-separated) to allow other frontend origins; the default is
+`http://localhost:5173`.
+
+## Language detection
+
+Clients no longer send `language_variant`. When it is missing, the backend detects `en`, `sw` or
+`mixed` from the narrative (`utils/languageDetect.js`) and stores it for analysis; it does not
+affect classification. `npx jest tests/languageDetect.test.js` runs its tests without the database.
+
+
 
 - Passwords hashed with bcrypt
 - JWT-based authentication, 24h expiry

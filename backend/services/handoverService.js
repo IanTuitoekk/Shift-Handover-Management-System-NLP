@@ -5,11 +5,14 @@ const { createEntities } = require('../models/reportEntityModel');
 const { getCategoryByName } = require('../models/incidentCategoryModel');
 const { createTask } = require('../models/taskRegisterModel');
 const { createNotification } = require('../models/notificationModel');
+const { detectLanguage } = require('../utils/languageDetect');
 
 const INFERENCE_URL = process.env.INFERENCE_SERVICE_URL;
 
 async function processHandover({ userId, inputType, content, languageVariant, shift }) {
-  const submission = await createSubmission({ userId, inputType, content, languageVariant, shift });
+  // Crews no longer pick a language; detect it for analysis unless a client still sends one.
+  const language = languageVariant || detectLanguage(content);
+  const submission = await createSubmission({ userId, inputType, content, languageVariant: language, shift });
 
   try {
     await updateProcessingStatus(submission.submission_id, 'processing');

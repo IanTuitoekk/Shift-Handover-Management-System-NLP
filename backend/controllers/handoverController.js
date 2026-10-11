@@ -1,5 +1,6 @@
 const { processHandover } = require('../services/handoverService');
 const { listReports, getReportDetail } = require('../services/reportService');
+const realtime = require('../realtime');
 
 const createHandover = async (req, res) => {
   const { narrative_text, input_type, language_variant, shift } = req.body;
@@ -18,6 +19,19 @@ const createHandover = async (req, res) => {
     });
 
     res.status(201).json(result);
+
+    // Push to everyone signed in. Alerts are broadcast (recipient_id is null), so everyone gets it.
+    try {
+      const detail = await getReportDetail(result.report.report_id);
+      realtime.toAll('handover:created', {
+        report: detail,
+        task: result.task,
+        notification: result.notification ? { ...result.notification, is_read: false, read_at: null } : null,
+        submittedBy: req.user.userId,
+      });
+    } catch (pushErr) {
+      console.error('Realtime push failed:', pushErr.message);
+    }
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to process handover' });
@@ -27,9 +41,15 @@ const createHandover = async (req, res) => {
 const getReports = async (req, res) => {
   const limit = Math.min(parseInt(req.query.limit, 10) || 20, 100); // cap at 100
   const offset = parseInt(req.query.offset, 10) || 0;
+  // ?submitted_by=me or a user id. Any signed-in user may filter; every report is already visible.
+  const submittedByParam = req.query.submitted_by;
+  const submittedBy = submittedByParam === 'me' ? req.user.userId : submittedByParam || null;
+  if (submittedBy && !/^[0-9a-f-]{36}$/i.test(submittedBy)) {
+    return res.status(400).json({ error: 'submitted_by must be "me" or a user id' });
+  }
 
   try {
-    const result = await listReports({ limit, offset });
+    const result = await listReports({ limit, offset, submittedBy });
     res.json(result);
   } catch (err) {
     console.error(err);
