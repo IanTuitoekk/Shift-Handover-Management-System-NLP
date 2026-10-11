@@ -1,4 +1,4 @@
-const { getAllTasks, getTaskById, resolveTask, assignTask } = require('../models/taskRegisterModel');
+const { getAllTasks, getTaskById, resolveTask, assignTask, setTaskDue } = require('../models/taskRegisterModel');
 const realtime = require('../realtime');
 
 const listTasks = async (req, res) => {
@@ -49,4 +49,25 @@ const assign = async (req, res) => {
   }
 };
 
-module.exports = { listTasks, resolve, assign };
+// Supervisor-only. Body: { due_at: ISO timestamp | null }. Null clears the due time.
+const setDue = async (req, res) => {
+  const { taskId } = req.params;
+  const dueAt = req.body.due_at ?? null;
+  try {
+    const existing = await getTaskById(taskId);
+    if (!existing) {
+      return res.status(404).json({ error: 'Task not found' });
+    }
+    if (existing.status === 'resolved') {
+      return res.status(400).json({ error: 'Resolved tasks have no due time to change' });
+    }
+    const task = await setTaskDue(taskId, dueAt);
+    res.json(task);
+    realtime.toAll('task:updated', { task, by: req.user.userId });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to set due time' });
+  }
+};
+
+module.exports = { listTasks, resolve, assign, setDue };

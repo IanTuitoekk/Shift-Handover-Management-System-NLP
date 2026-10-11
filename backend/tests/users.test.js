@@ -23,7 +23,16 @@ describe('GET /api/users', () => {
   }
 
   beforeAll(async () => {
-    supervisorToken = await registerAndLogin('Users Test Supervisor', supervisorEmail, 'supervisor');
+    // Public sign-up always creates ground crew; promote the test supervisor directly.
+    await request(app).post('/api/auth/register').send({
+      full_name: 'Users Test Supervisor',
+      email: supervisorEmail,
+      password: 'testpass123',
+    });
+    await pool.query(`UPDATE users SET role = 'supervisor' WHERE email = $1`, [supervisorEmail]);
+    supervisorToken = (
+      await request(app).post('/api/auth/login').send({ email: supervisorEmail, password: 'testpass123' })
+    ).body.token;
     crewToken = await registerAndLogin('Users Test Crew', crewEmail, 'ground_crew');
   });
 

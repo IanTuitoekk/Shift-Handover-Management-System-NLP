@@ -34,4 +34,13 @@ async function listActiveUsers() {
   return result.rows;
 }
 
-module.exports = { createUser, getUserByEmail, getUserById, listActiveUsers };
+async function updateUserRole(userId, role) {
+  const result = await pool.query(
+    `UPDATE users SET role = $1 WHERE user_id = $2 AND is_active = true
+     RETURNING user_id, full_name, role`,
+    [role, userId]
+  );
+  return result.rows[0];
+}
+
+module.exports = { createUser, getUserByEmail, getUserById, listActiveUsers, updateUserRole };

@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { isTokenRevoked } = require('../models/revokedTokenModel');
+const { getUserById } = require('../models/userModel');
 
 async function requireAuth(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -17,7 +18,13 @@ async function requireAuth(req, res, next) {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
+    // Use the role and active flag as they are now, so a role change or deactivation takes effect
+    // on the next request instead of when the token expires.
+    const current = await getUserById(decoded.userId);
+    if (!current || current.is_active === false) {
+      return res.status(401).json({ error: 'Account is no longer active' });
+    }
+    req.user = { ...decoded, role: current.role };
     req.token = token; // keep the raw token available for logout
     next();
   } catch (err) {

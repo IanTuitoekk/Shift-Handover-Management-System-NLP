@@ -19,7 +19,6 @@ const registerValidation = [
   body('full_name').trim().notEmpty().withMessage('full_name is required'),
   body('email').isEmail().withMessage('A valid email is required'),
   body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
-  body('role').trim().notEmpty().withMessage('role is required'),
 ];
 
 const loginValidation = [

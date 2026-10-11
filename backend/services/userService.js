@@ -4,4 +4,8 @@ async function listAssignableUsers() {
   return userModel.listActiveUsers();
 }
 
-module.exports = { listAssignableUsers };
+async function changeRole(userId, role) {
+  return userModel.updateUserRole(userId, role);
+}
+
+module.exports = { listAssignableUsers, changeRole };

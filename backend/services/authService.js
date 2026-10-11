@@ -1,15 +1,16 @@
 const jwt = require('jsonwebtoken');
 const { createUser, getUserByEmail } = require('../models/userModel');
 const { hashPassword, verifyPassword } = require('../utils/password');
+const { DEFAULT_ROLE } = require('../config/roles');
 
-async function registerUser({ fullName, email, password, role }) {
+async function registerUser({ fullName, email, password }) {
   const existing = await getUserByEmail(email);
   if (existing) {
     throw new Error('A user with this email already exists');
   }
 
   const passwordHash = await hashPassword(password);
-  return createUser({ fullName, email, passwordHash, role });
+  return createUser({ fullName, email, passwordHash, role: DEFAULT_ROLE });
 }
 
 async function loginUser({ email, password }) {

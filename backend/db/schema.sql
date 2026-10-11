@@ -69,7 +69,8 @@ CREATE TABLE task_register (
     resolved_by  UUID REFERENCES users(user_id),
     resolved_at  TIMESTAMPTZ,
     created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+    updated_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+    due_at       TIMESTAMPTZ  -- NULL = no due time set
 );
 
 -- NotificationService
@@ -110,5 +111,6 @@ CREATE INDEX idx_report_entities_report ON report_entities(report_id);
 CREATE INDEX idx_categories_taxonomy ON incident_categories(taxonomy_id);
 CREATE INDEX idx_tasks_report ON task_register(report_id);
 CREATE INDEX idx_tasks_status ON task_register(status);
+CREATE INDEX idx_tasks_due ON task_register(due_at);
 CREATE INDEX idx_notifications_report ON notifications(report_id);
 CREATE INDEX idx_notifications_recipient ON notifications(recipient_id);

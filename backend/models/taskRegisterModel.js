@@ -1,11 +1,14 @@
 const pool = require('../config/db');
 
-async function createTask({ reportId, description, assignedTo }) {
+// New tasks are due DEFAULT_TASK_DUE_HOURS after they are raised unless a due time is given.
+const DEFAULT_TASK_DUE_HOURS = Number(process.env.DEFAULT_TASK_DUE_HOURS) || 12;
+
+async function createTask({ reportId, description, assignedTo, dueAt }) {
   const result = await pool.query(
-    `INSERT INTO task_register (report_id, description, assigned_to)
-     VALUES ($1, $2, $3)
+    `INSERT INTO task_register (report_id, description, assigned_to, due_at)
+     VALUES ($1, $2, $3, COALESCE($4::timestamptz, now() + make_interval(hours => $5::int)))
      RETURNING *`,
-    [reportId, description, assignedTo || null]
+    [reportId, description, assignedTo || null, dueAt || null, DEFAULT_TASK_DUE_HOURS]
   );
   return result.rows[0];
 }
@@ -48,7 +51,17 @@ async function assignTask(taskId, assignedTo) {
   return result.rows[0];
 }
 
+/** Sets or clears (null) a task's due time. */
+async function setTaskDue(taskId, dueAt) {
+  const result = await pool.query(
+    `UPDATE task_register SET due_at = $1, updated_at = now() WHERE task_id = $2 RETURNING *`,
+    [dueAt, taskId]
+  );
+  return result.rows[0];
+}
+
 module.exports = {
+  setTaskDue,
   createTask,
   getAllTasks,
   getTaskById,

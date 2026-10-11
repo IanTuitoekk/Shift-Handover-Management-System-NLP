@@ -3,13 +3,15 @@ const { getUserById } = require('../models/userModel');
 const { revokeToken } = require('../models/revokedTokenModel');
 
 const register = async (req, res) => {
-  const { full_name, email, password, role } = req.body;
-  if (!full_name || !email || !password || !role) {
-    return res.status(400).json({ error: 'full_name, email, password, and role are required' });
+  // Any `role` in the body is ignored: everyone signs up as ground crew and a supervisor
+  // promotes people from the Team page. This stops self-registration as a supervisor.
+  const { full_name, email, password } = req.body;
+  if (!full_name || !email || !password) {
+    return res.status(400).json({ error: 'full_name, email and password are required' });
   }
 
   try {
-    const user = await registerUser({ fullName: full_name, email, password, role });
+    const user = await registerUser({ fullName: full_name, email, password });
     res.status(201).json(user);
   } catch (err) {
     res.status(400).json({ error: err.message });
