@@ -1,10 +1,15 @@
 const { getAllTasks, getTaskById, resolveTask, assignTask, setTaskDue } = require('../models/taskRegisterModel');
 const realtime = require('../realtime');
+const { SHIFTS } = require('../config/shifts');
 
 const listTasks = async (req, res) => {
   const { status } = req.query;
+  const shift = req.query.shift ? String(req.query.shift).toLowerCase() : null;
+  if (shift && !SHIFTS.includes(shift)) {
+    return res.status(400).json({ error: `shift must be one of: ${SHIFTS.join(', ')}` });
+  }
   try {
-    const tasks = await getAllTasks(status);
+    const tasks = await getAllTasks(status, shift);
     res.json(tasks);
   } catch (err) {
     console.error(err);

@@ -21,9 +21,9 @@ npm run dev
 | POST | /api/auth/login | No (rate-limited) | Log in, returns JWT |
 | GET | /api/auth/me | Yes | Get current user profile |
 | POST | /api/handovers | Yes | Submit a handover narrative for NLP processing |
-| GET | /api/handovers | Yes | List handover reports, newest first (`limit`, `offset`, optional `submitted_by=me` or a user id); each report includes `submitted_by: { user_id, full_name, role }` |
+| GET | /api/handovers | Yes | List handover reports, newest first (`limit`, `offset`, optional `submitted_by=me` or a user id, `shift=day|night`); each report includes `submitted_by: { user_id, full_name, role }` and `shift` |
 | GET | /api/handovers/:reportId | Yes | Get full detail for one report (entities, task, notification, submitted_by, and `submission`: the original text, shift, detected language and submission time) |
-| GET | /api/tasks | Yes | List tasks |
+| GET | /api/tasks | Yes | List tasks (optional `status`, `shift=day|night`); each task includes the `shift` of the handover that raised it |
 | PATCH | /api/tasks/:taskId/resolve | Yes | Mark a task resolved |
 | PATCH | /api/tasks/:taskId/assign | Yes (supervisor only) | Assign a task to a user |
 | PATCH | /api/tasks/:taskId/due | Yes (supervisor only) | Set (`{ "due_at": "ISO date-time" }`) or clear (`{ "due_at": null }`) a task's due time |
@@ -48,6 +48,12 @@ REST API and the socket is closed when the token expires.
 
 Set `FRONTEND_ORIGIN` (comma-separated) to allow other frontend origins; the default is
 `http://localhost:5173`.
+
+## Shifts
+
+A report's `shift` is the one chosen on the handover form, or, if none was chosen, the shift its
+submission time falls in. Configure with `DAY_SHIFT_START` (default 6), `NIGHT_SHIFT_START` (18) and
+`SHIFT_TIMEZONE` (`Africa/Nairobi`).
 
 ## Due times
 
@@ -77,6 +83,9 @@ affect classification. `npx jest tests/languageDetect.test.js` runs its tests wi
 npm test
 ```
 
-Note: the Python inference service (`../inference-service`) must be running on
-port 8000 for the handover integration tests to pass.
-EOF
+Tests run against a separate database, `<DB_NAME>_test` (or `TEST_DB_NAME`), never your development
+data. `npm test` first rebuilds it from `db/schema.sql`, `db/migrations/` and `db/seed.sql`
+(`scripts/reset-test-db.js`), and `tests/setupEnv.js` refuses any database whose name doesn't end in
+`_test`. The database user needs permission to create databases.
+
+The handover tests call the real inference service, so start `../inference-service` on port 8000 first.

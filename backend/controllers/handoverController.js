@@ -1,6 +1,7 @@
 const { processHandover } = require('../services/handoverService');
 const { listReports, getReportDetail } = require('../services/reportService');
 const realtime = require('../realtime');
+const { SHIFTS } = require('../config/shifts');
 
 const createHandover = async (req, res) => {
   const { narrative_text, input_type, language_variant, shift } = req.body;
@@ -25,7 +26,7 @@ const createHandover = async (req, res) => {
       const detail = await getReportDetail(result.report.report_id);
       realtime.toAll('handover:created', {
         report: detail,
-        task: result.task,
+        task: result.task ? { ...result.task, shift: detail.shift } : null,
         notification: result.notification ? { ...result.notification, is_read: false, read_at: null } : null,
         submittedBy: req.user.userId,
       });
@@ -48,8 +49,13 @@ const getReports = async (req, res) => {
     return res.status(400).json({ error: 'submitted_by must be "me" or a user id' });
   }
 
+  const shift = req.query.shift ? String(req.query.shift).toLowerCase() : null;
+  if (shift && !SHIFTS.includes(shift)) {
+    return res.status(400).json({ error: `shift must be one of: ${SHIFTS.join(', ')}` });
+  }
+
   try {
-    const result = await listReports({ limit, offset, submittedBy });
+    const result = await listReports({ limit, offset, submittedBy, shift });
     res.json(result);
   } catch (err) {
     console.error(err);

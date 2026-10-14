@@ -5,6 +5,7 @@
   "scripts": {
     "start": "node ./bin/www",
     "dev": "nodemon ./bin/www",
+    "pretest": "node scripts/reset-test-db.js",
     "test": "jest --forceExit",
     "set-role": "node scripts/set-role.js"
   },
@@ -27,5 +28,11 @@
     "jest": "^30.5.2",
     "nodemon": "^3.1.14",
     "supertest": "^7.3.1"
+  },
+  "jest": {
+    "setupFiles": [
+      "<rootDir>/tests/setupEnv.js"
+    ],
+    "testEnvironment": "node"
   }
 }
