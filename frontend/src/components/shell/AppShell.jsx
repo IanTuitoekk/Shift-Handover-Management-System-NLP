@@ -1,15 +1,15 @@
 import { Suspense, useCallback, useMemo, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
-import { Bell, CheckCircle, ClipboardText, Moon, NotePencil, Plus, SignOut, Sun, UserCirclePlus } from '@phosphor-icons/react';
+import { Bell, CheckCircle, ClipboardText, Moon, NotePencil, Plus, SignOut, Sun, UserCircle, UserCirclePlus } from '@phosphor-icons/react';
 import { api, tokenStore } from '../../api/client';
 import { useAuth } from '../../auth/useAuth';
 import { LIVE_REFRESH_MS, REFRESH_MS } from '../../config';
 import { useNow } from '../../hooks/useData';
 import { useInterval, useRefetchOnFocus, useResource } from '../../hooks/useResource';
 import { useTheme } from '../../hooks/useTheme';
-import { REPORTS_CHANGED, useRealtime } from '../../hooks/useRealtime';
+import { REPORTS_CHANGED, USERS_CHANGED, useRealtime } from '../../hooks/useRealtime';
 import { roleConfig } from '../../roles';
-import { isOverdue, taskSummary } from '../../utils/format';
+import { isOverdue, needsOwner, taskSummary } from '../../utils/format';
 import { categoryMeta } from '../../utils/categories';
 import { NotificationsDrawer } from '../NotificationsDrawer';
 import { Composer } from '../composer/Composer';
@@ -20,7 +20,7 @@ import { ShellContext } from './ShellContext';
 import './shell.css';
 
 export function AppShell() {
-  const { user, logout, refreshUser } = useAuth();
+  const { user, logout, refreshUser, signOut } = useAuth();
   const location = useLocation();
   const { theme, toggle } = useTheme();
   const now = useNow();
@@ -107,7 +107,16 @@ export function AppShell() {
         linkLabel: 'Go to home',
       });
     },
-    'users:changed': () => users.reload(),
+    // Names on tasks can change too (edited, deactivated, deleted).
+    'users:changed': () => {
+      users.reload();
+      tasks.reload();
+      window.dispatchEvent(new CustomEvent(USERS_CHANGED));
+    },
+    // An assignee was deactivated or deleted: their open tasks now need a new owner.
+    'tasks:reassignment-needed': () => tasks.reload(),
+    // This person reset their password elsewhere, or a supervisor deactivated or removed them.
+    'session:ended': ({ reason } = {}) => signOut(reason),
     reconnected: refreshAll,
   });
   // With a live connection, polling is only a safety net; without one it keeps screens fresh.
@@ -148,7 +157,7 @@ export function AppShell() {
   const badges = {
     unread,
     myTasks: pending.filter((t) => t.assigned_to === user?.user_id).length,
-    needsAction: pending.filter((t) => !t.assigned_to || isOverdue(t, now.getTime())).length,
+    needsAction: pending.filter((t) => needsOwner(t) || isOverdue(t, now.getTime())).length,
   };
 
   const ctx = {
@@ -216,7 +225,7 @@ export function AppShell() {
               {supervisor && (
                 <button type="button" className="btn btn-secondary header__new" onClick={() => setComposerOpen(true)}>
                   <Plus size={16} weight="bold" aria-hidden="true" />
-                  New handover
+                  <span>New handover</span>
                 </button>
               )}
               <button
@@ -250,10 +259,15 @@ export function AppShell() {
                 )}
               </button>
               <div className="who">
-                <span className="who__name">{user?.full_name}</span>
+                <Link to="/account" className="who__name" title="Your account">
+                  {user?.full_name}
+                </Link>
                 <span className="badge badge--role">{config.label}</span>
               </div>
-              <button type="button" className="icon-btn" onClick={handleLogout} disabled={loggingOut} aria-label="Log out" title="Log out">
+              <Link to="/account" className="icon-btn who__account" aria-label="Your account" title="Your account">
+                <UserCircle size={20} aria-hidden="true" />
+              </Link>
+              <button type="button" className="icon-btn header__logout" onClick={handleLogout} disabled={loggingOut} aria-label="Log out" title="Log out">
                 <SignOut size={20} aria-hidden="true" />
               </button>
             </div>

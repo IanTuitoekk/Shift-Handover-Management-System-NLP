@@ -1482,3 +1482,133 @@
 .toolbar .segmented + .segmented {
   margin-left: 0;
 }
+
+/* ---- Account page ---- */
+.account-form {
+  max-width: 28rem;
+}
+
+.account-details {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.account-details dt {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.account-details dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+/* ---- People management (supervisor, Team page) ---- */
+.person-form,
+.person-edit,
+.person-block,
+.person-confirm {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.person-form > .btn-primary {
+  justify-self: start;
+}
+
+.person-form__pair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: var(--space-4);
+}
+
+.person-role {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.person-role .select {
+  flex: 1 1 12rem;
+}
+
+.person-email,
+.person-extra {
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+.person-block + .person-block,
+.person-actions {
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line);
+}
+
+.person-actions {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.person-confirm {
+  padding: var(--space-4);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-control);
+  background: var(--surface-inset);
+}
+
+.person-confirm p {
+  margin: 0;
+}
+
+.person-actions__row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+/* Permanent delete: the one place a destructive action uses the critical colour. */
+.danger-box {
+  padding: var(--space-4);
+  border: 1px solid var(--critical);
+  border-left-width: 3px;
+  border-radius: var(--radius-control);
+  background: var(--critical-soft);
+}
+
+.danger-box p,
+.danger-box ul {
+  margin: 0;
+}
+
+.danger-box ul {
+  margin-top: var(--space-2);
+  padding-left: var(--space-5);
+  color: var(--text-muted);
+}
+
+.btn-danger {
+  background: var(--critical);
+  color: var(--on-critical);
+  border-color: var(--critical);
+}
+
+.btn-danger:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.btn-danger-ghost {
+  background: transparent;
+  color: var(--critical-text);
+  border-color: var(--line-control);
+}
+
+.btn-danger-ghost:hover:not(:disabled) {
+  border-color: var(--critical);
+  background: var(--critical-soft);
+}
+
+.account-logout {
+  justify-self: start;
+}

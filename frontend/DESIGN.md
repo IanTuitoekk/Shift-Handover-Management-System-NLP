@@ -125,7 +125,8 @@ overloaded; patterns across shifts; fast assignment. Submits handovers occasiona
 | Home: composer + start-of-shift briefing + personal shift rail | `/` | Overview: attention tiles, review queue, insights, workload, shift rail | `/` |
 | My tasks: mine first, then other open tasks; my shift timeline | `/my-tasks` | Triage: Unassigned / Assigned / Overdue bays, Resolved tab, sort, assignee filter | `/triage` |
 | Reports: grouped by shift | `/reports` | Reports: filters for category, confidence range, date | `/reports` |
-| Alerts: all notifications with read state | `/alerts` | Team: workload per person, resolved this shift | `/team` |
+| Alerts: all notifications with read state | `/alerts` | Team: workload per person, resolved this shift, People (edit ground crew details, role, deactivate, delete) | `/team` |
+| Account: change password, details | `/account` | Account: change password, details | `/account` |
 | Report detail (shared, resolve + mark read) | `/reports/:id` | Report detail (shared, assign + review) | `/reports/:id` |
 
 Navigation is a single row in the header beside the brand: four items per role, icon + label,
@@ -133,6 +134,10 @@ current page underlined in accent. A role badge ("Ground crew" / "Supervisor") s
 user's name. Routes that belong to the other role render a friendly "Not available for your
 role" page with a link home. This is UX only; the backend enforces RBAC. Ground crew never
 call `GET /api/users`.
+
+The user's name in the header links to `/account` (an account icon on phones, where Log out also
+moves onto the Account page). "Forgot password?" on the log in page leads to `/forgot-password`;
+the emailed link opens `/reset-password`, which strips the token from the address bar on load.
 
 Supervisors submit handovers through a secondary "New handover" button in the header that
 opens the composer in a dialog.
@@ -162,6 +167,10 @@ opens the composer in a dialog.
 | `InsightPanel` (`BarList`, `ShiftTrend`, recurring entities) | supervisor | inline SVG/CSS, client-side |
 | `ReportFilters` | supervisor | category, confidence range, date; URL params |
 | `TeamPage`, `WorkloadBars` | supervisor | |
+| `PeoplePanel` (Manage dialog: ground crew details, role, deactivate with reason / reactivate, delete permanently with typed-email confirmation) | supervisor | on the Team page |
+| `ChangePasswordForm`, `AccountPage` | shared | change your own password; your details |
+| `ForgotPasswordPage`, `ResetPasswordPage` | public | email reset link |
+| `ReassignBadge`, `personName()` | shared | "Needs reassignment"; "Name (deactivated)" and "Former employee" everywhere a name appears |
 
 ## Where the data comes from
 
@@ -170,8 +179,10 @@ client-side and labelled where that matters. See "Backend gaps" in the final rep
 
 - Shift windows: client clock with day 06:00 to 18:00 (`config.js`).
 - Overdue: a pending task whose `due_at` has passed (set per task by supervisors).
-- Roles: sign-up always creates ground crew; supervisors change roles on the Team page
-  (`PATCH /api/users/:id/role`). The backend reads the current role from the database on every
+- Roles and accounts: sign-up always creates ground crew; supervisors edit ground crew details
+  (name, email, staff number, station), change roles, deactivate and delete in the People panel on
+  the Team page (`/api/users/*`). Tasks whose assignee left count as unassigned (`needsOwner`).
+  Permanent delete is the one destructive action styled in KQ red. The backend reads the current role from the database on every
   request, so changes apply immediately.
 - "Mine": `task.assigned_to === me` and `task.resolved_by === me`.
 - "Handovers I submitted": `GET /api/handovers?submitted_by=me`.
@@ -284,6 +295,9 @@ Implemented with Socket.IO on the same port as the REST API.
 | `handover:created` `{ report, task, notification, submittedBy }` | `controllers/handoverController.js`, after the response | everyone signed in | add the alert and task, refresh report lists, notice "New handover: <category>" (not shown to the submitter) |
 | `task:assigned` `{ task, by, previousAssignee }` | `controllers/taskController.js`, `assign` | everyone signed in | update the task in place; the assignee gets "A task was assigned to you", the previous assignee "…reassigned to someone else" |
 | `task:resolved` `{ task, by }` | `controllers/taskController.js`, `resolve` | everyone signed in | task leaves open lists; the assignee is told if a colleague resolved it |
+| `users:changed` `{ user_id }` | `controllers/userController.js` | supervisors | People panel, assignee lists and tasks reload |
+| `tasks:reassignment-needed` `{ task_ids }` | `controllers/userController.js`, deactivate / delete | everyone signed in | tasks reload; they show "Needs reassignment" |
+| `session:ended` `{ reason }` | deactivate / delete, `authController.resetPassword` | that user | signed out at once; the login page shows the reason |
 
 - Backend: `backend/realtime.js` authenticates the handshake with the same checks as the REST API
   (JWT signature and expiry, revoked tokens), joins server-chosen rooms (`authenticated`,

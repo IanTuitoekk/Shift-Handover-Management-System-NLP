@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Eye, EyeSlash } from '@phosphor-icons/react';
 
-export function PasswordField({ id, label, hint, error, autoComplete, inputRef, minLength }) {
+export function PasswordField({ id, name = 'password', label, hint, error, autoComplete, inputRef, minLength }) {
   const [visible, setVisible] = useState(false);
   const describedBy = [hint && `${id}-hint`, error && `${id}-error`].filter(Boolean).join(' ') || undefined;
 
@@ -14,7 +14,7 @@ export function PasswordField({ id, label, hint, error, autoComplete, inputRef, 
         <input
           ref={inputRef}
           id={id}
-          name="password"
+          name={name}
           className="input"
           type={visible ? 'text' : 'password'}
           autoComplete={autoComplete}

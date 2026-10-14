@@ -10,6 +10,9 @@ import { RegisterPage } from './pages/RegisterPage';
 import { ReportsPage } from './pages/ReportsPage';
 import { ReportDetailPage } from './pages/ReportDetailPage';
 import { CreditsPage } from './pages/CreditsPage';
+import { AccountPage } from './pages/AccountPage';
+import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
+import { ResetPasswordPage } from './pages/ResetPasswordPage';
 
 // Each role's pages load on demand, so ground crew never download supervisor code and vice versa.
 const named = (load, name) => lazy(() => load().then((m) => ({ default: m[name] })));
@@ -34,6 +37,7 @@ export default function App() {
           <Route element={<GuestRoute />}>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           </Route>
 
           <Route element={<ProtectedRoute />}>
@@ -41,6 +45,7 @@ export default function App() {
               <Route index element={<RoleHome />} />
               <Route path="/reports" element={<ReportsPage />} />
               <Route path="/reports/:reportId" element={<ReportDetailPage />} />
+              <Route path="/account" element={<AccountPage />} />
 
               <Route element={<RoleRoute allow={['ground_crew']} />}>
                 <Route path="/my-tasks" element={<MyTasksPage />} />
@@ -54,6 +59,8 @@ export default function App() {
             </Route>
           </Route>
 
+          {/* Works signed in or out: the link comes from an email. */}
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/credits" element={<CreditsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

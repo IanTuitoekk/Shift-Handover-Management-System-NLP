@@ -5,11 +5,10 @@ import { PageHeader, Section, EmptyState, ErrorState } from '../../components/ui
 import { StripList } from '../../components/ui/Strip';
 import { TaskStrip } from '../../components/tasks/TaskStrip';
 import { BarList } from '../../components/charts/BarList';
-import { byDue, inShift, roleLabel, shiftAt } from '../../utils/format';
+import { byDue, inShift, needsOwner, roleLabel, shiftAt } from '../../utils/format';
 import { leastLoaded, workload } from '../../utils/insights';
 import { useAllReports } from '../../hooks/useData';
-import { api } from '../../api/client';
-import { RoleControl } from '../../components/tasks/RoleControl';
+import { PeoplePanel } from '../../components/people/PeoplePanel';
 
 export function TeamPage() {
   const { me, now, tasks, users, usersById, assignTask } = useShell();
@@ -18,12 +17,8 @@ export function TeamPage() {
   const all = tasks.data ?? [];
   const rows = users?.data ? workload(users.data, all, t) : [];
   const suggestion = users?.data ? leastLoaded(users.data, all) : null;
-  const unassigned = all.filter((x) => x.status === 'pending' && !x.assigned_to);
+  const unassigned = all.filter(needsOwner);
   const reports = useAllReports();
-  const changeRole = async (userId, role) => {
-    await api.setUserRole(userId, role);
-    users.reload();
-  };
   const handoversThisShift = (userId) =>
     (reports.data?.reports ?? []).filter((r) => r.submitted_by?.user_id === userId && inShift(r.generated_at, shift)).length;
   const resolvedThisShift = (userId) =>
@@ -76,7 +71,6 @@ export function TeamPage() {
                   </span>
                 }
               >
-                {user.user_id !== me.user_id && <RoleControl user={user} onChange={changeRole} />}
                 {theirs.length === 0 ? (
                   <p className="bay__empty">No open tasks.</p>
                 ) : (
@@ -99,6 +93,7 @@ export function TeamPage() {
         </div>
 
         <aside className="stack">
+          <PeoplePanel me={me} onChanged={users?.reload} />
           <Section id="workload-chart" title="Open tasks per person" variant="raised">
             {rows.length > 0 && (
               <BarList

@@ -46,7 +46,7 @@ client.interceptors.response.use(
     const isAuthCall = error.config?.url?.startsWith('/auth/login') || error.config?.url?.startsWith('/auth/register');
     if (error.response?.status === 401 && !isAuthCall) {
       tokenStore.clear();
-      onUnauthorized();
+      onUnauthorized(error.response?.data?.error);
     }
     return Promise.reject(error);
   },
@@ -57,6 +57,11 @@ export const api = {
   register: (payload) => client.post('/auth/register', payload).then((r) => r.data),
   logout: () => client.post('/auth/logout').then((r) => r.data),
   me: () => client.get('/auth/me').then((r) => r.data),
+  forgotPassword: (email) => client.post('/auth/forgot-password', { email }).then((r) => r.data),
+  resetPassword: (token, newPassword) =>
+    client.post('/auth/reset-password', { token, new_password: newPassword }).then((r) => r.data),
+  changePassword: (currentPassword, newPassword) =>
+    client.post('/auth/change-password', { current_password: currentPassword, new_password: newPassword }).then((r) => r.data),
 
   listReports: ({ limit, offset, submittedBy }) =>
     client
@@ -72,7 +77,12 @@ export const api = {
 
   listUsers: () => client.get('/users').then((r) => r.data),
   setTaskDue: (taskId, dueAt) => client.patch(`/tasks/${taskId}/due`, { due_at: dueAt }).then((r) => r.data),
+  listDirectory: () => client.get('/users/directory').then((r) => r.data),
+  updateUser: (userId, changes) => client.patch(`/users/${userId}`, changes).then((r) => r.data),
   setUserRole: (userId, role) => client.patch(`/users/${userId}/role`, { role }).then((r) => r.data),
+  setUserActive: (userId, active, reason) =>
+    client.patch(`/users/${userId}/active`, { active, ...(reason ? { reason } : {}) }).then((r) => r.data),
+  deleteUser: (userId) => client.delete(`/users/${userId}`).then((r) => r.data),
 
   listNotifications: () => client.get('/notifications').then((r) => r.data),
   markNotificationRead: (notifId) => client.patch(`/notifications/${notifId}/read`).then((r) => r.data),

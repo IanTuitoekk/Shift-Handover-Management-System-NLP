@@ -14,7 +14,7 @@ import { ShiftTrend } from '../../components/charts/ShiftTrend';
 import { useAllReports, useRecentReportDetails } from '../../hooks/useData';
 import { INSIGHT_DETAIL_WINDOW, LOW_CONFIDENCE_THRESHOLD, TREND_SHIFTS } from '../../config';
 import { categoryMeta } from '../../utils/categories';
-import { byDue, formatAge, formatDateTime, formatPercent, inShift, isOverdue, needsReview, operationalDay, shiftAt } from '../../utils/format';
+import { byDue, formatAge, formatDateTime, formatPercent, inShift, isOverdue, needsOwner, needsReview, operationalDay, shiftAt } from '../../utils/format';
 import { categoryMix, leastLoaded, recurringEntities, reportsPerHour, reportsPerShift, reviewOrder, workload } from '../../utils/insights';
 import { OverviewTiles } from './OverviewTiles';
 
@@ -33,7 +33,7 @@ export function OverviewPage() {
   const allTasks = tasks.data ?? [];
   const pending = allTasks.filter((x) => x.status === 'pending');
   const overdue = pending.filter((x) => isOverdue(x, t));
-  const unassigned = pending.filter((x) => !x.assigned_to);
+  const unassigned = pending.filter(needsOwner);
   const lowReports = reports.filter(needsReview);
   const thisShift = reports.filter((r) => inShift(r.generated_at, shift));
 

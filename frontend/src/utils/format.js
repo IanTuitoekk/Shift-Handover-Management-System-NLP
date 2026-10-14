@@ -161,6 +161,27 @@ export function firstName(fullName = '') {
   return fullName.trim().split(/\s+/)[0] || fullName;
 }
 
+/**
+ * A person's name as shown anywhere in the app: "Former employee" once deleted, "Name (deactivated)"
+ * while deactivated. Accepts directory rows and the `assignee` / `resolver` / `submitted_by` objects.
+ */
+export function personName(person) {
+  if (!person) return null;
+  if (person.anonymised || person.anonymised_at) return 'Former employee';
+  return person.is_active === false ? `${person.full_name} (deactivated)` : person.full_name;
+}
+
+/** Open and without a (current) owner: never assigned, or the assignee was deactivated or deleted. */
+export const needsOwner = (task) => task.status === 'pending' && (!task.assigned_to || Boolean(task.needs_reassignment));
+
+/** The assignee or resolver of a task, from the task itself or (after a live update) the user list. */
+export function taskPerson(task, which, usersById) {
+  const id = which === 'resolver' ? task.resolved_by : task.assigned_to;
+  if (!id) return null;
+  const embedded = task[which];
+  return embedded?.user_id === id ? embedded : usersById?.get(id) ?? null;
+}
+
 export function roleLabel(role) {
   if (!role) return '';
   const text = role.replace(/_/g, ' ');

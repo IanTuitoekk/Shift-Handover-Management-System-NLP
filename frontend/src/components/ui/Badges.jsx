@@ -1,6 +1,6 @@
-import { CalendarBlank, CheckCircle, CircleDashed, Clock, PencilSimpleLine, UserCircle, WarningOctagon } from '@phosphor-icons/react';
+import { ArrowsClockwise, CalendarBlank, CheckCircle, CircleDashed, Clock, PencilSimpleLine, UserCircle, WarningOctagon } from '@phosphor-icons/react';
 import { categoryMeta } from '../../utils/categories';
-import { dueInfo, isOverdue, roleLabel } from '../../utils/format';
+import { dueInfo, isOverdue, personName, roleLabel, taskPerson } from '../../utils/format';
 
 /** Category: neutral badge with a fixed icon per category (identity is never colour-only). */
 export function CategoryBadge({ name, short = false }) {
@@ -42,6 +42,19 @@ export function TaskStatusBadge({ task, now }) {
 
 /** Who a task belongs to, with role-appropriate wording. */
 export function AssigneeBadge({ task, currentUserId, usersById }) {
+  const reassign = task.needs_reassignment && task.status === 'pending';
+  if (!task.assigned_to && reassign) return <ReassignBadge />;
+  if (task.assigned_to && reassign) {
+    return (
+      <>
+        <span className="badge">
+          <UserCircle size={14} aria-hidden="true" />
+          {personName(taskPerson(task, 'assignee', usersById)) ?? 'A colleague (deactivated)'}
+        </span>
+        <ReassignBadge />
+      </>
+    );
+  }
   if (!task.assigned_to) {
     return (
       <span className="badge">
@@ -58,11 +71,21 @@ export function AssigneeBadge({ task, currentUserId, usersById }) {
       </span>
     );
   }
-  const name = usersById?.get(task.assigned_to)?.full_name;
+  const name = personName(taskPerson(task, 'assignee', usersById));
   return (
     <span className="badge">
       <UserCircle size={14} aria-hidden="true" />
       {name ?? 'Assigned to a colleague'}
+    </span>
+  );
+}
+
+/** The assignee was deactivated or deleted; a supervisor should give the task to someone else. */
+export function ReassignBadge() {
+  return (
+    <span className="badge badge--accent">
+      <ArrowsClockwise size={14} aria-hidden="true" />
+      Needs reassignment
     </span>
   );
 }
@@ -72,9 +95,9 @@ export function SubmitterBadge({ submittedBy, currentUserId, withRole = false })
   if (!submittedBy) return null;
   const mine = submittedBy.user_id === currentUserId;
   return (
-    <span className="badge" title={`Submitted by ${submittedBy.full_name}, ${roleLabel(submittedBy.role).toLowerCase()}`}>
+    <span className="badge" title={`Submitted by ${personName(submittedBy)}, ${roleLabel(submittedBy.role).toLowerCase()}`}>
       <PencilSimpleLine size={14} aria-hidden="true" />
-      {mine ? 'By you' : `By ${submittedBy.full_name}`}
+      {mine ? 'By you' : `By ${personName(submittedBy)}`}
       {withRole && !mine ? `, ${roleLabel(submittedBy.role).toLowerCase()}` : ''}
     </span>
   );

@@ -11,7 +11,7 @@ import { EntityGroups } from '../components/report/EntityGroups';
 import { AssignControl } from '../components/tasks/AssignControl';
 import { ResolveButton } from '../components/tasks/ResolveButton';
 import { LOW_CONFIDENCE_THRESHOLD } from '../config';
-import { formatDateTime, formatPercent, needsReview, parseConfidence, taskSummary } from '../utils/format';
+import { formatDateTime, formatPercent, needsReview, parseConfidence, personName, taskPerson, taskSummary } from '../utils/format';
 import { leastLoaded } from '../utils/insights';
 import { categoryPhoto } from '../assets/photos';
 
@@ -133,7 +133,11 @@ export function ReportDetailPage() {
                     {task.resolved_at && (
                       <span className="field-hint">
                         <CheckCircle size={14} aria-hidden="true" /> Resolved <span className="num">{formatDateTime(task.resolved_at)}</span>
-                        {task.resolved_by === me.user_id ? ' by you' : usersById.get(task.resolved_by) ? ` by ${usersById.get(task.resolved_by).full_name}` : ''}
+                        {task.resolved_by === me.user_id
+                          ? ' by you'
+                          : taskPerson(task, 'resolver', usersById)
+                            ? ` by ${personName(taskPerson(task, 'resolver', usersById))}`
+                            : ''}
                       </span>
                     )}
                   </div>

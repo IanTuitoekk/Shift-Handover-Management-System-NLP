@@ -174,6 +174,17 @@
 .who__name {
   font-size: var(--text-sm);
   font-weight: 600;
+  color: inherit;
+  text-decoration: none;
+}
+
+.who__account {
+  display: none;
+}
+
+.who__name:hover {
+  color: var(--accent-text);
+  text-decoration: underline;
 }
 
 /* Below desktop width the nav takes its own row (still a single line). */
@@ -203,11 +214,44 @@
 
 @media (max-width: 720px) {
   .brand__product,
-  .who__name {
+  .who {
     display: none;
   }
 
+  .who__account {
+    display: inline-flex;
+  }
+
   .header__new span {
+    display: none;
+  }
+
+  .header__new {
+    margin-right: 0;
+    padding-inline: var(--space-3);
+  }
+
+  .header__inner {
+    column-gap: var(--space-3);
+    padding-inline: max(var(--space-4), env(safe-area-inset-left)) max(var(--space-4), env(safe-area-inset-right));
+  }
+
+  /* Four labelled tabs don't fit a phone; the row scrolls on its own instead of the page. */
+  .nav {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .nav__item {
+    flex: 1 0 auto;
+    padding-inline: var(--space-2);
+  }
+}
+
+/* Small phones: log out moves to the Account page (one tap away via the account icon). */
+@media (max-width: 480px) {
+  .header__logout,
+  .nav__item > svg {
     display: none;
   }
 }

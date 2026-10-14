@@ -5,7 +5,7 @@ import { useShell } from '../../components/shell/ShellContext';
 import { PageHeader, EmptyState, ErrorState } from '../../components/ui/Layout';
 import { StripList, StripSkeleton } from '../../components/ui/Strip';
 import { TaskStrip } from '../../components/tasks/TaskStrip';
-import { byDue, isOverdue } from '../../utils/format';
+import { byDue, isOverdue, needsOwner } from '../../utils/format';
 import { leastLoaded } from '../../utils/insights';
 import { ShiftFilter } from '../../components/ui/ShiftFilter';
 import { matchesShift, useShiftParam } from '../../hooks/useShiftParam';
@@ -39,14 +39,14 @@ export function TriagePage() {
 
   const all = tasks.data ?? [];
   const matchesAssignee = (task) =>
-    assignee === 'all' || (assignee === 'unassigned' ? !task.assigned_to : task.assigned_to === assignee);
+    assignee === 'all' || (assignee === 'unassigned' ? needsOwner(task) : task.assigned_to === assignee);
   const byAge = (a, b) =>
     sort === 'due' ? byDue(a, b, t) : (sort === 'oldest' ? 1 : -1) * (new Date(a.created_at) - new Date(b.created_at));
   const [shift, setShift] = useShiftParam();
   const pending = all.filter((x) => x.status === 'pending' && matchesAssignee(x) && matchesShift(x, shift));
   const bays = {
-    unassigned: pending.filter((x) => !x.assigned_to && !isOverdue(x, t)).sort(byAge),
-    assigned: pending.filter((x) => x.assigned_to && !isOverdue(x, t)).sort(byAge),
+    unassigned: pending.filter((x) => needsOwner(x) && !isOverdue(x, t)).sort(byAge),
+    assigned: pending.filter((x) => !needsOwner(x) && !isOverdue(x, t)).sort(byAge),
     overdue: pending.filter((x) => isOverdue(x, t)).sort(byAge),
   };
   const resolved = all

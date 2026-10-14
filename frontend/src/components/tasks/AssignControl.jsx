@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { CheckCircle, Lightbulb } from '@phosphor-icons/react';
+import { personName, taskPerson } from '../../utils/format';
 
 function roleText(role) {
   return role ? role.replace(/_/g, ' ') : '';
@@ -96,7 +97,7 @@ export function AssignControl({ task, users, currentUserId, suggestion, onAssign
             </option>
             {assigneeMissing && (
               <option value={currentId} disabled>
-                Inactive user
+                {personName(taskPerson(task, 'assignee')) ?? 'Someone no longer active'}
               </option>
             )}
             {list.map((u) => (

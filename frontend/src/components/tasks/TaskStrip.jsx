@@ -4,7 +4,7 @@ import { Strip } from '../ui/Strip';
 import { AssigneeBadge, CategoryBadge, DueBadge } from '../ui/Badges';
 import { ResolveButton } from './ResolveButton';
 import { AssignControl } from './AssignControl';
-import { formatAge, formatDateTime, isOverdue, taskCategory, taskSummary } from '../../utils/format';
+import { formatAge, formatDateTime, isOverdue, personName, taskCategory, taskPerson, taskSummary } from '../../utils/format';
 import { afterLeave } from '../../utils/motion';
 
 /**
@@ -47,8 +47,11 @@ export function TaskStrip({ task, now, currentUserId, usersById, onResolve, onRe
           {resolved && task.resolved_at && (
             <span className="strip__note">
               Resolved <time dateTime={task.resolved_at}>{formatDateTime(task.resolved_at)}</time>
-              {task.resolved_by && usersById?.get(task.resolved_by) ? ` by ${usersById.get(task.resolved_by).full_name}` : ''}
-              {task.resolved_by && task.resolved_by === currentUserId ? ' by you' : ''}
+              {task.resolved_by === currentUserId
+                ? ' by you'
+                : taskPerson(task, 'resolver', usersById)
+                  ? ` by ${personName(taskPerson(task, 'resolver', usersById))}`
+                  : ''}
             </span>
           )}
         </>

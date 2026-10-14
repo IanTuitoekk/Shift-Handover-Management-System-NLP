@@ -268,3 +268,9 @@
   min-height: 44px;
   color: var(--text-muted);
 }
+
+.auth-forgot {
+  margin: calc(var(--space-2) * -1) 0 0;
+  font-size: var(--text-sm);
+  text-align: right;
+}

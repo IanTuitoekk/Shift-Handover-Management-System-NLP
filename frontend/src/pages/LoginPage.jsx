@@ -8,7 +8,7 @@ import { PasswordField } from '../components/PasswordField';
 import { errorMessage } from '../utils/format';
 
 export function LoginPage() {
-  const { login } = useAuth();
+  const { login, notice } = useAuth();
   const location = useLocation();
   const emailRef = useRef(null);
   const passwordRef = useRef(null);
@@ -60,6 +60,7 @@ export function LoginPage() {
     >
       <form className="auth-form" onSubmit={handleSubmit} noValidate>
         <div aria-live="polite">
+          {notice && !formError && <p className="notice">{notice}</p>}
           {formError && (
             <p className="notice notice--critical" role="alert">
               <WarningOctagon size={18} weight="fill" aria-hidden="true" />
@@ -88,6 +89,9 @@ export function LoginPage() {
           autoComplete="current-password"
           error={fieldErrors.password}
         />
+        <p className="auth-forgot">
+          <Link to="/forgot-password">Forgot password?</Link>
+        </p>
 
         <button type="submit" className="btn btn-primary btn-block" disabled={submitting}>
           {submitting ? 'Logging in…' : 'Log in'}
