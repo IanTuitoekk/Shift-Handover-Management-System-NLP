@@ -7,6 +7,8 @@ import { StripList, StripSkeleton } from '../../components/ui/Strip';
 import { TaskStrip } from '../../components/tasks/TaskStrip';
 import { byDue, isOverdue } from '../../utils/format';
 import { leastLoaded } from '../../utils/insights';
+import { ShiftFilter } from '../../components/ui/ShiftFilter';
+import { matchesShift, useShiftParam } from '../../hooks/useShiftParam';
 
 const BAYS = [
   { key: 'unassigned', title: 'Unassigned', icon: CircleDashed, empty: 'Every open task has an owner.' },
@@ -40,14 +42,15 @@ export function TriagePage() {
     assignee === 'all' || (assignee === 'unassigned' ? !task.assigned_to : task.assigned_to === assignee);
   const byAge = (a, b) =>
     sort === 'due' ? byDue(a, b, t) : (sort === 'oldest' ? 1 : -1) * (new Date(a.created_at) - new Date(b.created_at));
-  const pending = all.filter((x) => x.status === 'pending' && matchesAssignee(x));
+  const [shift, setShift] = useShiftParam();
+  const pending = all.filter((x) => x.status === 'pending' && matchesAssignee(x) && matchesShift(x, shift));
   const bays = {
     unassigned: pending.filter((x) => !x.assigned_to && !isOverdue(x, t)).sort(byAge),
     assigned: pending.filter((x) => x.assigned_to && !isOverdue(x, t)).sort(byAge),
     overdue: pending.filter((x) => isOverdue(x, t)).sort(byAge),
   };
   const resolved = all
-    .filter((x) => x.status === 'resolved' && matchesAssignee(x))
+    .filter((x) => x.status === 'resolved' && matchesAssignee(x) && matchesShift(x, shift))
     .sort((a, b) => new Date(b.resolved_at ?? b.updated_at) - new Date(a.resolved_at ?? a.updated_at));
   const suggestion = users?.data ? leastLoaded(users.data, all) : null;
   const loading = tasks.data === undefined && !tasks.error;
@@ -79,6 +82,7 @@ export function TriagePage() {
             </button>
           ))}
         </div>
+        <ShiftFilter shift={shift} onChange={setShift} />
         <div className="toolbar__filters">
           <label className="inline-field inline-field--row">
             <span>Sort</span>

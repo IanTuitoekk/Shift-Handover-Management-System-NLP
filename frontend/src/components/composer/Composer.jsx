@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Microphone, PaperPlaneTilt, WarningOctagon } from '@phosphor-icons/react';
+import { Microphone, NotePencil, PaperPlaneTilt, WarningOctagon } from '@phosphor-icons/react';
 import { api } from '../../api/client';
 import { draftStore } from '../../utils/deviceStore';
 import { errorMessage, formatTime, shiftAt } from '../../utils/format';
@@ -101,9 +101,17 @@ export function Composer({ userId, variant = 'hero', onSubmitted, titleId = 'com
     <div className={`composer composer--${variant}`}>
       <form className="composer__form" onSubmit={handleSubmit} noValidate>
         {variant === 'hero' && (
-          <h2 id={titleId} className="composer__title">
-            New handover
-          </h2>
+          <div className="composer__lead">
+            <span className="composer__lead-icon" aria-hidden="true">
+              <NotePencil size={24} weight="duotone" />
+            </span>
+            <div>
+              <h2 id={titleId} className="composer__title">
+                New handover
+              </h2>
+              <p className="composer__lead-text">Handing over? Start here. It takes about a minute.</p>
+            </div>
+          </div>
         )}
 
         <div className="composer__input">

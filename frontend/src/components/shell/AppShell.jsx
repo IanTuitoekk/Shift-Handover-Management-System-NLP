@@ -1,6 +1,6 @@
 import { Suspense, useCallback, useMemo, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
-import { Bell, CheckCircle, ClipboardText, Moon, Plus, SignOut, Sun, UserCirclePlus } from '@phosphor-icons/react';
+import { Bell, CheckCircle, ClipboardText, Moon, NotePencil, Plus, SignOut, Sun, UserCirclePlus } from '@phosphor-icons/react';
 import { api, tokenStore } from '../../api/client';
 import { useAuth } from '../../auth/useAuth';
 import { LIVE_REFRESH_MS, REFRESH_MS } from '../../config';
@@ -59,7 +59,7 @@ export function AppShell() {
   );
   const live = useRealtime(tokenStore.get(), {
     'handover:created': ({ report, task, notification, submittedBy }) => {
-      if (task) upsertTask(task);
+      if (task) upsertTask({ shift: report?.shift, ...task });
       if (notification) {
         mutateNotifications((list = []) =>
           list.some((n) => n.notif_id === notification.notif_id) ? list : [notification, ...list],
@@ -207,6 +207,12 @@ export function AppShell() {
             </nav>
 
             <div className="header__actions">
+              {!supervisor && (
+                <Link to="/" state={{ compose: true }} className="btn btn-primary header__new">
+                  <NotePencil size={16} weight="bold" aria-hidden="true" />
+                  <span>Write handover</span>
+                </Link>
+              )}
               {supervisor && (
                 <button type="button" className="btn btn-secondary header__new" onClick={() => setComposerOpen(true)}>
                   <Plus size={16} weight="bold" aria-hidden="true" />

@@ -1412,3 +1412,73 @@
   flex-wrap: wrap;
   gap: var(--space-1) var(--space-3);
 }
+
+/* The handover form is the ground crew's main job: accent edge, lead-in, full-width submit. */
+.panel.composer-panel {
+  position: relative;
+  border-color: var(--accent);
+  box-shadow: inset var(--tab-w) 0 0 var(--accent), var(--elev-1);
+  scroll-margin-top: calc(var(--header-h) + var(--space-5));
+}
+
+.composer__lead {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.composer__lead-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius-panel);
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+
+.composer__lead .composer__title {
+  font-size: var(--text-xl);
+}
+
+.composer__lead-text {
+  margin-top: 2px;
+  color: var(--text-muted);
+}
+
+.composer--hero .composer__controls {
+  grid-template-columns: minmax(8rem, 10rem) minmax(0, 1fr);
+}
+
+.composer--hero .composer__submit {
+  grid-column: 1 / -1;
+  min-height: 3.25rem;
+  font-size: var(--text-lg);
+}
+
+.composer--hero .composer__saved {
+  justify-self: end;
+}
+
+/* One calm glow on arrival: two soft rings, then it settles. Nothing under reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .panel.composer-panel--highlight {
+    animation: compose-glow 2.4s var(--ease-out) 2;
+  }
+}
+
+@keyframes compose-glow {
+  0%,
+  100% {
+    box-shadow: inset var(--tab-w) 0 0 var(--accent), var(--elev-1), 0 0 0 0 transparent;
+  }
+  35% {
+    box-shadow: inset var(--tab-w) 0 0 var(--accent), var(--elev-1), 0 0 0 6px var(--accent-soft);
+  }
+}
+
+/* The shift toggle sits above lists; in the Triage toolbar it shares the row. */
+.toolbar .segmented + .segmented {
+  margin-left: 0;
+}

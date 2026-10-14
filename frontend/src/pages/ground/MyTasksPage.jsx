@@ -5,6 +5,8 @@ import { PageHeader, Section, EmptyState, ErrorState } from '../../components/ui
 import { Strip, StripList, StripSkeleton } from '../../components/ui/Strip';
 import { TaskStrip } from '../../components/tasks/TaskStrip';
 import { useMyReports } from '../../hooks/useData';
+import { ShiftFilter } from '../../components/ui/ShiftFilter';
+import { matchesShift, shiftCounts, useShiftParam } from '../../hooks/useShiftParam';
 import { categoryMeta } from '../../utils/categories';
 import { inShift, byDue, previousShift, shiftAt, shiftLabel, taskSummary } from '../../utils/format';
 import { myShiftEvents } from './events';
@@ -14,7 +16,9 @@ export function MyTasksPage() {
   const myReports = useMyReports();
   const t = now.getTime();
 
-  const pending = useMemo(() => (tasks.data ?? []).filter((x) => x.status === 'pending'), [tasks.data]);
+  const [shiftFilter, setShiftFilter] = useShiftParam();
+  const allPending = useMemo(() => (tasks.data ?? []).filter((x) => x.status === 'pending'), [tasks.data]);
+  const pending = allPending.filter((x) => matchesShift(x, shiftFilter));
   const byUrgency = (a, b) => byDue(a, b, t);
   const mine = pending.filter((x) => x.assigned_to === me.user_id).sort(byUrgency);
   const others = pending
@@ -49,6 +53,7 @@ export function MyTasksPage() {
           )
         }
       />
+      <ShiftFilter shift={shiftFilter} onChange={setShiftFilter} counts={tasks.data ? shiftCounts(allPending) : undefined} />
       <div className="split split--wide-left">
         <div className="stack">
           {tasks.error && !tasks.data && <ErrorState message="Couldn’t load tasks." onRetry={tasks.reload} />}

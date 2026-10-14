@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ArrowRight, BellSimpleSlash, CheckCircle, Sun } from '@phosphor-icons/react';
 import { useShell } from '../../components/shell/ShellContext';
 import { Composer } from '../../components/composer/Composer';
@@ -19,6 +19,40 @@ const BRIEFING_LIMIT = 4;
 export function GroundHome() {
   const { me, now, tasks, notifications, markRead, resolveTask, applyTaskUpdate, refreshAll } = useShell();
   const myReports = useMyReports();
+  const location = useLocation();
+  const navigate = useNavigate();
+  // Draw the eye to the form once per session, and whenever someone uses "Write handover".
+  const [firstVisit] = useState(() => {
+    try {
+      return !sessionStorage.getItem('kq-compose-seen');
+    } catch {
+      return true; // storage unavailable; treat as a first visit
+    }
+  });
+  useEffect(() => {
+    try {
+      sessionStorage.setItem('kq-compose-seen', '1');
+    } catch {
+      // ignore
+    }
+  }, []);
+  const [ended, setEnded] = useState({ once: false, key: null });
+  const composeRequested = Boolean(location.state?.compose);
+  const highlight = composeRequested ? ended.key !== location.key : firstVisit && !ended.once;
+
+  // Arriving from "Write handover": bring the form into view and put the cursor in it.
+  useEffect(() => {
+    if (!composeRequested) return;
+    document.getElementById('compose')?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    document.getElementById('composer-title-text')?.focus({ preventScroll: true });
+  }, [composeRequested, location.key]);
+
+  function handleGlowEnd(event) {
+    if (event.target !== event.currentTarget) return; // ignore animations inside the form
+    setEnded({ once: true, key: location.key });
+    // Clear the request so a reload doesn't replay it.
+    if (composeRequested) navigate('.', { replace: true, state: null });
+  }
   const shift = shiftAt(now);
   const prev = previousShift(now);
   const t = now.getTime();
@@ -62,7 +96,12 @@ export function GroundHome() {
       />
 
       <div className="home-grid">
-        <section className="panel composer-panel" aria-labelledby="composer-title">
+        <section
+          id="compose"
+          className={`panel composer-panel ${highlight ? 'composer-panel--highlight' : ''}`}
+          aria-labelledby="composer-title"
+          onAnimationEnd={handleGlowEnd}
+        >
           <Composer userId={me.user_id} onSubmitted={onSubmitted} />
         </section>
 

@@ -6,6 +6,8 @@ import { PageHeader, Section, EmptyState, ErrorState } from '../components/ui/La
 import { StripList, StripSkeleton } from '../components/ui/Strip';
 import { ReportStrip } from '../components/report/ReportStrip';
 import { useAllReports } from '../hooks/useData';
+import { ShiftFilter } from '../components/ui/ShiftFilter';
+import { matchesShift, shiftCounts, useShiftParam } from '../hooks/useShiftParam';
 import { KNOWN_CATEGORIES, categoryMeta } from '../utils/categories';
 import { needsReview, parseConfidence, shiftAt, shiftLabel } from '../utils/format';
 import { LOW_CONFIDENCE_THRESHOLD } from '../config';
@@ -83,22 +85,25 @@ export function ReportsPage() {
     setLimit(PAGE);
   }
 
+  const [shift, setShift] = useShiftParam();
   const all = useMemo(() => reportsRes.data?.reports ?? [], [reportsRes.data]);
   const filtered = useMemo(() => {
-    if (!supervisor) return all;
+    const inShift = all.filter((r) => matchesShift(r, shift));
+    if (!supervisor) return inShift;
     const byDate = dateTest(date, from, to, now);
-    return all.filter(
+    return inShift.filter(
       (r) =>
         (category === 'all' || (category === 'unclassified' ? !r.category_name : r.category_name === category)) &&
         CONFIDENCE_RANGES[confidence].test(r) &&
         (submitter === 'all' || r.submitted_by?.user_id === submitter) &&
         byDate(r),
     );
-  }, [all, supervisor, category, confidence, submitter, date, from, to, now]);
+  }, [all, shift, supervisor, category, confidence, submitter, date, from, to, now]);
 
   const shown = filtered.slice(0, limit);
   const groups = groupByShift(shown);
-  const activeFilters = supervisor && (category !== 'all' || confidence !== 'all' || submitter !== 'all' || date !== 'all');
+  const activeFilters =
+    shift !== 'all' || (supervisor && (category !== 'all' || confidence !== 'all' || submitter !== 'all' || date !== 'all'));
   const lowCount = all.filter(needsReview).length;
 
   return (
@@ -191,6 +196,8 @@ export function ReportsPage() {
           )}
         </form>
       )}
+
+      <ShiftFilter shift={shift} onChange={setShift} counts={reportsRes.data ? shiftCounts(all) : undefined} />
 
       <div className="narrow narrow--wide">
         {reportsRes.data === undefined && !reportsRes.error && <StripSkeleton rows={6} />}
