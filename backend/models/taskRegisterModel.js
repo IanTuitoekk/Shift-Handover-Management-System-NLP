@@ -14,8 +14,15 @@ async function createTask({ reportId, description, assignedTo, dueAt }) {
   return result.rows[0];
 }
 
+// A person as shown on a task: deactivated and deleted ("Former employee") people stay visible.
+const person = (alias) =>
+  `CASE WHEN ${alias}.user_id IS NULL THEN NULL ELSE json_build_object(
+     'user_id', ${alias}.user_id, 'full_name', ${alias}.full_name,
+     'is_active', ${alias}.is_active, 'anonymised', ${alias}.anonymised_at IS NOT NULL) END`;
+
 /**
- * Tasks newest first, each with the `shift` ('day' | 'night') of the handover that raised it.
+ * Tasks newest first, each with the `shift` ('day' | 'night') of the handover that raised it and
+ * `assignee` / `resolver` ({ user_id, full_name, is_active, anonymised } or null).
  * Optional filters: `status` and `shift`.
  */
 async function getAllTasks(status, shift) {
@@ -30,10 +37,12 @@ async function getAllTasks(status, shift) {
     conditions.push(`${shiftExpression('s')} = $${params.length}`);
   }
   const result = await pool.query(
-    `SELECT t.*, ${shiftExpression('s')} AS shift
+    `SELECT t.*, ${shiftExpression('s')} AS shift, ${person('ua')} AS assignee, ${person('ur')} AS resolver
      FROM task_register t
      LEFT JOIN handover_reports r ON t.report_id = r.report_id
      LEFT JOIN handover_submissions s ON r.submission_id = s.submission_id
+     LEFT JOIN users ua ON t.assigned_to = ua.user_id
+     LEFT JOIN users ur ON t.resolved_by = ur.user_id
      ${conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''}
      ORDER BY t.created_at DESC`,
     params
@@ -47,7 +56,14 @@ async function getTaskById(taskId) {
 }
 
 async function getTaskByReportId(reportId) {
-  const result = await pool.query(`SELECT * FROM task_register WHERE report_id = $1`, [reportId]);
+  const result = await pool.query(
+    `SELECT t.*, ${person('ua')} AS assignee, ${person('ur')} AS resolver
+     FROM task_register t
+     LEFT JOIN users ua ON t.assigned_to = ua.user_id
+     LEFT JOIN users ur ON t.resolved_by = ur.user_id
+     WHERE t.report_id = $1`,
+    [reportId]
+  );
   return result.rows[0];
 }
 
@@ -64,7 +80,8 @@ async function resolveTask(taskId, resolvedBy) {
 
 async function assignTask(taskId, assignedTo) {
   const result = await pool.query(
-    `UPDATE task_register SET assigned_to = $1, updated_at = now() WHERE task_id = $2 RETURNING *`,
+    `UPDATE task_register SET assigned_to = $1, needs_reassignment = false, updated_at = now()
+     WHERE task_id = $2 RETURNING *`,
     [assignedTo, taskId]
   );
   return result.rows[0];

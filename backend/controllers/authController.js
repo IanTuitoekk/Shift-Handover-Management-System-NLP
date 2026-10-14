@@ -1,4 +1,5 @@
-const { registerUser, loginUser } = require('../services/authService');
+const { registerUser, loginUser, changePassword, requestPasswordReset, resetPasswordWithToken } = require('../services/authService');
+const realtime = require('../realtime');
 const { getUserById } = require('../models/userModel');
 const { revokeToken } = require('../models/revokedTokenModel');
 
@@ -55,4 +56,43 @@ const logout = async (req, res) => {
   }
 };
 
-module.exports = { register, login, me, logout };
+const updatePassword = async (req, res) => {
+  try {
+    const result = await changePassword({
+      userId: req.user.userId,
+      currentPassword: req.body.current_password,
+      newPassword: req.body.new_password,
+    });
+    // The old token stops working; revoke it explicitly as well.
+    await revokeToken(req.token);
+    res.json(result);
+  } catch (err) {
+    if (err.status) return res.status(err.status).json({ error: err.message });
+    console.error(err);
+    res.status(500).json({ error: 'Failed to change password' });
+  }
+};
+
+// Always the same answer, so this can't be used to find out which emails have accounts.
+const forgotPassword = async (req, res) => {
+  try {
+    await requestPasswordReset(req.body.email);
+  } catch (err) {
+    console.error(err);
+  }
+  res.json({ message: 'If that email belongs to an active account, a reset link is on its way.' });
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const userId = await resetPasswordWithToken(req.body.token, req.body.new_password);
+    res.json({ message: 'Password changed. Log in with your new password.' });
+    realtime.signOutUser(userId, 'Your password was reset. Log in with your new password.');
+  } catch (err) {
+    if (err.status) return res.status(err.status).json({ error: err.message });
+    console.error(err);
+    res.status(500).json({ error: 'Failed to reset password' });
+  }
+};
+
+module.exports = { register, login, me, logout, updatePassword, forgotPassword, resetPassword };

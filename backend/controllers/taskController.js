@@ -1,4 +1,5 @@
 const { getAllTasks, getTaskById, resolveTask, assignTask, setTaskDue } = require('../models/taskRegisterModel');
+const { getUserById } = require('../models/userModel');
 const realtime = require('../realtime');
 const { SHIFTS } = require('../config/shifts');
 
@@ -44,6 +45,10 @@ const assign = async (req, res) => {
     const existing = await getTaskById(taskId);
     if (!existing) {
       return res.status(404).json({ error: 'Task not found' });
+    }
+    const assignee = await getUserById(assigned_to);
+    if (!assignee || !assignee.is_active) {
+      return res.status(400).json({ error: 'Tasks can only be assigned to active people' });
     }
     const task = await assignTask(taskId, assigned_to);
     res.json(task);

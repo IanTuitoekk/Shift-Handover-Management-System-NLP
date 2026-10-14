@@ -14,7 +14,8 @@ async function createReport({ submissionId, summary, categoryId, categoryConfide
 // Who submitted the handover behind each report. Older rows may have no submitter.
 const SELECT_REPORT = `
   SELECT r.*, c.category_name, ${shiftExpression('s')} AS shift,
-         u.user_id AS submitter_id, u.full_name AS submitter_name, u.role AS submitter_role
+         u.user_id AS submitter_id, u.full_name AS submitter_name, u.role AS submitter_role,
+         u.is_active AS submitter_active, u.anonymised_at IS NOT NULL AS submitter_anonymised
   FROM handover_reports r
   LEFT JOIN incident_categories c ON r.category_id = c.category_id
   LEFT JOIN handover_submissions s ON r.submission_id = s.submission_id
@@ -22,10 +23,18 @@ const SELECT_REPORT = `
 
 function withSubmitter(row) {
   if (!row) return row;
-  const { submitter_id, submitter_name, submitter_role, ...report } = row;
+  const { submitter_id, submitter_name, submitter_role, submitter_active, submitter_anonymised, ...report } = row;
   return {
     ...report,
-    submitted_by: submitter_id ? { user_id: submitter_id, full_name: submitter_name, role: submitter_role } : null,
+    submitted_by: submitter_id
+      ? {
+          user_id: submitter_id,
+          full_name: submitter_name,
+          role: submitter_role,
+          is_active: submitter_active,
+          anonymised: submitter_anonymised,
+        }
+      : null,
   };
 }
 

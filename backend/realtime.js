@@ -11,8 +11,7 @@
  * Emitters are no-ops until init() runs, so the REST API and the tests work without a socket server.
  */
 const { Server } = require('socket.io');
-const jwt = require('jsonwebtoken');
-const { isTokenRevoked } = require('./models/revokedTokenModel');
+const { resolveSession } = require('./utils/session');
 
 let io = null;
 
@@ -25,11 +24,11 @@ function init(httpServer) {
     const token = socket.handshake.auth?.token;
     if (!token) return next(new Error('Missing token'));
     try {
-      if (await isTokenRevoked(token)) return next(new Error('Token has been revoked'));
-      socket.user = jwt.verify(token, process.env.JWT_SECRET);
+      const { decoded, user } = await resolveSession(token);
+      socket.user = { ...decoded, role: user.role };
       return next();
-    } catch {
-      return next(new Error('Invalid or expired token'));
+    } catch (err) {
+      return next(new Error(err.message));
     }
   });
 
@@ -52,4 +51,11 @@ const toAll = (event, data) => io?.to('authenticated').emit(event, data);
 const toUser = (userId, event, data) => io?.to(`user:${userId}`).emit(event, data);
 const toRole = (role, event, data) => io?.to(`role:${role}`).emit(event, data);
 
-module.exports = { init, toAll, toUser, toRole };
+/** Tells a user's open apps they have been signed out, then closes their sockets. */
+function signOutUser(userId, reason) {
+  if (!io) return;
+  io.to(`user:${userId}`).emit('session:ended', { reason });
+  io.in(`user:${userId}`).disconnectSockets(true);
+}
+
+module.exports = { init, toAll, toUser, toRole, signOutUser };

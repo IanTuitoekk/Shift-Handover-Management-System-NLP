@@ -14,7 +14,14 @@ const dueValidation = [
 
 router.get('/', requireAuth, listTasks);
 router.patch('/:taskId/resolve', requireAuth, resolve);
-router.patch('/:taskId/assign', requireAuth, requireRole('supervisor'), assign);
+router.patch(
+  '/:taskId/assign',
+  requireAuth,
+  requireRole('supervisor'),
+  [body('assigned_to').isUUID().withMessage('assigned_to must be a user id')],
+  validate,
+  assign
+);
 router.patch('/:taskId/due', requireAuth, requireRole('supervisor'), dueValidation, validate, setDue);
 
 module.exports = router;
