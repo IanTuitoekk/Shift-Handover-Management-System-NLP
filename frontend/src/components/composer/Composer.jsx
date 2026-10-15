@@ -66,7 +66,7 @@ export function Composer({ userId, variant = 'hero', onSubmitted, titleId = 'com
     setFieldError('');
     setDraft((d) => ({ ...d, voice: true, text: d.text.trim() ? `${d.text.trimEnd()}\n${text}` : text }));
     setVoiceNote(
-      `Added what you said${LANGUAGE_NAMES[language] ? ` (heard as ${LANGUAGE_NAMES[language]})` : ''}. Check it and correct anything before submitting.`,
+      `Added what you said${LANGUAGE_NAMES[language] ? ` (heard as ${LANGUAGE_NAMES[language]})` : ''}. Check it, especially the aircraft registration, and correct anything before submitting.`,
     );
     requestAnimationFrame(() => {
       const el = textRef.current;
