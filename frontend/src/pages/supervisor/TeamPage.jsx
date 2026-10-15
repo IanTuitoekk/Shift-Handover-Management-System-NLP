@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, UsersThree } from '@phosphor-icons/react';
 import { useShell } from '../../components/shell/ShellContext';
@@ -5,9 +6,9 @@ import { PageHeader, Section, EmptyState, ErrorState } from '../../components/ui
 import { StripList } from '../../components/ui/Strip';
 import { TaskStrip } from '../../components/tasks/TaskStrip';
 import { BarList } from '../../components/charts/BarList';
-import { byDue, inShift, needsOwner, roleLabel, shiftAt } from '../../utils/format';
+import { byDue, needsOwner, roleLabel, shiftAt } from '../../utils/format';
 import { leastLoaded, workload } from '../../utils/insights';
-import { useAllReports } from '../../hooks/useData';
+import { useWorkload } from '../../hooks/useData';
 import { PeoplePanel } from '../../components/people/PeoplePanel';
 
 export function TeamPage() {
@@ -18,11 +19,14 @@ export function TeamPage() {
   const rows = users?.data ? workload(users.data, all, t) : [];
   const suggestion = users?.data ? leastLoaded(users.data, all) : null;
   const unassigned = all.filter(needsOwner);
-  const reports = useAllReports();
-  const handoversThisShift = (userId) =>
-    (reports.data?.reports ?? []).filter((r) => r.submitted_by?.user_id === userId && inShift(r.generated_at, shift)).length;
-  const resolvedThisShift = (userId) =>
-    all.filter((x) => x.status === 'resolved' && x.resolved_by === userId && x.resolved_at && inShift(x.resolved_at, shift)).length;
+  // Handovers and resolved tasks this shift come from the server; open/overdue from the live task list.
+  const perPerson = useWorkload(shift.start.toISOString());
+  const { reload: reloadWorkload } = perPerson;
+  const resolvedCount = all.filter((x) => x.status === 'resolved').length;
+  useEffect(() => reloadWorkload(), [resolvedCount, reloadWorkload]);
+  const counts = new Map((perPerson.data?.people ?? []).map((p) => [p.user_id, p]));
+  const handoversThisShift = (userId) => counts.get(userId)?.handovers_since ?? 0;
+  const resolvedThisShift = (userId) => counts.get(userId)?.resolved_since ?? 0;
   const loading = (users?.data === undefined && !users?.error) || (tasks.data === undefined && !tasks.error);
 
   return (

@@ -63,10 +63,14 @@ export const api = {
   changePassword: (currentPassword, newPassword) =>
     client.post('/auth/change-password', { current_password: currentPassword, new_password: newPassword }).then((r) => r.data),
 
-  listReports: ({ limit, offset, submittedBy }) =>
+  /** Filters: submitted_by, shift, category, review, min_confidence, max_confidence, from, to, sort. */
+  listReports: ({ limit, offset, submittedBy, ...filters }) =>
     client
-      .get('/handovers', { params: { limit, offset, ...(submittedBy ? { submitted_by: submittedBy } : {}) } })
+      .get('/handovers', { params: { limit, offset, ...(submittedBy ? { submitted_by: submittedBy } : {}), ...filters } })
       .then((r) => r.data),
+  overviewStats: (shifts) => client.get('/stats/overview', { params: { shifts } }).then((r) => r.data),
+  recurringEntities: (params) => client.get('/insights/entities', { params }).then((r) => r.data),
+  shiftConfig: () => client.get('/config/shifts').then((r) => r.data),
   getReport: (reportId) => client.get(`/handovers/${reportId}`).then((r) => r.data),
   submitHandover: (payload) => client.post('/handovers', payload).then((r) => r.data),
 
@@ -78,6 +82,7 @@ export const api = {
   listUsers: () => client.get('/users').then((r) => r.data),
   setTaskDue: (taskId, dueAt) => client.patch(`/tasks/${taskId}/due`, { due_at: dueAt }).then((r) => r.data),
   listDirectory: () => client.get('/users/directory').then((r) => r.data),
+  workload: (since) => client.get('/users/workload', { params: since ? { since } : {} }).then((r) => r.data),
   updateUser: (userId, changes) => client.patch(`/users/${userId}`, changes).then((r) => r.data),
   setUserRole: (userId, role) => client.patch(`/users/${userId}/role`, { role }).then((r) => r.data),
   setUserActive: (userId, active, reason) =>
@@ -86,4 +91,5 @@ export const api = {
 
   listNotifications: () => client.get('/notifications').then((r) => r.data),
   markNotificationRead: (notifId) => client.patch(`/notifications/${notifId}/read`).then((r) => r.data),
+  markNotificationsRead: (notifIds) => client.patch('/notifications/read', { notif_ids: notifIds }).then((r) => r.data),
 };

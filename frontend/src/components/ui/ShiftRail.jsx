@@ -1,5 +1,5 @@
 import { CheckCircle, PaperPlaneTilt } from '@phosphor-icons/react';
-import { DAY_SHIFT_START, NIGHT_SHIFT_START } from '../../config';
+import { SHIFT_HOURS } from '../../config';
 import { formatTime, operationalDay } from '../../utils/format';
 
 const TICK_HOURS = 3;
@@ -9,7 +9,7 @@ const KIND_META = {
 };
 
 /**
- * The shift rail: a 24h operational day (DAY_SHIFT_START to DAY_SHIFT_START) with the day and
+ * The shift rail: a 24h operational day (day-shift start to day-shift start) with the day and
  * night shifts as two segments, a "now" marker, and either personal event ticks (`events`)
  * or a reports-per-hour histogram (`perHour`, 24 counts).
  */
@@ -17,7 +17,7 @@ export function ShiftRail({ now, events, perHour, summary }) {
   const { start, end } = operationalDay(now);
   const span = end - start;
   const pos = (t) => `${Math.min(100, Math.max(0, ((new Date(t) - start) / span) * 100))}%`;
-  const dayWidth = ((NIGHT_SHIFT_START - DAY_SHIFT_START) / 24) * 100;
+  const dayWidth = ((SHIFT_HOURS.night - SHIFT_HOURS.day) / 24) * 100;
   const max = perHour ? Math.max(1, ...perHour) : 1;
   const visibleEvents = (events ?? []).filter((e) => new Date(e.at) >= start && new Date(e.at) < end);
 

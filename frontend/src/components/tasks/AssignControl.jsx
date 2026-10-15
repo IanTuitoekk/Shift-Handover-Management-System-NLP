@@ -6,12 +6,15 @@ function roleText(role) {
   return role ? role.replace(/_/g, ' ') : '';
 }
 
+// Select value for "return the task to the unassigned pool".
+const NOBODY = 'nobody';
+
 /**
- * Supervisor-only control for assigning a task. Choosing a person only selects them; nothing is
+ * Supervisor-only control for assigning (or unassigning) a task. Choosing a person only selects them; nothing is
  * sent until "Assign" is pressed. `suggestion` ({ user, open }) is the least-loaded person and
  * can be picked with one click.
  *   users        GET /api/users resource ({ data, loading, error, reload })
- *   onAssign     (taskId, userId) => Promise; rejects on failure
+ *   onAssign     (taskId, userId | null) => Promise; rejects on failure. null unassigns.
  */
 export function AssignControl({ task, users, currentUserId, suggestion, onAssign, compact = false, showSuggestion: allowSuggestion = true }) {
   const [draft, setDraft] = useState(null);
@@ -36,7 +39,8 @@ export function AssignControl({ task, users, currentUserId, suggestion, onAssign
   const hasChange = Boolean(selectedId) && selectedId !== currentId;
   const showSuggestion =
     allowSuggestion && suggestion && suggestion.user.user_id !== currentId && suggestion.user.user_id !== selectedId;
-  const actionLabel = currentId ? 'Reassign' : 'Assign';
+  const unassigning = selectedId === NOBODY;
+  const actionLabel = unassigning ? 'Unassign' : currentId ? 'Reassign' : 'Assign';
 
   function choose(userId) {
     setDraft(userId);
@@ -51,11 +55,11 @@ export function AssignControl({ task, users, currentUserId, suggestion, onAssign
     setAssigning(true);
     setError('');
     try {
-      await onAssign(task.task_id, selectedId);
+      await onAssign(task.task_id, unassigning ? null : selectedId);
       setDraft(null);
-      setAnnouncement(`Assigned to ${person?.full_name ?? 'the selected person'}.`);
+      setAnnouncement(unassigning ? 'Back in the unassigned list.' : `Assigned to ${person?.full_name ?? 'the selected person'}.`);
     } catch {
-      setError('Couldn’t assign this task. Check your connection and try again.');
+      setError(unassigning ? 'Couldn’t unassign this task. Try again.' : 'Couldn’t assign this task. Check your connection and try again.');
     } finally {
       setAssigning(false);
     }
@@ -100,6 +104,7 @@ export function AssignControl({ task, users, currentUserId, suggestion, onAssign
                 {personName(taskPerson(task, 'assignee')) ?? 'Someone no longer active'}
               </option>
             )}
+            {currentId && <option value={NOBODY}>Nobody (unassign)</option>}
             {list.map((u) => (
               <option key={u.user_id} value={u.user_id}>
                 {`${u.full_name}${u.user_id === currentUserId ? ' (you)' : ''}, ${roleText(u.role)}${

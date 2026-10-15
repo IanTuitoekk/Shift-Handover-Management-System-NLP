@@ -1,57 +1,69 @@
 import { useEffect, useState } from 'react';
 import { REPORTS_CHANGED } from './useRealtime';
 import { api } from '../api/client';
-import { INSIGHT_DETAIL_WINDOW, REFRESH_MS, REPORTS_FETCH_CAP } from '../config';
+import { REFRESH_MS } from '../config';
 import { useInterval, useResource } from './useResource';
 
-/** Pages through GET /api/handovers (100 per page) up to REPORTS_FETCH_CAP, newest first. */
-async function fetchAllReports() {
-  const all = [];
-  let total = Infinity;
-  while (all.length < Math.min(total, REPORTS_FETCH_CAP)) {
-    const page = await api.listReports({ limit: 100, offset: all.length });
-    total = page.total;
-    all.push(...page.reports);
-    if (page.reports.length === 0) break;
-  }
-  return { reports: all, total, capped: total > all.length };
-}
-
-export function useAllReports({ poll = true } = {}) {
-  const resource = useResource('reports:all', fetchAllReports);
-  const { reload } = resource;
-  useInterval(reload, poll ? REFRESH_MS : 3_600_000);
-  // Refetch as soon as the real-time push says a new report exists.
+/** Reloads a resource whenever the real-time push says a new report exists. */
+function useReloadOnNewReport(reload) {
   useEffect(() => {
     window.addEventListener(REPORTS_CHANGED, reload);
     return () => window.removeEventListener(REPORTS_CHANGED, reload);
   }, [reload]);
+}
+
+/**
+ * The first `count` reports matching `filters` (GET /api/handovers parameters), fetched in pages
+ * of 100. Returns the last page's totals: { reports, total, needs_review, shift_counts }.
+ */
+async function fetchReports(filters, count) {
+  const reports = [];
+  let page;
+  do {
+    page = await api.listReports({ ...filters, limit: Math.min(100, count - reports.length), offset: reports.length });
+    reports.push(...page.reports);
+  } while (page.reports.length > 0 && reports.length < Math.min(count, page.total));
+  return { ...page, reports };
+}
+
+/** A filtered report list, kept fresh. Pass `null` filters to skip. */
+export function useReportList(filters, count) {
+  const key = filters ? `reports:${JSON.stringify(filters)}:${count}` : null;
+  const resource = useResource(key, () => fetchReports(filters, count));
+  useReloadOnNewReport(resource.reload);
+  useInterval(resource.reload, REFRESH_MS);
   return resource;
 }
 
 /** The signed-in user's own handovers (GET /api/handovers?submitted_by=me), newest first. */
 export function useMyReports() {
   const resource = useResource('reports:mine', () => api.listReports({ limit: 100, offset: 0, submittedBy: 'me' }));
-  const { reload } = resource;
-  useEffect(() => {
-    window.addEventListener(REPORTS_CHANGED, reload);
-    return () => window.removeEventListener(REPORTS_CHANGED, reload);
-  }, [reload]);
+  useReloadOnNewReport(resource.reload);
   return resource;
 }
 
-/**
- * Entities are only on the detail endpoint, so recurring-entity insights fetch detail for the
- * most recent reports. Pass the report list; refetches when the newest report changes.
- */
-export function useRecentReportDetails(reports) {
-  const recent = (reports ?? []).slice(0, INSIGHT_DETAIL_WINDOW);
-  const key = reports ? `details:${recent.length}:${recent[0]?.report_id ?? 'none'}` : null;
-  return useResource(key, () =>
-    Promise.allSettled(recent.map((r) => api.getReport(r.report_id))).then((results) =>
-      results.filter((r) => r.status === 'fulfilled').map((r) => r.value),
-    ),
+/** Counts for the supervisor overview (GET /api/stats/overview). */
+export function useOverviewStats(shifts) {
+  const resource = useResource(`stats:overview:${shifts}`, () => api.overviewStats(shifts));
+  useReloadOnNewReport(resource.reload);
+  useInterval(resource.reload, REFRESH_MS);
+  return resource;
+}
+
+/** Aircraft and components mentioned in more than one report since `since` (ISO). */
+export function useRecurringEntities(since) {
+  const resource = useResource(`insights:entities:${since}`, () =>
+    api.recurringEntities({ types: 'AIRCRAFT,COMPONENT', since, min_reports: 2, limit: 6 }),
   );
+  useReloadOnNewReport(resource.reload);
+  return resource;
+}
+
+/** Per-person counts since `since` (ISO), supervisors only (GET /api/users/workload). */
+export function useWorkload(since) {
+  const resource = useResource(since ? `users:workload:${since}` : null, () => api.workload(since));
+  useReloadOnNewReport(resource.reload);
+  return resource;
 }
 
 /** A clock that ticks every minute, for shift windows and ages. */

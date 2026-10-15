@@ -6,18 +6,16 @@ export const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000/ap
 export const LOW_CONFIDENCE_THRESHOLD = 0.6;
 
 
-// Shift boundaries in local time (24h clock). Day shift runs from
-// DAY_SHIFT_START until NIGHT_SHIFT_START; night shift covers the rest.
-export const DAY_SHIFT_START = 6;
-export const NIGHT_SHIFT_START = 18;
+// Shift boundaries in local time (24h clock): day shift runs from `day` until `night`; night
+// shift covers the rest. These are defaults; the app replaces them with the server's
+// GET /api/config/shifts at start-up (setShiftHours), so frontend and backend always agree.
+export const SHIFT_HOURS = { day: 6, night: 18 };
+export function setShiftHours({ day_start_hour: day, night_start_hour: night }) {
+  if (Number.isInteger(day) && Number.isInteger(night) && day < night) Object.assign(SHIFT_HOURS, { day, night });
+}
 
-// The backend caps one page of reports at 100; lists that need "everything"
-// page through up to this many.
-export const REPORTS_FETCH_CAP = 500;
-
-// Recurring aircraft/components need entity data, which only the report detail
-// endpoint returns, so insights fetch detail for this many recent reports.
-export const INSIGHT_DETAIL_WINDOW = 30;
+// Recurring aircraft and components on the overview look back this many days.
+export const INSIGHT_DAYS = 30;
 
 // How many past shifts the supervisor trend chart shows (including the current one).
 export const TREND_SHIFTS = 6;

@@ -5,20 +5,21 @@ import { useShell } from '../components/shell/ShellContext';
 import { PageHeader, Section, EmptyState, ErrorState } from '../components/ui/Layout';
 import { StripList, StripSkeleton } from '../components/ui/Strip';
 import { ReportStrip } from '../components/report/ReportStrip';
-import { useAllReports } from '../hooks/useData';
+import { useReportList } from '../hooks/useData';
 import { ShiftFilter } from '../components/ui/ShiftFilter';
-import { matchesShift, shiftCounts, useShiftParam } from '../hooks/useShiftParam';
+import { useShiftParam } from '../hooks/useShiftParam';
 import { KNOWN_CATEGORIES, categoryMeta } from '../utils/categories';
-import { needsReview, parseConfidence, shiftAt, shiftLabel } from '../utils/format';
+import { shiftAt, shiftLabel } from '../utils/format';
 import { LOW_CONFIDENCE_THRESHOLD } from '../config';
 
 const PAGE = 40;
 
+// Each range maps to GET /api/handovers parameters (the server does the filtering).
 const CONFIDENCE_RANGES = {
-  all: { label: 'Any confidence', test: () => true },
-  low: { label: 'Below 60% (check)', test: (r) => needsReview(r) },
-  mid: { label: '60% to 79%', test: (r) => !needsReview(r) && parseConfidence(r) < 0.8 },
-  high: { label: '80% and above', test: (r) => !needsReview(r) && parseConfidence(r) >= 0.8 },
+  all: { label: 'Any confidence', params: {} },
+  low: { label: 'Below 60% (check)', params: { review: true } },
+  mid: { label: '60% to 79%', params: { review: false, max_confidence: 0.8 } },
+  high: { label: '80% and above', params: { review: false, min_confidence: 0.8 } },
 };
 
 const DATE_RANGES = {
@@ -29,23 +30,22 @@ const DATE_RANGES = {
   custom: 'Custom dates',
 };
 
-function dateTest(range, from, to, now) {
-  const t = now.getTime();
-  if (range === 'shift') {
-    const s = shiftAt(now);
-    return (r) => new Date(r.generated_at) >= s.start;
-  }
-  if (range === '24h') return (r) => t - new Date(r.generated_at) <= 86_400_000;
-  if (range === '7d') return (r) => t - new Date(r.generated_at) <= 7 * 86_400_000;
+/** { from, to } (ISO) for a date range. Rolling ranges round to the minute so the query is stable. */
+function dateParams(range, from, to, now) {
+  const minute = new Date(now);
+  minute.setSeconds(0, 0);
+  if (range === 'shift') return { from: shiftAt(now).start.toISOString() };
+  if (range === '24h') return { from: new Date(minute - 86_400_000).toISOString() };
+  if (range === '7d') return { from: new Date(minute - 7 * 86_400_000).toISOString() };
   if (range === 'custom') {
-    const start = from ? new Date(`${from}T00:00:00`) : null;
-    const end = to ? new Date(`${to}T23:59:59.999`) : null;
-    return (r) => {
-      const d = new Date(r.generated_at);
-      return (!start || d >= start) && (!end || d <= end);
+    const end = to ? new Date(`${to}T00:00:00`) : null;
+    if (end) end.setDate(end.getDate() + 1); // "to" includes the whole day
+    return {
+      ...(from ? { from: new Date(`${from}T00:00:00`).toISOString() } : {}),
+      ...(end ? { to: end.toISOString() } : {}),
     };
   }
-  return () => true;
+  return {};
 }
 
 /** Groups reports (already newest first) by the shift they were processed in. */
@@ -62,7 +62,6 @@ function groupByShift(reports) {
 
 export function ReportsPage() {
   const { supervisor, now, me, users } = useShell();
-  const reportsRes = useAllReports();
   const [params, setParams] = useSearchParams();
   const [limit, setLimit] = useState(PAGE);
 
@@ -86,44 +85,37 @@ export function ReportsPage() {
   }
 
   const [shift, setShift] = useShiftParam();
-  const all = useMemo(() => reportsRes.data?.reports ?? [], [reportsRes.data]);
-  const filtered = useMemo(() => {
-    const inShift = all.filter((r) => matchesShift(r, shift));
-    if (!supervisor) return inShift;
-    const byDate = dateTest(date, from, to, now);
-    return inShift.filter(
-      (r) =>
-        (category === 'all' || (category === 'unclassified' ? !r.category_name : r.category_name === category)) &&
-        CONFIDENCE_RANGES[confidence].test(r) &&
-        (submitter === 'all' || r.submitted_by?.user_id === submitter) &&
-        byDate(r),
-    );
-  }, [all, shift, supervisor, category, confidence, submitter, date, from, to, now]);
-
-  const shown = filtered.slice(0, limit);
+  const filters = useMemo(
+    () => ({
+      ...(shift !== 'all' ? { shift } : {}),
+      ...(supervisor
+        ? {
+            ...(category !== 'all' ? { category } : {}),
+            ...CONFIDENCE_RANGES[confidence].params,
+            ...(submitter !== 'all' ? { submitted_by: submitter } : {}),
+            ...dateParams(date, from, to, now),
+          }
+        : {}),
+    }),
+    [shift, supervisor, category, confidence, submitter, date, from, to, now],
+  );
+  const reportsRes = useReportList(filters, limit);
+  const list = reportsRes.data;
+  const shown = list?.reports ?? [];
   const groups = groupByShift(shown);
   const activeFilters =
     shift !== 'all' || (supervisor && (category !== 'all' || confidence !== 'all' || submitter !== 'all' || date !== 'all'));
-  const lowCount = all.filter(needsReview).length;
+  const counts = list && { all: list.shift_counts.day + list.shift_counts.night, ...list.shift_counts };
 
   return (
     <>
       <PageHeader
         title="Reports"
         sub={
-          reportsRes.data ? (
+          list ? (
             <>
-              {activeFilters ? (
-                <>
-                  <span className="num">{filtered.length}</span> of <span className="num">{all.length}</span> reports match
-                </>
-              ) : (
-                <>
-                  <span className="num">{all.length}</span> reports, <span className="num">{lowCount}</span> below{' '}
-                  {Math.round(LOW_CONFIDENCE_THRESHOLD * 100)}% confidence
-                </>
-              )}
-              {reportsRes.data.capped && <>. Showing the latest {all.length} of {reportsRes.data.total}</>}
+              <span className="num">{list.total}</span> {activeFilters ? 'matching reports' : 'reports'},{' '}
+              <span className="num">{list.needs_review}</span> below {Math.round(LOW_CONFIDENCE_THRESHOLD * 100)}% confidence
             </>
           ) : (
             'Loading reports…'
@@ -197,12 +189,12 @@ export function ReportsPage() {
         </form>
       )}
 
-      <ShiftFilter shift={shift} onChange={setShift} counts={reportsRes.data ? shiftCounts(all) : undefined} />
+      <ShiftFilter shift={shift} onChange={setShift} counts={counts} />
 
-      <div className="narrow narrow--wide">
+      <div className="narrow narrow--wide" aria-busy={reportsRes.loading || undefined}>
         {reportsRes.data === undefined && !reportsRes.error && <StripSkeleton rows={6} />}
         {reportsRes.error && !reportsRes.data && <ErrorState message="Couldn’t load reports." onRetry={reportsRes.reload} />}
-        {reportsRes.data && filtered.length === 0 && (
+        {list && list.total === 0 && (
           <EmptyState
             icon={ClipboardText}
             title={activeFilters ? 'No reports match these filters' : 'No reports yet'}
@@ -226,9 +218,9 @@ export function ReportsPage() {
             </StripList>
           </Section>
         ))}
-        {filtered.length > shown.length && (
-          <button type="button" className="btn btn-secondary btn-block" onClick={() => setLimit((l) => l + PAGE)}>
-            Show {Math.min(PAGE, filtered.length - shown.length)} more
+        {list && list.total > shown.length && (
+          <button type="button" className="btn btn-secondary btn-block" onClick={() => setLimit((l) => l + PAGE)} disabled={reportsRes.loading}>
+            {reportsRes.loading ? 'Loading…' : `Show ${Math.min(PAGE, list.total - shown.length)} more`}
           </button>
         )}
       </div>

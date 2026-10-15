@@ -261,30 +261,29 @@ working around missing data, with the endpoint or field that would remove the wo
 2. ~~**The original narrative.**~~ **Done (12 Oct).** `GET /api/handovers/:id` returns
    `submission` (original text, shift, detected language, submitted time); the report page shows it
    as "Original handover", and the low-confidence warning points to it.
-3. **Server-side report filters.** Filters run client-side over at most 500 reports. Support
-   `GET /api/handovers?category_id=&min_confidence=&max_confidence=&from=&to=&limit=&offset=`
-   returning the same `{ reports, total, limit, offset }` shape, with `total` reflecting the filter.
-4. **Entities for insights.** Recurring aircraft and components need one detail request per
-   report (latest 30). Add `GET /api/insights/entities?types=AIRCRAFT,COMPONENT&since=iso` returning
-   `[{ "entity_type": "AIRCRAFT", "entity_text": "B737", "report_count": 13 }]`.
-5. **Shift statistics.** Tiles and the rail are counted client-side. Add
-   `GET /api/stats/shift?start=iso&end=iso` returning
-   `{ "reports": 2, "low_confidence": 0, "open_tasks": 4, "overdue_tasks": 3, "unassigned_tasks": 2, "reports_per_hour": [0, 1, ...] }`.
-6. **Task context.** Category and summary are parsed out of `task.description`
-   ("New <category> incident reported: <summary>"). Include the report fields on each task in
-   `GET /api/tasks`: `"report": { "category_name": "...", "summary": "...", "category_confidence": "0.93" }`.
-7. ~~**Due times.**~~ **Done (12 Oct).** `task_register.due_at` (migration in
-   `backend/db/migrations/`), new tasks due `DEFAULT_TASK_DUE_HOURS` (12) after creation,
-   `PATCH /api/tasks/:id/due` for supervisors, and `task:updated` pushed live. "Overdue" now means past
-   the due time; tasks with no due time are never red. Lists sort by due time.
-8. **Workload.** Computed from all tasks plus `GET /api/users`. Add `GET /api/users/workload`
-   returning `[{ "user_id", "full_name", "role", "open": 2, "overdue": 1, "resolved_since": 3 }]`.
-9. **Bulk mark-as-read.** "Mark all as read" sends one request per alert. Add
-   `PATCH /api/notifications/read` with `{ "notif_ids": ["uuid", ...] }` (or `{ "before": "iso" }`).
-10. **Unassign.** `PATCH /api/tasks/:id/assign` requires `assigned_to`, so a supervisor cannot
-    return a task to the unassigned pool. Accept `{ "assigned_to": null }`.
-11. **Shift definitions.** Day 06:00 to 18:00 is hard-coded client-side. Add
-    `GET /api/config/shifts` returning `[{ "name": "Day", "start": "06:00", "end": "18:00" }, { "name": "Night", "start": "18:00", "end": "06:00" }]`.
+3. ~~**Server-side report filters.**~~ **Done (14 Oct).** `GET /api/handovers` filters on the server
+   (`category`, `review`, `min_confidence`, `max_confidence`, `from`, `to`, `shift`, `submitted_by`,
+   `sort=confidence`) and returns `total`, `needs_review` and `shift_counts`. Reports pages through
+   results 40 at a time; the 500-report cap is gone.
+4. ~~**Entities for insights.**~~ **Done (14 Oct).** `GET /api/insights/entities` replaces 30 detail
+   requests. The overview looks back `INSIGHT_DAYS` (30) days instead of the latest 30 reports.
+5. ~~**Shift statistics.**~~ **Done (14 Oct), as `GET /api/stats/overview`:** current and recent shifts
+   (counts and low confidence), reports per hour for the operational day, totals and category mix in
+   one request. Task tiles still use the live task list so they change the instant a push arrives.
+6. ~~**Task context.**~~ **Done (14 Oct).** Tasks include `report: { category_name, summary,
+   category_confidence }`; the description is parsed only as a fallback for live pushes.
+7. ~~**Due times.**~~ **Done (12 Oct).** `task_register.due_at`, `PATCH /api/tasks/:id/due`, "overdue"
+   means past the due time.
+8. ~~**Workload.**~~ **Done (14 Oct).** `GET /api/users/workload?since=` gives handovers and resolved
+   tasks per person this shift (Team page); open/overdue bars stay on the live task list.
+9. ~~**Bulk mark-as-read.**~~ **Done (14 Oct).** `PATCH /api/notifications/read` with `notif_ids` (up
+   to 500) or `before`; "Mark all as read" is one request.
+10. ~~**Unassign.**~~ **Done (14 Oct).** `{ "assigned_to": null }`; the assign control offers
+    "Nobody (unassign)".
+11. ~~**Shift definitions.**~~ **Done (14 Oct).** `GET /api/config/shifts` (from `DAY_SHIFT_START`,
+    `NIGHT_SHIFT_START`, `SHIFT_TIMEZONE` in the backend `.env`); the app loads it at start-up
+    (`setShiftHours`). The browser still uses its own clock's time zone for shift windows, which
+    matches the server for crews in Kenya.
 
 ## Real-time updates
 

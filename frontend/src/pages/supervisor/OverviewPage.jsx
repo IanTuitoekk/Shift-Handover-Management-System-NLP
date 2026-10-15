@@ -11,31 +11,55 @@ import { TaskStrip } from '../../components/tasks/TaskStrip';
 import { ReportStrip } from '../../components/report/ReportStrip';
 import { BarList } from '../../components/charts/BarList';
 import { ShiftTrend } from '../../components/charts/ShiftTrend';
-import { useAllReports, useRecentReportDetails } from '../../hooks/useData';
-import { INSIGHT_DETAIL_WINDOW, LOW_CONFIDENCE_THRESHOLD, TREND_SHIFTS } from '../../config';
-import { categoryMeta } from '../../utils/categories';
-import { byDue, formatAge, formatDateTime, formatPercent, inShift, isOverdue, needsOwner, needsReview, operationalDay, shiftAt } from '../../utils/format';
-import { categoryMix, leastLoaded, recurringEntities, reportsPerHour, reportsPerShift, reviewOrder, workload } from '../../utils/insights';
+import { useOverviewStats, useRecurringEntities, useReportList } from '../../hooks/useData';
+import { INSIGHT_DAYS, LOW_CONFIDENCE_THRESHOLD, TREND_SHIFTS } from '../../config';
+import { KNOWN_CATEGORIES, categoryMeta } from '../../utils/categories';
+import { byDue, formatAge, formatDateTime, formatPercent, isOverdue, needsOwner, shiftAt } from '../../utils/format';
+import { leastLoaded, workload } from '../../utils/insights';
 import { OverviewTiles } from './OverviewTiles';
 
 const ATTENTION_LIMIT = 6;
 const REVIEW_LIMIT = 5;
+const REVIEW_FILTERS = { review: true, sort: 'confidence' };
+
+/** Category rows for the bar list: every known category (even at 0), then unclassified if any. */
+function categoryRows(categories) {
+  const counts = new Map(KNOWN_CATEGORIES.map((name) => [name, 0]));
+  let unclassified = 0;
+  for (const c of categories) {
+    if (c.category_name) counts.set(c.category_name, c.reports);
+    else unclassified = c.reports;
+  }
+  const rows = [...counts].map(([name, value]) => ({ key: name, name, value }));
+  if (unclassified) rows.push({ key: 'unclassified', name: null, value: unclassified });
+  return rows.sort((a, b) => b.value - a.value);
+}
+
+/** Start of the day INSIGHT_DAYS ago, so the key changes once a day. */
+function insightSince(now) {
+  const d = new Date(now);
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() - INSIGHT_DAYS);
+  return d.toISOString();
+}
 
 export function OverviewPage() {
   const { me, now, tasks, users, usersById, assignTask } = useShell();
-  const reportsRes = useAllReports();
-  const reports = useMemo(() => reportsRes.data?.reports ?? [], [reportsRes.data]);
-  const details = useRecentReportDetails(reportsRes.data ? reports : null);
+  const statsRes = useOverviewStats(TREND_SHIFTS);
+  const stats = statsRes.data;
+  const reviewRes = useReportList(REVIEW_FILTERS, REVIEW_LIMIT);
+  const since = insightSince(now);
+  const entitiesRes = useRecurringEntities(since);
 
   const t = now.getTime();
   const shift = shiftAt(now);
-  const day = operationalDay(now);
   const allTasks = tasks.data ?? [];
+  // Task counts come from the live task list (updated instantly by the real-time push).
   const pending = allTasks.filter((x) => x.status === 'pending');
   const overdue = pending.filter((x) => isOverdue(x, t));
   const unassigned = pending.filter(needsOwner);
-  const lowReports = reports.filter(needsReview);
-  const thisShift = reports.filter((r) => inShift(r.generated_at, shift));
+  const lowCount = stats?.reports.needs_review ?? 0;
+  const shiftCount = stats?.current_shift.reports ?? 0;
 
   const attention = [...new Set([...overdue, ...unassigned])]
     .sort((a, b) => byDue(a, b, t))
@@ -43,12 +67,20 @@ export function OverviewPage() {
 
   const team = users?.data ? workload(users.data, allTasks, t) : [];
   const suggestion = users?.data ? leastLoaded(users.data, allTasks) : null;
-  const mix = categoryMix(reports);
-  const trend = reportsPerShift(reports, TREND_SHIFTS, now);
-  const recurring = details.data ? recurringEntities(details.data) : [];
+  const mix = useMemo(() => (stats ? categoryRows(stats.categories) : []), [stats]);
+  const trend = useMemo(
+    () =>
+      (stats?.recent_shifts ?? []).map((s) => ({
+        shift: { key: `${s.key}-${s.start}`, name: s.name, start: new Date(s.start) },
+        value: s.reports,
+        lowConfidence: s.low_confidence,
+      })),
+    [stats],
+  );
+  const recurring = entitiesRes.data ?? [];
 
   const tasksLoading = tasks.data === undefined;
-  const reportsLoading = reportsRes.data === undefined;
+  const reportsLoading = stats === undefined;
 
   const tiles = [
     { key: 'open', label: 'Open', value: pending.length, detail: 'Tasks not yet resolved', to: '/triage', linkLabel: 'Open triage' },
@@ -67,13 +99,13 @@ export function OverviewPage() {
     {
       key: 'review',
       label: 'Needs review',
-      value: lowReports.length,
-      critical: lowReports.length > 0,
+      value: lowCount,
+      critical: lowCount > 0,
       detail: `Below ${formatPercent(LOW_CONFIDENCE_THRESHOLD)} confidence`,
       to: '/reports?confidence=low',
       linkLabel: 'Review',
     },
-    { key: 'shift', label: 'Reports this shift', value: thisShift.length, detail: `Since ${shift.name.toLowerCase()} shift started`, to: '/reports?date=shift', linkLabel: 'View reports' },
+    { key: 'shift', label: 'Reports this shift', value: shiftCount, detail: `Since ${shift.name.toLowerCase()} shift started`, to: '/reports?date=shift', linkLabel: 'View reports' },
   ];
 
   return (
@@ -81,8 +113,8 @@ export function OverviewPage() {
       <PhotoBanner photo={PHOTOS.supervisorHome} title={`${shift.name} shift overview`} sub={<span className="num">{formatDateTime(now)}</span>} />
       <ShiftRail
         now={now}
-        perHour={reportsLoading ? undefined : reportsPerHour(reports, day.start, day.end)}
-        summary={`Reports per hour today. ${thisShift.length} this shift.`}
+        perHour={stats?.today.reports_per_hour}
+        summary={`Reports per hour today. ${shiftCount} this shift.`}
       />
 
       <OverviewTiles tiles={tiles} loading={tasksLoading || reportsLoading} />
@@ -125,7 +157,7 @@ export function OverviewPage() {
           <Section
             id="review"
             title="Review queue"
-            count={reportsRes.data ? lowReports.length : undefined}
+            count={stats ? lowCount : undefined}
             action={
               <Link to="/reports?confidence=low" className="btn btn-ghost">
                 All low confidence <ArrowRight size={16} aria-hidden="true" />
@@ -133,16 +165,18 @@ export function OverviewPage() {
             }
           >
             <p className="section__hint">Lowest confidence first. Anything below {formatPercent(LOW_CONFIDENCE_THRESHOLD)} is marked to check.</p>
-            {reportsLoading && !reportsRes.error && <StripSkeleton rows={3} />}
-            {reportsRes.error && !reportsRes.data && <ErrorState message="Couldn’t load reports." onRetry={reportsRes.reload} />}
-            {reportsRes.data && reports.length === 0 && <EmptyState title="No reports yet">Reports appear here as crews submit handovers.</EmptyState>}
-            {reports.length > 0 && (
+            {reviewRes.data === undefined && !reviewRes.error && <StripSkeleton rows={3} />}
+            {reviewRes.error && !reviewRes.data && <ErrorState message="Couldn’t load reports." onRetry={reviewRes.reload} />}
+            {reviewRes.data && reviewRes.data.total === 0 && (
+              <EmptyState icon={CheckCircle} title="Nothing to review">
+                Every report is classified with enough confidence.
+              </EmptyState>
+            )}
+            {reviewRes.data?.reports.length > 0 && (
               <StripList>
-                {reviewOrder(reports)
-                  .slice(0, REVIEW_LIMIT)
-                  .map((r) => (
-                    <ReportStrip key={r.report_id} report={r} now={now} currentUserId={me.user_id} />
-                  ))}
+                {reviewRes.data.reports.map((r) => (
+                  <ReportStrip key={r.report_id} report={r} now={now} currentUserId={me.user_id} />
+                ))}
               </StripList>
             )}
           </Section>
@@ -182,8 +216,9 @@ export function OverviewPage() {
           </Section>
 
           <Section id="insights" title="Insights" variant="raised">
-            {reportsLoading && <span className="skeleton" style={{ height: 160 }} />}
-            {reportsRes.data && (
+            {reportsLoading && !statsRes.error && <span className="skeleton" style={{ height: 160 }} />}
+            {statsRes.error && !stats && <ErrorState message="Couldn’t load insights." onRetry={statsRes.reload} />}
+            {stats && (
               <div className="insights">
                 <div className="insight">
                   <h3 className="insight__title">Category mix</h3>
@@ -206,8 +241,7 @@ export function OverviewPage() {
                     })}
                   />
                   <p className="insight__foot num">
-                    {reports.length} report{reports.length === 1 ? '' : 's'}
-                    {reportsRes.data.capped ? ` (latest ${reports.length} of ${reportsRes.data.total})` : ''}
+                    {stats.reports.total} report{stats.reports.total === 1 ? '' : 's'} in total
                   </p>
                 </div>
                 <div className="insight">
@@ -216,26 +250,26 @@ export function OverviewPage() {
                 </div>
                 <div className="insight">
                   <h3 className="insight__title">Recurring aircraft and components</h3>
-                  {details.data === undefined && !details.error && <span className="skeleton" style={{ height: 64 }} />}
-                  {details.data && recurring.length === 0 && (
-                    <p className="chart-empty">Nothing mentioned in more than one of the latest {INSIGHT_DETAIL_WINDOW} reports.</p>
+                  {entitiesRes.data === undefined && !entitiesRes.error && <span className="skeleton" style={{ height: 64 }} />}
+                  {entitiesRes.data && recurring.length === 0 && (
+                    <p className="chart-empty">Nothing mentioned in more than one report in the last {INSIGHT_DAYS} days.</p>
                   )}
                   {recurring.length > 0 && (
                     <ul className="recurring">
                       {recurring.map((e) => (
-                        <li key={e.key}>
-                          {e.type === 'AIRCRAFT' ? <Airplane size={16} aria-label="Aircraft" /> : <Gear size={16} aria-label="Component" />}
-                          <span className="recurring__text" translate={e.type === 'AIRCRAFT' ? 'no' : undefined}>
-                            {e.text}
+                        <li key={`${e.entity_type}:${e.entity_text}`}>
+                          {e.entity_type === 'AIRCRAFT' ? <Airplane size={16} aria-label="Aircraft" /> : <Gear size={16} aria-label="Component" />}
+                          <span className="recurring__text" translate={e.entity_type === 'AIRCRAFT' ? 'no' : undefined}>
+                            {e.entity_text}
                           </span>
                           <span className="recurring__count num">
-                            {e.reports} <span className="visually-hidden">reports</span>
+                            {e.report_count} <span className="visually-hidden">reports</span>
                           </span>
                         </li>
                       ))}
                     </ul>
                   )}
-                  <p className="insight__foot">From the latest {Math.min(INSIGHT_DETAIL_WINDOW, reports.length)} reports.</p>
+                  <p className="insight__foot">Mentioned in two or more reports in the last {INSIGHT_DAYS} days.</p>
                 </div>
               </div>
             )}

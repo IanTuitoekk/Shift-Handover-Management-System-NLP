@@ -1,4 +1,4 @@
-import { DAY_SHIFT_START, NIGHT_SHIFT_START, LOW_CONFIDENCE_THRESHOLD } from '../config';
+import { SHIFT_HOURS, LOW_CONFIDENCE_THRESHOLD } from '../config';
 
 const timeFormat = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
 const dayFormat = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' });
@@ -45,36 +45,30 @@ export function isToday(value, now = new Date()) {
 
 /* Shifts ---------------------------------------------------------------- */
 
-/** The shift containing `at`: { name: 'Day' | 'Night', start, end, key }. */
+/** The shift containing `at`: { name: 'Day' | 'Night', start, end, key }. Hours from SHIFT_HOURS. */
 export function shiftAt(at = new Date()) {
+  const { day: DAY, night: NIGHT } = SHIFT_HOURS;
   const now = new Date(at);
   const hour = now.getHours();
   const start = new Date(now);
   start.setMinutes(0, 0, 0);
   let name;
-  if (hour >= DAY_SHIFT_START && hour < NIGHT_SHIFT_START) {
+  if (hour >= DAY && hour < NIGHT) {
     name = 'Day';
-    start.setHours(DAY_SHIFT_START);
+    start.setHours(DAY);
   } else {
     name = 'Night';
-    start.setHours(NIGHT_SHIFT_START);
-    if (hour < DAY_SHIFT_START) start.setDate(start.getDate() - 1);
+    start.setHours(NIGHT);
+    if (hour < DAY) start.setDate(start.getDate() - 1);
   }
   const end = new Date(start);
-  end.setHours(end.getHours() + (name === 'Day' ? NIGHT_SHIFT_START - DAY_SHIFT_START : 24 - (NIGHT_SHIFT_START - DAY_SHIFT_START)));
+  end.setHours(end.getHours() + (name === 'Day' ? NIGHT - DAY : 24 - (NIGHT - DAY)));
   return { name, start, end, key: `${name}-${start.toISOString()}` };
 }
 
 /** The shift before the one containing `at`. */
 export function previousShift(at = new Date()) {
   return shiftAt(new Date(shiftAt(at).start.getTime() - 1));
-}
-
-/** The last `count` shifts, oldest first, ending with the current one. */
-export function recentShifts(count, at = new Date()) {
-  const shifts = [shiftAt(at)];
-  while (shifts.length < count) shifts.unshift(previousShift(shifts[0].start));
-  return shifts;
 }
 
 export function inShift(value, shift) {
@@ -87,13 +81,13 @@ export function shiftLabel(shift) {
   return `${shift.name} shift, ${formatWeekdayDay(shift.start)}`;
 }
 
-/** The 24h operational day (DAY_SHIFT_START to DAY_SHIFT_START) containing `at`. */
+/** The 24h operational day (day-shift start to day-shift start) containing `at`. */
 export function operationalDay(at = new Date()) {
   const now = new Date(at);
   const start = new Date(now);
   start.setMinutes(0, 0, 0);
-  start.setHours(DAY_SHIFT_START);
-  if (now.getHours() < DAY_SHIFT_START) start.setDate(start.getDate() - 1);
+  start.setHours(SHIFT_HOURS.day);
+  if (now.getHours() < SHIFT_HOURS.day) start.setDate(start.getDate() - 1);
   const end = new Date(start);
   end.setDate(end.getDate() + 1);
   return { start, end };
@@ -139,16 +133,17 @@ export function byDue(a, b, now = Date.now()) {
   return new Date(a.created_at) - new Date(b.created_at);
 }
 
+// Older task descriptions read "New <category> incident reported: <summary>".
 const TASK_PREFIX = /^New (.+?) incident reported:\s*/i;
 
-/** Task descriptions are generated as "New <category> incident reported: <summary>". */
+/** The report summary behind a task (GET /api/tasks `report`), else parsed from the description. */
 export function taskSummary(task) {
-  return (task?.description ?? '').replace(TASK_PREFIX, '').trim() || task?.description || '';
+  return task?.report?.summary || (task?.description ?? '').replace(TASK_PREFIX, '').trim() || task?.description || '';
 }
 
-/** The category embedded in a generated task description, if any. */
+/** The report category behind a task, else parsed from the description. */
 export function taskCategory(task) {
-  return (task?.description ?? '').match(TASK_PREFIX)?.[1] ?? null;
+  return task?.report?.category_name ?? (task?.description ?? '').match(TASK_PREFIX)?.[1] ?? null;
 }
 
 /** Category names come from the model in Title Case; labels in this UI are sentence case. */

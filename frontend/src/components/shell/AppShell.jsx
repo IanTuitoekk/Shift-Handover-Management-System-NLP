@@ -3,7 +3,7 @@ import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { Bell, CheckCircle, ClipboardText, Moon, NotePencil, Plus, SignOut, Sun, UserCircle, UserCirclePlus } from '@phosphor-icons/react';
 import { api, tokenStore } from '../../api/client';
 import { useAuth } from '../../auth/useAuth';
-import { LIVE_REFRESH_MS, REFRESH_MS } from '../../config';
+import { LIVE_REFRESH_MS, REFRESH_MS, setShiftHours } from '../../config';
 import { useNow } from '../../hooks/useData';
 import { useInterval, useRefetchOnFocus, useResource } from '../../hooks/useResource';
 import { useTheme } from '../../hooks/useTheme';
@@ -36,6 +36,10 @@ export function AppShell() {
   const notifications = useResource('notifications', api.listNotifications);
   // GET /api/users is supervisor-only; ground crew never request it.
   const users = useResource(supervisor ? 'users' : null, api.listUsers);
+  // Shift times come from the server so every screen agrees with the backend's counts. Until they
+  // arrive (or if the request fails) the defaults in config.js apply; the shell re-renders once set.
+  const shiftConfig = useResource('config:shifts', api.shiftConfig);
+  if (shiftConfig.data) setShiftHours(shiftConfig.data);
 
   const { reload: reloadTasks, mutate: mutateTasks } = tasks;
   const { reload: reloadNotifications, mutate: mutateNotifications } = notifications;
@@ -59,7 +63,10 @@ export function AppShell() {
   );
   const live = useRealtime(tokenStore.get(), {
     'handover:created': ({ report, task, notification, submittedBy }) => {
-      if (task) upsertTask({ shift: report?.shift, ...task });
+      if (task) {
+        const context = report && { category_name: report.category_name, summary: report.summary, category_confidence: report.category_confidence };
+        upsertTask({ shift: report?.shift, report: context, ...task });
+      }
       if (notification) {
         mutateNotifications((list = []) =>
           list.some((n) => n.notif_id === notification.notif_id) ? list : [notification, ...list],
@@ -82,7 +89,12 @@ export function AppShell() {
       if (task.assigned_to === me) {
         pushToast({ icon: UserCirclePlus, title: 'A task was assigned to you', text: taskSummary(task), to: `/reports/${task.report_id}`, linkLabel: 'Open report' });
       } else if (previousAssignee === me) {
-        pushToast({ icon: UserCirclePlus, tone: 'neutral', title: 'A task was reassigned to someone else', text: taskSummary(task) });
+        pushToast({
+          icon: UserCirclePlus,
+          tone: 'neutral',
+          title: task.assigned_to ? 'A task was reassigned to someone else' : 'A task was taken off your list',
+          text: taskSummary(task),
+        });
       }
     },
     'task:updated': ({ task, by }) => {
@@ -127,8 +139,13 @@ export function AppShell() {
       const set = new Set(ids);
       const readAt = new Date().toISOString();
       mutateNotifications((list = []) => list.map((n) => (set.has(n.notif_id) ? { ...n, is_read: true, read_at: readAt } : n)));
-      const results = await Promise.allSettled([...set].map((id) => api.markNotificationRead(id)));
-      if (results.some((r) => r.status === 'rejected')) reloadNotifications();
+      try {
+        // One request per 500 (the API's limit per call).
+        const ids = [...set];
+        for (let i = 0; i < ids.length; i += 500) await api.markNotificationsRead(ids.slice(i, i + 500));
+      } catch {
+        reloadNotifications();
+      }
     },
     [mutateNotifications, reloadNotifications],
   );
