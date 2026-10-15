@@ -1,12 +1,15 @@
 """Speech to text for spoken handovers, with faster-whisper (an open-source Whisper) on this server.
 
 Audio never leaves the server. Settings (environment):
-  WHISPER_MODEL         model size, default "small" (good English and usable Swahili on CPU;
-                        "base" is faster but weaker, "medium" better but ~3x slower)
+  WHISPER_MODEL         default "large-v3-turbo": accurate English and Swahili, ~10 s per 10 s of
+                        speech on a laptop CPU. "small" is ~3x faster but misspells Swahili
+                        noticeably (tested 15 Oct 2026); use it on weak machines.
   WHISPER_COMPUTE_TYPE  default "int8" (fast on CPU)
   WHISPER_DEBUG_DIR     unset by default. When set (development only), recordings that can't be
                         read are saved there so the cause can be investigated; nothing else is kept.
-The model downloads once (~460 MB for "small") into the Hugging Face cache.
+The model downloads once into the Hugging Face cache (~1.6 GB for large-v3-turbo, ~460 MB for small).
+Download it ahead of time with:
+  venv/bin/python -c "from faster_whisper import download_model; download_model('large-v3-turbo')"
 """
 import io
 import os
@@ -22,17 +25,13 @@ MAX_SECONDS = 180
 # still writes the Swahili words it hears). Tune with WHISPER_SW_SHARE using the logged detections.
 SWAHILI_SHARE = float(os.environ.get("WHISPER_SW_SHARE", "0.75"))
 
-# A short example in the same language steers Whisper's spelling of aviation and handover terms.
+# Vocabulary hints for Whisper's spelling. Deliberately NO registrations or sentences: Whisper can
+# copy prompt text into the transcript, and an example like "5Y-KZD ... inavuja" once replaced the
+# aircraft and words the speaker actually said. Whisper also copies the prompt's style (a comma
+# list made it put a comma after every word), so each is one plain, generic sentence.
 PROMPTS = {
-    "en": (
-        "Kenya Airways ground crew shift handover. Aircraft 5Y-KZD, B737, B787, E190. "
-        "Hydraulic pump, left main gear, APU, stand 7, parts store, engineer, task card."
-    ),
-    "sw": (
-        "Makabidhiano ya zamu ya Kenya Airways. Pampu ya majimaji kwenye ndege 5Y-KZD inavuja, "
-        "iko stand namba saba. Fundi ameagiza kipuri kutoka stoo; atabadilisha kabla ya saa kumi "
-        "na mbili asubuhi. Gurudumu, breki, mhandisi, left main gear, replacement."
-    ),
+    "en": "This is an aircraft maintenance shift handover from the engineer to the next crew about hydraulic systems, landing gear and brakes.",
+    "sw": "Haya ni makabidhiano ya zamu ya mafundi wa ndege kuhusu pampu ya majimaji, gurudumu na breki kwa ajili ya zamu inayofuata.",
 }
 
 
@@ -42,7 +41,7 @@ class AudioError(ValueError):
 
 class Transcriber:
     def __init__(self):
-        self.model_name = os.environ.get("WHISPER_MODEL", "small")
+        self.model_name = os.environ.get("WHISPER_MODEL", "large-v3-turbo")
         self.compute_type = os.environ.get("WHISPER_COMPUTE_TYPE", "int8")
         self._model = None
         self._lock = threading.Lock()
@@ -54,6 +53,7 @@ class Transcriber:
 
                 print(f"Loading Whisper ({self.model_name}, {self.compute_type})...")
                 self._model = WhisperModel(self.model_name, device="cpu", compute_type=self.compute_type)
+                print(f"Whisper ready ({self.model_name}).")
         return self._model
 
     def warm_up(self):

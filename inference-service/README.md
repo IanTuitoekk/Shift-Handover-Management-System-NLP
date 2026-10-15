@@ -10,8 +10,12 @@ venv/bin/uvicorn app.main:app --port 8000
 ```
 
 The trained weights live in `model/` (`best_model.pt`, `label_maps.json`). On first start the mBERT
-tokenizer/encoder (~700 MB) and the Whisper model (~460 MB for `small`) download into the Hugging
-Face cache.
+tokenizer/encoder (~700 MB) and the Whisper model (~1.6 GB for `large-v3-turbo`) download into the
+Hugging Face cache. Download Whisper ahead of time (faster-whisper hides download progress):
+
+```bash
+venv/bin/python -c "from faster_whisper import download_model; download_model('large-v3-turbo')"
+```
 
 ## Endpoints
 
@@ -36,10 +40,13 @@ leaves it. The language is detected as English or Swahili. Spoken registrations 
 
 | Variable | Default | |
 |---|---|---|
-| `WHISPER_MODEL` | `small` | `base` is faster but weaker in Swahili; `medium` is better but about 3× slower |
+| `WHISPER_MODEL` | `large-v3-turbo` | Accurate English and Swahili. `small` is about 3× faster but makes noticeably more Swahili spelling and punctuation errors (compared on the same Swahili handover, 15 Oct 2026) |
 | `WHISPER_COMPUTE_TYPE` | `int8` | |
 
-Measured on an M-series Mac (CPU): about 3 s for 10 s of speech with `small`.
+On an M-series Mac (CPU): roughly 10 s for 10 s of speech with `large-v3-turbo`, about 3 s with
+`small`. Whisper is given only a generic one-sentence hint per language: example registrations or
+sentences in the hint were copied into transcripts (a wrong aircraft once), and a word-list hint
+made it put a comma after every word. `tests/test_transcribe_prompts.py` guards this.
 
 ## Tests and evaluation
 

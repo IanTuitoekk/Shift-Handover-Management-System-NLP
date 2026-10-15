@@ -17,6 +17,7 @@ from app.phonetic import normalise_registrations
         ("leak detected on 5 Y-KZD at stand 7", "leak detected on 5Y-KZD at stand 7"),
         ("on 5Y KZD.", "on 5Y-KZD."),
         ("detected on 5 Yankee Kilozulu Delta at stand 7", "detected on 5Y-KZD at stand 7"),
+        ("detected on 5 Yankee kilos Zulu Delta at stand 7", "detected on 5Y-KZD at stand 7"),
     ],
 )
 def test_spoken_registrations_are_written(spoken, written):

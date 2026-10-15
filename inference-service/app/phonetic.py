@@ -67,6 +67,8 @@ def _letters_of(word):
     lower = word.lower()
     if lower in NATO:
         return NATO[lower], 1
+    if lower.endswith("s") and lower[:-1] in NATO:  # "kilos", "deltas": a mis-heard plural
+        return NATO[lower[:-1]], 1
     parts = _split_glued(lower)
     if parts:
         return "".join(NATO[p] for p in parts), len(parts)
