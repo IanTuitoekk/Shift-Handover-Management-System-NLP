@@ -1,4 +1,4 @@
-const { getNotificationsForUser, markAsRead } = require('../models/notificationModel');
+const { getNotificationsForUser, markAsRead, markManyAsRead } = require('../models/notificationModel');
 
 const listNotifications = async (req, res) => {
   try {
@@ -21,4 +21,16 @@ const markRead = async (req, res) => {
   }
 };
 
-module.exports = { listNotifications, markRead };
+// PATCH /api/notifications/read with { notif_ids: [...] } or { before: ISO time }.
+const markManyRead = async (req, res) => {
+  const { notif_ids: notifIds, before } = req.body;
+  try {
+    const marked = await markManyAsRead(req.user.userId, { notifIds: notifIds ?? null, before: before ?? null });
+    res.json({ marked });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to mark notifications as read' });
+  }
+};
+
+module.exports = { listNotifications, markRead, markManyRead };

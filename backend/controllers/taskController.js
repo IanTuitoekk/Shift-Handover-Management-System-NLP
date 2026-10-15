@@ -37,18 +37,20 @@ const resolve = async (req, res) => {
 
 const assign = async (req, res) => {
   const { taskId } = req.params;
-  const { assigned_to } = req.body;
-  if (!assigned_to) {
-    return res.status(400).json({ error: 'assigned_to is required' });
-  }
+  const { assigned_to } = req.body; // a user id, or null to unassign (validated in routes/tasks.js)
   try {
     const existing = await getTaskById(taskId);
     if (!existing) {
       return res.status(404).json({ error: 'Task not found' });
     }
-    const assignee = await getUserById(assigned_to);
-    if (!assignee || !assignee.is_active) {
-      return res.status(400).json({ error: 'Tasks can only be assigned to active people' });
+    if (existing.status === 'resolved') {
+      return res.status(400).json({ error: 'Resolved tasks cannot be reassigned' });
+    }
+    if (assigned_to !== null) {
+      const assignee = await getUserById(assigned_to);
+      if (!assignee || !assignee.is_active) {
+        return res.status(400).json({ error: 'Tasks can only be assigned to active people' });
+      }
     }
     const task = await assignTask(taskId, assigned_to);
     res.json(task);

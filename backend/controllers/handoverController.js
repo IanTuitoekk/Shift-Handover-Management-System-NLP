@@ -39,23 +39,61 @@ const createHandover = async (req, res) => {
   }
 };
 
+/**
+ * GET /api/handovers. Filters (all optional): submitted_by=me|<user id>, shift=day|night,
+ * category=<name>|unclassified, review=true|false, min_confidence, max_confidence (0..1, max
+ * exclusive), from, to (ISO times, to exclusive), sort=newest|confidence, limit (max 100), offset.
+ */
 const getReports = async (req, res) => {
-  const limit = Math.min(parseInt(req.query.limit, 10) || 20, 100); // cap at 100
-  const offset = parseInt(req.query.offset, 10) || 0;
-  // ?submitted_by=me or a user id. Any signed-in user may filter; every report is already visible.
-  const submittedByParam = req.query.submitted_by;
-  const submittedBy = submittedByParam === 'me' ? req.user.userId : submittedByParam || null;
-  if (submittedBy && !/^[0-9a-f-]{36}$/i.test(submittedBy)) {
-    return res.status(400).json({ error: 'submitted_by must be "me" or a user id' });
-  }
+  const q = req.query;
+  const bad = (message) => res.status(400).json({ error: message });
+  const limit = Math.min(parseInt(q.limit, 10) || 20, 100); // cap at 100
+  const offset = Math.max(parseInt(q.offset, 10) || 0, 0);
+  // Any signed-in user may filter; every report is already visible.
+  const submittedBy = q.submitted_by === 'me' ? req.user.userId : q.submitted_by || null;
+  if (submittedBy && !/^[0-9a-f-]{36}$/i.test(submittedBy)) return bad('submitted_by must be "me" or a user id');
 
-  const shift = req.query.shift ? String(req.query.shift).toLowerCase() : null;
-  if (shift && !SHIFTS.includes(shift)) {
-    return res.status(400).json({ error: `shift must be one of: ${SHIFTS.join(', ')}` });
-  }
+  const shift = q.shift ? String(q.shift).toLowerCase() : null;
+  if (shift && !SHIFTS.includes(shift)) return bad(`shift must be one of: ${SHIFTS.join(', ')}`);
+
+  const review = q.review === undefined ? null : q.review === 'true' ? true : q.review === 'false' ? false : 'bad';
+  if (review === 'bad') return bad('review must be true or false');
+
+  const confidence = (name) => {
+    if (q[name] === undefined || q[name] === '') return null;
+    const n = Number(q[name]);
+    return Number.isFinite(n) && n >= 0 && n <= 1 ? n : NaN;
+  };
+  const minConfidence = confidence('min_confidence');
+  const maxConfidence = confidence('max_confidence');
+  if (Number.isNaN(minConfidence) || Number.isNaN(maxConfidence)) return bad('min_confidence and max_confidence must be between 0 and 1');
+
+  const time = (name) => {
+    if (!q[name]) return null;
+    const d = new Date(q[name]);
+    return Number.isNaN(d.getTime()) ? 'bad' : d.toISOString();
+  };
+  const from = time('from');
+  const to = time('to');
+  if (from === 'bad' || to === 'bad') return bad('from and to must be ISO date-times');
+
+  const sort = q.sort || 'newest';
+  if (!['newest', 'confidence'].includes(sort)) return bad('sort must be newest or confidence');
 
   try {
-    const result = await listReports({ limit, offset, submittedBy, shift });
+    const result = await listReports({
+      limit,
+      offset,
+      sort,
+      submittedBy,
+      shift,
+      category: q.category ? String(q.category) : null,
+      review,
+      minConfidence,
+      maxConfidence,
+      from,
+      to,
+    });
     res.json(result);
   } catch (err) {
     console.error(err);

@@ -18,7 +18,15 @@ router.patch(
   '/:taskId/assign',
   requireAuth,
   requireRole('supervisor'),
-  [body('assigned_to').isUUID().withMessage('assigned_to must be a user id')],
+  // null returns the task to the unassigned pool.
+  [
+    body('assigned_to')
+      .exists()
+      .withMessage('assigned_to is required (a user id, or null to unassign)')
+      .bail()
+      .custom((v) => v === null || /^[0-9a-f-]{36}$/i.test(String(v)))
+      .withMessage('assigned_to must be a user id or null'),
+  ],
   validate,
   assign
 );

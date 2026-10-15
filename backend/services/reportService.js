@@ -4,8 +4,8 @@ const { getTaskByReportId } = require('../models/taskRegisterModel');
 const { getNotificationByReportId } = require('../models/notificationModel');
 const { getSubmissionById } = require('../models/handoverSubmissionModel');
 
-async function listReports({ limit, offset, submittedBy, shift } = {}) {
-  return getAllReports({ limit, offset, submittedBy, shift });
+async function listReports(options = {}) {
+  return getAllReports(options);
 }
 
 async function getReportDetail(reportId) {

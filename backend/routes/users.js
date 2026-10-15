@@ -21,6 +21,8 @@ const optionalText = (field, max) =>
 
 router.get('/', controller.getUsers); // assignable people (id, name, role)
 router.get('/directory', controller.getDirectory); // everyone, with details and status
+// Open/overdue tasks now, resolved tasks and handovers since `since` (default: this shift's start).
+router.get('/workload', controller.getWorkload);
 
 // Personal details of a ground crew member.
 router.patch(

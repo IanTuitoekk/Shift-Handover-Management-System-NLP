@@ -42,7 +42,26 @@ async function markAsRead(notifId, userId) {
   return result.rows[0];
 }
 
+/**
+ * Marks many notifications read for one user: the given `notifIds`, or every notification sent
+ * before `before`. Only notifications this user can see (addressed to them or to everyone) are
+ * marked. Returns how many were newly marked.
+ */
+async function markManyAsRead(userId, { notifIds = null, before = null }) {
+  const result = await pool.query(
+    `INSERT INTO notification_reads (notif_id, user_id)
+     SELECT n.notif_id, $1 FROM notifications n
+     WHERE (n.recipient_id = $1 OR n.recipient_id IS NULL)
+       AND ($2::uuid[] IS NULL OR n.notif_id = ANY($2))
+       AND ($3::timestamptz IS NULL OR n.sent_at < $3)
+     ON CONFLICT (notif_id, user_id) DO NOTHING`,
+    [userId, notifIds, before]
+  );
+  return result.rowCount;
+}
+
 module.exports = {
+  markManyAsRead,
   createNotification,
   getNotificationsForUser,
   getNotificationByReportId,

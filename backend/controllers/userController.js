@@ -1,5 +1,6 @@
 const userService = require('../services/userService');
 const realtime = require('../realtime');
+const { workload } = require('../services/statsService');
 
 // All handlers here are supervisor-only (see routes/users.js).
 
@@ -16,6 +17,16 @@ async function getUsers(req, res, next) {
 async function getDirectory(req, res, next) {
   try {
     res.json(await userService.listDirectory());
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function getWorkload(req, res, next) {
+  const since = req.query.since ? new Date(req.query.since) : undefined;
+  if (since && Number.isNaN(since.getTime())) return res.status(400).json({ error: 'since must be an ISO date-time' });
+  try {
+    res.json(await workload(since ? { since } : {}));
   } catch (err) {
     next(err);
   }
@@ -104,4 +115,4 @@ async function deleteUser(req, res, next) {
   }
 }
 
-module.exports = { getUsers, getDirectory, setRole, updateUser, setActive, deleteUser };
+module.exports = { getUsers, getDirectory, getWorkload, setRole, updateUser, setActive, deleteUser };

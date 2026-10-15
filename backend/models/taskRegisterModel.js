@@ -20,8 +20,13 @@ const person = (alias) =>
      'user_id', ${alias}.user_id, 'full_name', ${alias}.full_name,
      'is_active', ${alias}.is_active, 'anonymised', ${alias}.anonymised_at IS NOT NULL) END`;
 
+// The handover report behind a task (alias `r`, categories `c`).
+const REPORT_CONTEXT = `json_build_object(
+  'category_name', c.category_name, 'summary', r.summary, 'category_confidence', r.category_confidence::text) AS report`;
+
 /**
- * Tasks newest first, each with the `shift` ('day' | 'night') of the handover that raised it and
+ * Tasks newest first, each with the `shift` ('day' | 'night') of the handover that raised it,
+ * `report` ({ category_name, summary, category_confidence }) and
  * `assignee` / `resolver` ({ user_id, full_name, is_active, anonymised } or null).
  * Optional filters: `status` and `shift`.
  */
@@ -37,9 +42,10 @@ async function getAllTasks(status, shift) {
     conditions.push(`${shiftExpression('s')} = $${params.length}`);
   }
   const result = await pool.query(
-    `SELECT t.*, ${shiftExpression('s')} AS shift, ${person('ua')} AS assignee, ${person('ur')} AS resolver
+    `SELECT t.*, ${shiftExpression('s')} AS shift, ${person('ua')} AS assignee, ${person('ur')} AS resolver, ${REPORT_CONTEXT}
      FROM task_register t
      LEFT JOIN handover_reports r ON t.report_id = r.report_id
+     LEFT JOIN incident_categories c ON r.category_id = c.category_id
      LEFT JOIN handover_submissions s ON r.submission_id = s.submission_id
      LEFT JOIN users ua ON t.assigned_to = ua.user_id
      LEFT JOIN users ur ON t.resolved_by = ur.user_id
@@ -57,8 +63,10 @@ async function getTaskById(taskId) {
 
 async function getTaskByReportId(reportId) {
   const result = await pool.query(
-    `SELECT t.*, ${person('ua')} AS assignee, ${person('ur')} AS resolver
+    `SELECT t.*, ${person('ua')} AS assignee, ${person('ur')} AS resolver, ${REPORT_CONTEXT}
      FROM task_register t
+     LEFT JOIN handover_reports r ON t.report_id = r.report_id
+     LEFT JOIN incident_categories c ON r.category_id = c.category_id
      LEFT JOIN users ua ON t.assigned_to = ua.user_id
      LEFT JOIN users ur ON t.resolved_by = ur.user_id
      WHERE t.report_id = $1`,

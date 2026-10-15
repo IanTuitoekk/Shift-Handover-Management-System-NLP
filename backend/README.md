@@ -24,15 +24,20 @@ npm run dev
 | POST | /api/auth/forgot-password | No (rate-limited) | `{ email }`. Emails a one-time reset link to an active account. Always answers the same, whether or not the email exists |
 | POST | /api/auth/reset-password | No (rate-limited) | `{ token, new_password }` from the emailed link. Ends every session of that account |
 | POST | /api/handovers | Yes | Submit a handover narrative for NLP processing |
-| GET | /api/handovers | Yes | List handover reports, newest first (`limit`, `offset`, optional `submitted_by=me` or a user id, `shift=day|night`); each report includes `submitted_by: { user_id, full_name, role }` and `shift` |
+| GET | /api/handovers | Yes | List handover reports (`limit` ≤ 100, `offset`). Filters: `submitted_by=me` or a user id, `shift=day|night`, `category=<name>|unclassified`, `review=true|false` (below `LOW_CONFIDENCE_THRESHOLD`, default 0.6, or unclassified), `min_confidence`, `max_confidence` (0–1, max exclusive), `from`, `to` (ISO, `to` exclusive), `sort=newest|confidence`. Returns `{ reports, total, needs_review, shift_counts: { day, night }, limit, offset }`; each report includes `submitted_by` and `shift` |
 | GET | /api/handovers/:reportId | Yes | Get full detail for one report (entities, task, notification, submitted_by, and `submission`: the original text, shift, detected language and submission time) |
 | GET | /api/tasks | Yes | List tasks (optional `status`, `shift=day|night`); each task includes the `shift` of the handover that raised it, `needs_reassignment`, and `assignee` / `resolver` as `{ user_id, full_name, is_active, anonymised }` |
 | PATCH | /api/tasks/:taskId/resolve | Yes | Mark a task resolved |
-| PATCH | /api/tasks/:taskId/assign | Yes (supervisor only) | Assign a task to a user |
+| PATCH | /api/tasks/:taskId/assign | Yes (supervisor only) | `{ "assigned_to": "<user id>" }` assigns (active people only); `{ "assigned_to": null }` unassigns. Resolved tasks can't be reassigned |
 | PATCH | /api/tasks/:taskId/due | Yes (supervisor only) | Set (`{ "due_at": "ISO date-time" }`) or clear (`{ "due_at": null }`) a task's due time |
 | GET | /api/notifications | Yes | List notifications for current user, with per-user read status |
 | PATCH | /api/notifications/:notifId/read | Yes | Mark a notification read (per-user, does not affect other recipients) |
+| PATCH | /api/notifications/read | Yes | Mark many read: `{ "notif_ids": [...] }` (up to 500) or `{ "before": "ISO" }`. Only notifications the user can see; returns `{ marked }` |
+| GET | /api/stats/overview | Yes | Supervisor overview counts: `current_shift`, `recent_shifts` (`?shifts=6`), `today.reports_per_hour`, `reports { total, needs_review }`, `categories`, `tasks { open, overdue, unassigned }` |
+| GET | /api/insights/entities | Yes | Entities in two or more reports: `?types=AIRCRAFT,COMPONENT&since=ISO&min_reports=2&limit=6` → `[{ entity_type, entity_text, report_count }]` |
+| GET | /api/config/shifts | No | `{ timezone, day_start_hour, night_start_hour, shifts: [{ key, name, start, end }] }` |
 | GET | /api/users | Yes (supervisor) | List active users for task assignment |
+| GET | /api/users/workload | Yes (supervisor) | Per active person: `open`, `overdue`, and `resolved_since` / `handovers_since` since `?since=ISO` (default: start of the current shift) |
 | GET | /api/users/directory | Yes (supervisor) | Everyone with an account, including deactivated and deleted ("Former employee") ones, with `staff_number`, `station`, `deactivated_at`, `deactivated_by { user_id, full_name }`, `deactivation_reason`, `anonymised_at` |
 | PATCH | /api/users/:userId | Yes (supervisor) | Edit a ground crew member's `full_name`, `email`, `staff_number`, `station` (empty clears the last two). 409 if the email or staff number is taken; 403 for supervisor accounts |
 | PATCH | /api/users/:userId/role | Yes (supervisor) | Change a role `{ role }` |
@@ -100,7 +105,8 @@ Set `FRONTEND_ORIGIN` (comma-separated) to allow other frontend origins; the def
 
 A report's `shift` is the one chosen on the handover form, or, if none was chosen, the shift its
 submission time falls in. Configure with `DAY_SHIFT_START` (default 6), `NIGHT_SHIFT_START` (18) and
-`SHIFT_TIMEZONE` (`Africa/Nairobi`).
+`SHIFT_TIMEZONE` (`Africa/Nairobi`). The frontend reads the same values from `GET /api/config/shifts`,
+and the overview statistics count shifts in `SHIFT_TIMEZONE`.
 
 ## Due times
 
