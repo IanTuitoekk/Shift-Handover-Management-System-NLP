@@ -7,7 +7,8 @@
     "dev": "nodemon ./bin/www",
     "pretest": "node scripts/reset-test-db.js",
     "test": "jest --forceExit",
-    "set-role": "node scripts/set-role.js"
+    "set-role": "node scripts/set-role.js",
+    "reprocess-entities": "node scripts/reprocess-entities.js"
   },
   "dependencies": {
     "axios": "^1.20.0",
@@ -21,6 +22,7 @@
     "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.3",
     "morgan": "~1.9.1",
+    "multer": "^2.4.0",
     "nodemailer": "^10.1.1",
     "pg": "^8.23.1",
     "socket.io": "^4.8.4"

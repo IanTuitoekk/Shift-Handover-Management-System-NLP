@@ -23,7 +23,8 @@ npm run dev
 | POST | /api/auth/change-password | Yes | `{ current_password, new_password }` (min 8). Ends every other session and returns `{ user, token }` for this one |
 | POST | /api/auth/forgot-password | No (rate-limited) | `{ email }`. Emails a one-time reset link to an active account. Always answers the same, whether or not the email exists |
 | POST | /api/auth/reset-password | No (rate-limited) | `{ token, new_password }` from the emailed link. Ends every session of that account |
-| POST | /api/handovers | Yes | Submit a handover narrative for NLP processing |
+| POST | /api/handovers | Yes | Submit a handover narrative for NLP processing (`input_type`: `text` or `voice`) |
+| POST | /api/handovers/transcribe | Yes (20 per 10 min per person) | Voice input: multipart `audio` (≤ 10 MB) and optional `language` (`en`/`sw`). Returns `{ text, language, language_probability, duration }` from the inference service's Whisper. Nothing is saved; the recording is kept in memory only. 503 if the inference service is down |
 | GET | /api/handovers | Yes | List handover reports (`limit` ≤ 100, `offset`). Filters: `submitted_by=me` or a user id, `shift=day|night`, `category=<name>|unclassified`, `review=true|false` (below `LOW_CONFIDENCE_THRESHOLD`, default 0.6, or unclassified), `min_confidence`, `max_confidence` (0–1, max exclusive), `from`, `to` (ISO, `to` exclusive), `sort=newest|confidence`. Returns `{ reports, total, needs_review, shift_counts: { day, night }, limit, offset }`; each report includes `submitted_by` and `shift` |
 | GET | /api/handovers/:reportId | Yes | Get full detail for one report (entities, task, notification, submitted_by, and `submission`: the original text, shift, detected language and submission time) |
 | GET | /api/tasks | Yes | List tasks (optional `status`, `shift=day|night`); each task includes the `shift` of the handover that raised it, `needs_reassignment`, and `assignee` / `resolver` as `{ user_id, full_name, is_active, anonymised }` |
@@ -129,6 +130,13 @@ affect classification. `npx jest tests/languageDetect.test.js` runs its tests wi
 - Rate limiting on login (10 attempts / 15 min)
 - Helmet security headers
 - Input validation via express-validator
+
+## Repairing stored entities
+
+After a model or decoder change, `npm run reprocess-entities` re-runs the inference service on
+every stored handover and **previews** which reports' entities would change. Add `--apply` to save
+(entities only; category, summary, tasks and alerts are untouched) and `--report <id>` to limit it
+to one report.
 
 ## Testing
 

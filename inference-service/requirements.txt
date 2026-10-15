@@ -46,3 +46,10 @@ uvicorn==0.54.0
 uvloop==0.23.0
 watchfiles==1.3.0
 websockets==17.1
+# Voice input (app/transcribe.py). av is pinned below 17: faster-whisper 1.2.1 passes an option
+# that PyAV 17+ removed.
+faster-whisper==1.2.1
+ctranslate2==4.8.3
+av==16.1.0
+onnxruntime==1.31.0
+python-multipart==0.0.32

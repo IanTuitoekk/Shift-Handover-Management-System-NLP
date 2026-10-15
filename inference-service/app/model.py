@@ -6,6 +6,8 @@ import pysbd
 from pathlib import Path
 from transformers import AutoModel, AutoTokenizer
 
+from app.decoding import decode_entities
+
 MODEL_NAME = "google-bert/bert-base-multilingual-cased"
 MODEL_DIR = Path(__file__).resolve().parent.parent / "model"
 
@@ -101,58 +103,16 @@ class InferenceModel:
         }
 
     def _extract_entities(self, text, bio_tags, offsets, ner_probs, word_ids):
-        """Converts per-token BIO tags back into entity spans with the
-        original text and a confidence score (mean token probability).
-
-        Decoding is word-aware: subword continuations (e.g. "##k" in
-        "lea", "##k") follow the tag of their word's first token, so an
-        entity can never end or start in the middle of a word."""
-        entities = []
-        current = None
+        """BIO tags -> entity spans with text and confidence (see app/decoding.py)."""
         bio_to_id = {t: i for i, t in self.id_to_bio.items()}
-        word_head_tag = None
-
-        for i, tag in enumerate(bio_tags):
-            start, end = offsets[i]
-            if start == end:  # special tokens ([CLS], [SEP], padding)
-                continue
-
-            if i > 0 and word_ids[i] is not None and word_ids[i] == word_ids[i - 1]:
-                # Continuation subword: inherit the word head's decision
-                tag = "O" if word_head_tag == "O" else "I-" + word_head_tag[2:]
-            else:
-                word_head_tag = tag
-
-            token_confidence = ner_probs[i, bio_to_id[tag]].item()
-
-            if tag.startswith("B-"):
-                if current:
-                    entities.append(current)
-                current = {
-                    "type": tag[2:],
-                    "start": start,
-                    "end": end,
-                    "confidences": [token_confidence],
-                }
-            elif tag.startswith("I-") and current and current["type"] == tag[2:]:
-                current["end"] = end
-                current["confidences"].append(token_confidence)
-            else:
-                if current:
-                    entities.append(current)
-                current = None
-
-        if current:
-            entities.append(current)
-
-        return [
-            {
-                "type": e["type"],
-                "text": text[e["start"] : e["end"]],
-                "confidence": round(sum(e["confidences"]) / len(e["confidences"]), 4),
-            }
-            for e in entities
-        ]
+        entities = decode_entities(
+            text,
+            bio_tags,
+            offsets,
+            word_ids,
+            token_confidence=lambda i, tag: ner_probs[i, bio_to_id[tag]].item(),
+        )
+        return [{"type": e["type"], "text": e["text"], "confidence": e["confidence"]} for e in entities]
 
     def summarize(self, text: str, max_sentences: int = 2):
         """Centroid-based extractive summarization: splits the narrative

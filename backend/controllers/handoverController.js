@@ -1,6 +1,7 @@
 const { processHandover } = require('../services/handoverService');
 const { listReports, getReportDetail } = require('../services/reportService');
 const realtime = require('../realtime');
+const { transcribe } = require('../services/transcriptionService');
 const { SHIFTS } = require('../config/shifts');
 
 const createHandover = async (req, res) => {
@@ -115,4 +116,23 @@ const getReport = async (req, res) => {
   }
 };
 
-module.exports = { createHandover, getReports, getReport };
+// POST /api/handovers/transcribe (multipart: `audio`, optional `language` en|sw). Returns the
+// transcript for the crew member to check and edit; nothing is saved until they submit it.
+const transcribeHandover = async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'Attach the recording as "audio"' });
+  try {
+    const result = await transcribe({
+      buffer: req.file.buffer,
+      mimetype: req.file.mimetype,
+      filename: req.file.originalname,
+      language: req.body.language,
+    });
+    res.json(result);
+  } catch (err) {
+    if (err.status) return res.status(err.status).json({ error: err.message });
+    console.error(err);
+    res.status(500).json({ error: 'Failed to transcribe the recording' });
+  }
+};
+
+module.exports = { createHandover, getReports, getReport, transcribeHandover };
