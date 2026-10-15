@@ -155,6 +155,7 @@ opens the composer in a dialog.
 | `Skeleton`, `EmptyState`, `ErrorState`, `PageHeader`, `Section` | shared | |
 | `Composer` | shared | hero layout on ground home, dialog for supervisor |
 | `CompletenessHints` | shared (inside composer) | client-side keyword hints, labelled as hints |
+| `VoiceInput` | shared (inside composer) | record → server Whisper → transcript added to the text box for checking; saved as `input_type: 'voice'` |
 | `SubmitResult` | shared | category, confidence, entities, summary, link |
 | `TaskStrip` + `ResolveButton` | shared | two-step resolve |
 | `NotificationsDrawer` | shared | |
@@ -284,6 +285,22 @@ working around missing data, with the endpoint or field that would remove the wo
     `NIGHT_SHIFT_START`, `SHIFT_TIMEZONE` in the backend `.env`); the app loads it at start-up
     (`setShiftHours`). The browser still uses its own clock's time zone for shift windows, which
     matches the server for crews in Kenya.
+
+## Voice input
+
+The mic beside the handover text box records with the browser's MediaRecorder (webm/Opus, or
+mp4 on Safari), up to 3 minutes, with a timer, Stop and Cancel. The recording goes to
+`POST /api/handovers/transcribe`, which hands it to Whisper in the inference service (English or
+Swahili, on our own server). The transcript is **added to the text box, not submitted**: the crew
+member checks and corrects it, then submits as usual. Any voice-started handover is saved as
+`input_type: 'voice'`.
+
+- Recording uses the accent colour with a gentle pulse (none with reduced motion), not KQ red,
+  which stays reserved for safety-critical states.
+- Spoken registrations are written out ("five Yankee Kilo Zulu Delta" → 5Y-KZD).
+- Problems get plain messages under the text box: blocked or missing microphone, nothing heard,
+  service unavailable ("type the handover instead"). Typing always works.
+- Browsers only allow the microphone on HTTPS or `localhost`; a deployment must use HTTPS.
 
 ## Real-time updates
 

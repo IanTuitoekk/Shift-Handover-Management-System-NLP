@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import { Microphone, NotePencil, PaperPlaneTilt, WarningOctagon } from '@phosphor-icons/react';
+import { NotePencil, PaperPlaneTilt, WarningOctagon } from '@phosphor-icons/react';
 import { api } from '../../api/client';
 import { draftStore } from '../../utils/deviceStore';
 import { errorMessage, formatTime, shiftAt } from '../../utils/format';
 import { CompletenessHints } from './CompletenessHints';
 import { SubmitResult } from './SubmitResult';
+import { VoiceInput } from './VoiceInput';
+
+const LANGUAGE_NAMES = { en: 'English', sw: 'Swahili', mixed: 'a mix of English and Swahili' };
 
 const SAVE_DELAY_MS = 600;
 
@@ -12,6 +15,8 @@ function initialDraft(userId) {
   const saved = userId ? draftStore.load(userId) : null;
   return {
     text: saved?.text ?? '',
+    // True once any of the text came from voice input; the handover is then saved as input_type 'voice'.
+    voice: saved?.voice ?? false,
     shift: saved?.shift ?? shiftAt().name,
     savedAt: saved?.savedAt ?? null,
   };
@@ -29,6 +34,8 @@ export function Composer({ userId, variant = 'hero', onSubmitted, titleId = 'com
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState(null);
   const [resultWarning, setResultWarning] = useState('');
+  const [voiceError, setVoiceError] = useState('');
+  const [voiceNote, setVoiceNote] = useState('');
   const textRef = useRef(null);
   const dirty = useRef(false);
 
@@ -52,6 +59,23 @@ export function Composer({ userId, variant = 'hero', onSubmitted, titleId = 'com
     setDraft((d) => ({ ...d, ...patch }));
   }
 
+  // Adds the transcript after any typed text, then puts the cursor at the end for corrections.
+  function addTranscript({ text, language }) {
+    dirty.current = true;
+    setVoiceError('');
+    setFieldError('');
+    setDraft((d) => ({ ...d, voice: true, text: d.text.trim() ? `${d.text.trimEnd()}\n${text}` : text }));
+    setVoiceNote(
+      `Added what you said${LANGUAGE_NAMES[language] ? ` (heard as ${LANGUAGE_NAMES[language]})` : ''}. Check it and correct anything before submitting.`,
+    );
+    requestAnimationFrame(() => {
+      const el = textRef.current;
+      if (!el) return;
+      el.focus();
+      el.setSelectionRange(el.value.length, el.value.length);
+    });
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
     const text = draft.text.trim();
@@ -67,7 +91,7 @@ export function Composer({ userId, variant = 'hero', onSubmitted, titleId = 'com
     try {
       const created = await api.submitHandover({
         narrative_text: text,
-        input_type: 'text',
+        input_type: draft.voice ? 'voice' : 'text',
         shift: draft.shift,
       });
       const reportId = created.report.report_id;
@@ -83,7 +107,8 @@ export function Composer({ userId, variant = 'hero', onSubmitted, titleId = 'com
         draftStore.clear(userId);
       }
       dirty.current = false;
-      setDraft((d) => ({ ...d, text: '', savedAt: null }));
+      setDraft((d) => ({ ...d, text: '', voice: false, savedAt: null }));
+      setVoiceNote('');
       setResult(detail);
       onSubmitted?.(detail);
     } catch (err) {
@@ -127,29 +152,26 @@ export function Composer({ userId, variant = 'hero', onSubmitted, titleId = 'com
               autoComplete="off"
               placeholder="e.g. 5Y-KZD left main gear tyre worn past limits at stand 7. Replacement ordered, engineer to fit before 06:00…"
               value={draft.text}
-              onChange={(e) => update({ text: e.target.value })}
+              onChange={(e) => update(e.target.value.trim() ? { text: e.target.value } : { text: e.target.value, voice: false })}
               aria-invalid={fieldError ? 'true' : undefined}
               aria-describedby={fieldError ? `${titleId}-lang ${titleId}-error` : `${titleId}-lang`}
             />
             <p className="field-hint" id={`${titleId}-lang`}>
-              Write in English, Swahili or a mix. The language is detected automatically.
+              Write or speak in English, Swahili or a mix. The language is detected automatically.
             </p>
+            {voiceNote && !voiceError && <p className="field-hint composer__voice-note">{voiceNote}</p>}
+            {voiceError && (
+              <p className="field-error" role="alert">
+                {voiceError}
+              </p>
+            )}
             {fieldError && (
               <p className="field-error" id={`${titleId}-error`}>
                 {fieldError}
               </p>
             )}
           </div>
-          {/* Reserved for voice input (not built yet). */}
-          <div className="composer__mic">
-            <button type="button" className="mic-slot" disabled aria-describedby={`${titleId}-mic-note`}>
-              <Microphone size={22} aria-hidden="true" />
-              <span className="visually-hidden">Voice input</span>
-            </button>
-            <span id={`${titleId}-mic-note`} className="mic-slot__note">
-              Voice input coming soon
-            </span>
-          </div>
+          <VoiceInput id={`${titleId}-mic`} onTranscript={addTranscript} onError={setVoiceError} disabled={submitting} />
         </div>
 
         <CompletenessHints text={draft.text} />

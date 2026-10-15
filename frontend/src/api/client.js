@@ -73,6 +73,13 @@ export const api = {
   shiftConfig: () => client.get('/config/shifts').then((r) => r.data),
   getReport: (reportId) => client.get(`/handovers/${reportId}`).then((r) => r.data),
   submitHandover: (payload) => client.post('/handovers', payload).then((r) => r.data),
+  /** Speech to text (Whisper on the server). Returns { text, language, language_probability, duration }. */
+  transcribeHandover: (blob) => {
+    const ext = blob.type.includes('mp4') ? 'mp4' : blob.type.includes('ogg') ? 'ogg' : 'webm';
+    const form = new FormData();
+    form.append('audio', blob, `handover.${ext}`);
+    return client.post('/handovers/transcribe', form, { timeout: 120_000 }).then((r) => r.data);
+  },
 
   listTasks: (status) => client.get('/tasks', { params: status ? { status } : {} }).then((r) => r.data),
   resolveTask: (taskId) => client.patch(`/tasks/${taskId}/resolve`).then((r) => r.data),
