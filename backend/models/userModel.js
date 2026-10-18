@@ -1,17 +1,39 @@
 const pool = require('../config/db');
 
-// Safe to return to clients (never password_hash).
+// Safe to return to clients (never password_hash or the Google id itself).
 const PUBLIC_FIELDS = `user_id, full_name, email, role, is_active, staff_number, station, created_at,
-  deactivated_at, deactivated_by, deactivation_reason, anonymised_at`;
+  deactivated_at, deactivated_by, deactivation_reason, anonymised_at,
+  password_hash IS NOT NULL AS has_password, google_sub IS NOT NULL AS google_linked`;
 
-async function createUser({ fullName, email, passwordHash, role }) {
+/** `passwordHash` may be null for an account created through Google (`googleSub`). */
+async function createUser({ fullName, email, passwordHash, role, googleSub = null }) {
   const result = await pool.query(
-    `INSERT INTO users (full_name, email, password_hash, role)
-     VALUES ($1, $2, $3, $4)
+    `INSERT INTO users (full_name, email, password_hash, role, google_sub)
+     VALUES ($1, $2, $3, $4, $5)
      RETURNING ${PUBLIC_FIELDS}`,
-    [fullName, email, passwordHash, role]
+    [fullName, email, passwordHash, role, googleSub]
   );
   return result.rows[0];
+}
+
+async function getUserByGoogleSub(googleSub) {
+  const result = await pool.query(`SELECT ${PUBLIC_FIELDS}, google_sub FROM users WHERE google_sub = $1`, [googleSub]);
+  return result.rows[0];
+}
+
+/** Google returns lower-case emails; stored ones may differ in case. */
+async function getUserByEmailInsensitive(email) {
+  const result = await pool.query(`SELECT ${PUBLIC_FIELDS}, google_sub FROM users WHERE lower(email) = lower($1) ORDER BY created_at LIMIT 1`, [email]);
+  return result.rows[0];
+}
+
+/** Links a Google account to a user that has none yet. Returns the user, or null if already linked. */
+async function linkGoogleAccount(userId, googleSub) {
+  const result = await pool.query(
+    `UPDATE users SET google_sub = $2 WHERE user_id = $1 AND google_sub IS NULL RETURNING ${PUBLIC_FIELDS}`,
+    [userId, googleSub]
+  );
+  return result.rows[0] ?? null;
 }
 
 async function getUserByEmail(email) {
@@ -178,6 +200,7 @@ async function deleteOrAnonymiseUser(userId, unusableHash) {
            staff_number = NULL,
            station = NULL,
            deactivation_reason = NULL,
+           google_sub = NULL,
            is_active = false,
            anonymised_at = now()
          WHERE user_id = $1`,
@@ -197,6 +220,9 @@ async function deleteOrAnonymiseUser(userId, unusableHash) {
 
 module.exports = {
   createUser,
+  getUserByGoogleSub,
+  getUserByEmailInsensitive,
+  linkGoogleAccount,
   getUserByEmail,
   getUserById,
   listActiveUsers,

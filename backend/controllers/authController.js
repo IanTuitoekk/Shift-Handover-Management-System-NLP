@@ -1,5 +1,7 @@
 const { registerUser, loginUser, changePassword, requestPasswordReset, resetPasswordWithToken } = require('../services/authService');
 const realtime = require('../realtime');
+const { signToken } = require('../services/authService');
+const { signInWithGoogle, linkWithPassword } = require('../services/googleAuthService');
 const { getUserById } = require('../models/userModel');
 const { revokeToken } = require('../models/revokedTokenModel');
 
@@ -95,4 +97,33 @@ const resetPassword = async (req, res) => {
   }
 };
 
-module.exports = { register, login, me, logout, updatePassword, forgotPassword, resetPassword };
+const sendAuthError = (res, err, fallback) => {
+  if (err.status) return res.status(err.status).json({ error: err.message });
+  console.error(err);
+  return res.status(500).json({ error: fallback });
+};
+
+// POST /api/auth/google { credential } -> { user, token } or { link_required, link_ticket, email }
+const googleSignIn = async (req, res) => {
+  try {
+    const result = await signInWithGoogle(req.body.credential);
+    if (result.linkRequired) {
+      return res.json({ link_required: true, link_ticket: result.ticket, email: result.email });
+    }
+    res.status(result.created ? 201 : 200).json({ user: result.user, token: signToken(result.user), created: Boolean(result.created) });
+  } catch (err) {
+    sendAuthError(res, err, 'Google sign-in failed');
+  }
+};
+
+// POST /api/auth/google/link { link_ticket, password } -> { user, token }
+const googleLink = async (req, res) => {
+  try {
+    const { user } = await linkWithPassword(req.body.link_ticket, req.body.password);
+    res.json({ user, token: signToken(user) });
+  } catch (err) {
+    sendAuthError(res, err, 'Linking Google failed');
+  }
+};
+
+module.exports = { register, login, me, logout, updatePassword, forgotPassword, resetPassword, googleSignIn, googleLink };

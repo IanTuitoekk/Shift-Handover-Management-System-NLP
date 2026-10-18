@@ -5,7 +5,7 @@ CREATE TABLE users (
     user_id        UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     full_name      VARCHAR(255) NOT NULL,
     email          VARCHAR(255) NOT NULL UNIQUE,
-    password_hash  VARCHAR(255) NOT NULL,
+    password_hash  VARCHAR(255),  -- NULL for accounts that only sign in with Google
     role           VARCHAR(50) NOT NULL,
     is_active      BOOLEAN NOT NULL DEFAULT true,
     password_changed_at  TIMESTAMPTZ,
@@ -15,6 +15,7 @@ CREATE TABLE users (
     deactivated_by       UUID REFERENCES users(user_id) ON DELETE SET NULL,
     deactivation_reason  TEXT,
     anonymised_at        TIMESTAMPTZ,
+    google_sub           VARCHAR(255),  -- Google account id, once linked
     created_at     TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -118,6 +119,7 @@ CREATE TABLE revoked_tokens (
 );
 
 
+CREATE UNIQUE INDEX idx_users_google_sub ON users(google_sub) WHERE google_sub IS NOT NULL;
 CREATE UNIQUE INDEX idx_users_staff_number ON users(staff_number) WHERE staff_number IS NOT NULL;
 CREATE INDEX idx_password_reset_tokens_user ON password_reset_tokens(user_id);
 CREATE INDEX idx_notification_reads_user ON notification_reads(user_id);

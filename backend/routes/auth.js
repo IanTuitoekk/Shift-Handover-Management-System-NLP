@@ -4,7 +4,7 @@ var rateLimit = require('express-rate-limit');
 var { body } = require('express-validator');
 var { requireAuth } = require('../middleware/auth');
 var { validate } = require('../middleware/validate');
-var { register, login, me, logout, updatePassword, forgotPassword, resetPassword } = require('../controllers/authController');
+var { register, login, me, logout, updatePassword, forgotPassword, resetPassword, googleSignIn, googleLink } = require('../controllers/authController');
 
 
 
@@ -68,6 +68,25 @@ router.post(
   ],
   validate,
   resetPassword
+);
+
+// Sign in with Google (same rate limit as password login).
+router.post(
+  '/google',
+  loginLimiter,
+  [body('credential').isString().isLength({ min: 20, max: 8192 }).withMessage('credential (a Google ID token) is required')],
+  validate,
+  googleSignIn
+);
+router.post(
+  '/google/link',
+  loginLimiter,
+  [
+    body('link_ticket').isString().notEmpty().withMessage('link_ticket is required'),
+    body('password').isString().notEmpty().withMessage('password is required'),
+  ],
+  validate,
+  googleLink
 );
 
 module.exports = router;

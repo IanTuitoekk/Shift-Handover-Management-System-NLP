@@ -21,6 +21,8 @@ npm run dev
 | POST | /api/auth/login | No (rate-limited) | Log in, returns JWT |
 | GET | /api/auth/me | Yes | Get current user profile (includes `staff_number`, `station`) |
 | POST | /api/auth/change-password | Yes | `{ current_password, new_password }` (min 8). Ends every other session and returns `{ user, token }` for this one |
+| POST | /api/auth/google | No (rate-limited) | Sign in with Google: `{ credential }` (the ID token from Google Identity Services). Returns `{ user, token, created }` (201 when a new ground crew account was created), or `{ link_required: true, link_ticket, email }` when the email already has an account |
+| POST | /api/auth/google/link | No (rate-limited) | `{ link_ticket, password }`: the existing account's password links Google and signs in. The ticket lasts 5 minutes and can't be used as a session |
 | POST | /api/auth/forgot-password | No (rate-limited) | `{ email }`. Emails a one-time reset link to an active account. Always answers the same, whether or not the email exists |
 | POST | /api/auth/reset-password | No (rate-limited) | `{ token, new_password }` from the emailed link. Ends every session of that account |
 | POST | /api/handovers | Yes | Submit a handover narrative for NLP processing (`input_type`: `text` or `voice`) |
@@ -130,6 +132,25 @@ affect classification. `npx jest tests/languageDetect.test.js` runs its tests wi
 - Rate limiting on login (10 attempts / 15 min)
 - Helmet security headers
 - Input validation via express-validator
+
+## Sign in with Google
+
+Set `GOOGLE_CLIENT_ID` (a Google Cloud OAuth client ID of type "Web application", with
+`http://localhost:5173` as an authorised JavaScript origin; no client secret is used). The frontend
+needs the same value as `VITE_GOOGLE_CLIENT_ID`. Without it the endpoints answer 503 and the button
+is hidden.
+
+- Any Google account with a **verified** email can sign in. The ID token is verified with
+  `google-auth-library` (signature, issuer, audience = our client id, expiry).
+- A Google account seen before (`users.google_sub`) signs straight in. A new email gets a
+  **ground crew** account with the Google name and no password (password login then says to use
+  Google; "Forgot password?" can set one).
+- An email that already has an account must confirm that account's **password once**; Google is then
+  linked. A different Google account can't take over a linked email (409).
+- Deactivated accounts are refused (403). Anonymising an account clears its Google link.
+- Whether Google sign-ins will also need our MFA is decided when MFA is built.
+- While the Google Cloud consent screen is in "Testing", only its listed test users can sign in;
+  publish it to allow any Google account.
 
 ## Repairing stored entities
 

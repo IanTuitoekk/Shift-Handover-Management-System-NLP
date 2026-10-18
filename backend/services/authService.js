@@ -23,6 +23,10 @@ async function loginUser({ email, password }) {
   if (!user || !user.is_active) {
     throw new Error('Invalid email or password');
   }
+  if (!user.password_hash) {
+    // Created through Google and no password set yet.
+    throw new Error('This account signs in with Google. Use "Sign in with Google", or set a password with "Forgot password?"');
+  }
 
   const isValid = await verifyPassword(password, user.password_hash);
   if (!isValid) {
@@ -30,8 +34,8 @@ async function loginUser({ email, password }) {
   }
 
   const token = signToken(user);
-  const { password_hash, ...safeUser } = user;
-  return { user: safeUser, token };
+  const { password_hash, google_sub, ...safeUser } = user;
+  return { user: { ...safeUser, has_password: true, google_linked: Boolean(google_sub) }, token };
 }
 
 // `notBefore` (a Date) makes the token's issued-at no earlier than that moment. After a password
@@ -111,4 +115,4 @@ async function resetPasswordWithToken(token, newPassword) {
   }
 }
 
-module.exports = { registerUser, loginUser, changePassword, requestPasswordReset, resetPasswordWithToken, RESET_LINK_MINUTES };
+module.exports = { signToken, registerUser, loginUser, changePassword, requestPasswordReset, resetPasswordWithToken, RESET_LINK_MINUTES };
