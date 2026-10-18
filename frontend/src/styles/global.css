@@ -457,3 +457,8 @@ summary {
   font-size: var(--text-sm);
   font-weight: 500;
 }
+
+/* The hidden attribute always wins over display rules (e.g. .auth-form { display: grid }). */
+[hidden] {
+  display: none !important;
+}

@@ -5,6 +5,7 @@ import { useAuth } from '../auth/useAuth';
 import { AuthLayout } from './AuthLayout';
 import { TextField } from '../components/TextField';
 import { PasswordField } from '../components/PasswordField';
+import { GoogleSignIn } from '../components/auth/GoogleSignIn';
 import { errorMessage } from '../utils/format';
 
 
@@ -17,6 +18,7 @@ export function RegisterPage() {
   const [fieldErrors, setFieldErrors] = useState({});
   const [formError, setFormError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [linking, setLinking] = useState(false); // Google link step showing instead of the form
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -63,7 +65,7 @@ export function RegisterPage() {
         </p>
       }
     >
-      <form className="auth-form" onSubmit={handleSubmit} noValidate>
+      <form className="auth-form" onSubmit={handleSubmit} noValidate hidden={linking}>
         <div aria-live="polite">
           {formError && (
             <p className="notice notice--critical" role="alert">
@@ -114,6 +116,7 @@ export function RegisterPage() {
           {submitting ? 'Creating account…' : 'Create account'}
         </button>
       </form>
+      <GoogleSignIn text="signup_with" onLinkingChange={setLinking} />
     </AuthLayout>
   );
 }

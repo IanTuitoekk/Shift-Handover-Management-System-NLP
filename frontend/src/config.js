@@ -2,6 +2,10 @@
 
 export const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api';
 
+// Sign in with Google: the OAuth client ID from Google Cloud (web application). Not secret.
+// When unset, the Google button is hidden.
+export const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? '';
+
 // Classifications below this confidence (0-1) are flagged for human review.
 export const LOW_CONFIDENCE_THRESHOLD = 0.6;
 

@@ -274,3 +274,42 @@
   font-size: var(--text-sm);
   text-align: right;
 }
+
+/* Sign in with Google ------------------------------------------------------------ */
+.google-signin {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  border-top: 1px solid var(--line);
+}
+
+/* Google draws its own button (official branding); this only centres it at full width. */
+.google-signin__button {
+  display: flex;
+  justify-content: center;
+  min-height: 44px;
+}
+
+.google-link {
+  margin-top: var(--space-4);
+}
+
+/* Google's button is an iframe with a light colour scheme; matching it keeps the frame
+   transparent on the dark page (otherwise the browser paints it white). */
+.google-signin__button {
+  color-scheme: light;
+}

@@ -5,6 +5,7 @@ import { useAuth } from '../auth/useAuth';
 import { AuthLayout } from './AuthLayout';
 import { TextField } from '../components/TextField';
 import { PasswordField } from '../components/PasswordField';
+import { GoogleSignIn } from '../components/auth/GoogleSignIn';
 import { errorMessage } from '../utils/format';
 
 export function LoginPage() {
@@ -15,6 +16,7 @@ export function LoginPage() {
   const [fieldErrors, setFieldErrors] = useState({});
   const [formError, setFormError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [linking, setLinking] = useState(false); // Google link step showing instead of the form
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -58,7 +60,7 @@ export function LoginPage() {
         </p>
       }
     >
-      <form className="auth-form" onSubmit={handleSubmit} noValidate>
+      <form className="auth-form" onSubmit={handleSubmit} noValidate hidden={linking}>
         <div aria-live="polite">
           {notice && !formError && <p className="notice">{notice}</p>}
           {formError && (
@@ -97,6 +99,7 @@ export function LoginPage() {
           {submitting ? 'Logging in…' : 'Log in'}
         </button>
       </form>
+      <GoogleSignIn onLinkingChange={setLinking} />
     </AuthLayout>
   );
 }

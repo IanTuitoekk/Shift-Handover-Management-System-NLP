@@ -57,6 +57,10 @@ export const api = {
   register: (payload) => client.post('/auth/register', payload).then((r) => r.data),
   logout: () => client.post('/auth/logout').then((r) => r.data),
   me: () => client.get('/auth/me').then((r) => r.data),
+  /** Returns { user, token } or { link_required, link_ticket, email }. */
+  googleSignIn: (credential) => client.post('/auth/google', { credential }).then((r) => r.data),
+  googleLink: (linkTicket, password) =>
+    client.post('/auth/google/link', { link_ticket: linkTicket, password }).then((r) => r.data),
   forgotPassword: (email) => client.post('/auth/forgot-password', { email }).then((r) => r.data),
   resetPassword: (token, newPassword) =>
     client.post('/auth/reset-password', { token, new_password: newPassword }).then((r) => r.data),
