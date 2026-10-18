@@ -74,15 +74,37 @@ deactivated person is refused.
 links, and a link works once. Setting a new password sets `password_changed_at`, so every token issued before
 it is rejected.
 
-Email settings (in `.env`):
+### Email
+
+Without `SMTP_HOST` (development) reset emails, link included, are printed in the backend console.
+To really send them, add an SMTP account to `backend/.env` and restart the backend. On start-up the
+console says either `[mail] Sending email through …` or why it can't (wrong password, blocked port).
+Send yourself a sample with `npm run test-email -- you@example.com`.
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `SMTP_HOST` | (unset) | Unset in development: the email, including the link, is printed in the backend console instead of being sent |
-| `SMTP_PORT`, `SMTP_SECURE` | `587`, `false` | |
-| `SMTP_USER`, `SMTP_PASSWORD` | | Optional SMTP login |
-| `MAIL_FROM` | `Shift Handover <no-reply@localhost>` | Sender |
-| `FRONTEND_URL` | first `FRONTEND_ORIGIN`, else `http://localhost:5173` | Where the link points |
+| `SMTP_HOST` | (unset) | SMTP server; unset prints emails instead |
+| `SMTP_PORT` | `587` | `465` (TLS) or `587` (STARTTLS) |
+| `SMTP_SECURE` | `true` on port 465 | |
+| `SMTP_USER`, `SMTP_PASSWORD` | | Login. For Gmail an **app password**, never the account password |
+| `MAIL_FROM` | `Shift Handover <SMTP_USER>` | Sender. Providers usually only accept a From address they have verified |
+| `FRONTEND_URL` | first `FRONTEND_ORIGIN`, else `http://localhost:5173` | Where the link in the email points (set to the real site when deployed) |
+
+**Gmail (good for development and small pilots, about 500 emails a day):** turn on 2-Step
+Verification for the Google account, create an app password at
+https://myaccount.google.com/apppasswords, then:
+
+```
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_USER=you@gmail.com
+SMTP_PASSWORD=the16letterapppassword
+MAIL_FROM=Shift Handover <you@gmail.com>
+```
+
+**For production** use a transactional email service (for example Brevo, Resend, Mailgun or Amazon
+SES) with the airline's own domain verified (SPF and DKIM), so emails come from an address like
+`no-reply@…` and don't land in spam. Only the `SMTP_*` and `MAIL_FROM` values change.
 
 ## Real-time updates (Socket.IO)
 

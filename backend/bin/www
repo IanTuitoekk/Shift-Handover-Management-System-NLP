@@ -28,6 +28,12 @@ var server = http.createServer(app);
 require('../realtime').init(server);
 
 /**
+ * Say in the console whether password-reset emails can be sent (checks the SMTP settings once).
+ */
+
+require('../utils/mailer').verifyMailer();
+
+/**
  * Listen on provided port, on all network interfaces.
  */
 
