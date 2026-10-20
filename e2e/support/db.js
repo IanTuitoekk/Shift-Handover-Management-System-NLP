@@ -4,7 +4,11 @@ const dotenv = require('dotenv');
 const { Client } = require('pg');
 const env = require('./env');
 
-const conf = dotenv.config({ path: path.join(env.ROOT, 'backend', '.env'), processEnv: {} }).parsed ?? {};
+// backend/.env locally; plain environment variables on CI.
+const fromFile = dotenv.config({ path: path.join(env.ROOT, 'backend', '.env'), processEnv: {}, quiet: true }).parsed ?? {};
+const conf = Object.fromEntries(
+  ['DB_HOST', 'DB_PORT', 'DB_USER', 'DB_PASSWORD'].map((k) => [k, fromFile[k] ?? process.env[k]]),
+);
 
 async function query(sql, params = []) {
   const client = new Client({

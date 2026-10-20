@@ -6,7 +6,8 @@ const dotenv = require('dotenv');
 const ROOT = path.resolve(__dirname, '..', '..');
 const backendEnv = dotenv.config({ path: path.join(ROOT, 'backend', '.env'), processEnv: {} }).parsed ?? {};
 
-const E2E_DB = process.env.E2E_DB_NAME || `${backendEnv.DB_NAME || 'shift_handover'}_e2e_test`;
+// backend/.env locally; plain environment variables on CI (where there is no .env file).
+const E2E_DB = process.env.E2E_DB_NAME || `${backendEnv.DB_NAME || process.env.DB_NAME || 'shift_handover'}_e2e_test`;
 
 module.exports = {
   ROOT,

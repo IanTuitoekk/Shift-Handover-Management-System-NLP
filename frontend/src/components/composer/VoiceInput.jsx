@@ -156,15 +156,12 @@ export function VoiceInput({ id, onTranscript, onError, disabled = false }) {
     const [track] = stream.getAudioTracks();
     const t0 = performance.now();
     const since = () => `${((performance.now() - t0) / 1000).toFixed(1)}s`;
-    console.info('[voice] microphone:', track?.label || '(no label)', '| state', track?.readyState, '| muted', track?.muted, '| settings', track?.getSettings?.());
-    track?.addEventListener('ended', () => console.warn(`[voice] microphone track ended at ${since()}`));
-    track?.addEventListener('mute', () => console.warn(`[voice] microphone muted at ${since()}`));
-    track?.addEventListener('unmute', () => console.info(`[voice] microphone unmuted at ${since()}`));
+    // The microphone disappearing mid-recording (unplugged, taken by another app) is worth a warning.
+    track?.addEventListener('ended', () => console.warn(`[voice] microphone stopped at ${since()}`));
     const micName = track?.label || 'the default microphone';
     meter.current = watchLevel(stream, setLevel);
     const mimeType = (isSafari() ? SAFARI_FORMATS : FORMATS).find((f) => window.MediaRecorder.isTypeSupported?.(f));
     const rec = new window.MediaRecorder(stream, mimeType ? { mimeType } : undefined);
-    console.info('[voice] recorder format', rec.mimeType || mimeType || '(browser default)');
     // This recording's own pieces, so nothing from another recording can mix in.
     const pieces = [];
     rec.ondataavailable = (e) => {
@@ -173,7 +170,10 @@ export function VoiceInput({ id, onTranscript, onError, disabled = false }) {
     rec.onstop = () => {
       const blob = new Blob(pieces, { type: rec.mimeType || mimeType || 'audio/webm' });
       const peak = meter.current?.peak();
-      console.info(`[voice] recorded ${blob.size} bytes as ${blob.type} in ${pieces.length} piece(s); stopped at ${since()}; peak level ${peak?.toFixed(3)}`);
+      // One line per recording, for diagnosing microphone problems from the browser console.
+      console.info(
+        `[voice] ${since()} from "${micName}" as ${blob.type}: ${blob.size} bytes, peak level ${peak == null ? 'n/a' : peak.toFixed(3)}`,
+      );
       release();
       setLevel(0);
       starting.current = false;
@@ -215,10 +215,7 @@ export function VoiceInput({ id, onTranscript, onError, disabled = false }) {
         if (s >= MAX_RECORDING_SECONDS) stop();
       }, 250);
     };
-    rec.onstart = () => {
-      console.info(`[voice] recorder started at ${since()}`);
-      begin();
-    };
+    rec.onstart = begin;
     rec.onerror = (e) => {
       console.error('[voice] recorder error', e.error ?? e);
       setError('The recording stopped unexpectedly. Try again, or type the handover.');
@@ -233,7 +230,6 @@ export function VoiceInput({ id, onTranscript, onError, disabled = false }) {
   }
 
   function stop() {
-    console.info('[voice] stop requested');
     clearInterval(timer.current);
     if (recorder.current && recorder.current.state !== 'inactive') recorder.current.stop();
   }

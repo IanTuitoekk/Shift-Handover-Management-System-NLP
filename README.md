@@ -113,6 +113,12 @@ and reset emails are printed in the backend terminal.
 | Frontend | `cd frontend && npm run lint && npm run build` | Lint and production build |
 | End to end | `cd e2e && npm install && npm run install-browser && npm test` | The whole app in a browser, on its own ports and database |
 
+**On GitHub** all four run automatically ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) on
+every pull request into `dev` or `main` and every push to them. CI needs no secrets or model files:
+it uses throwaway PostgreSQL databases, the end-to-end suite's fake inference service, and only
+`pytest` for the inference unit tests (the one test that needs the mBERT tokenizer skips itself).
+If the end-to-end job fails, its HTML report (screenshots, traces) is attached to the run.
+
 Model quality is measured separately with
 `cd inference-service && venv/bin/python -m scripts.evaluate` (on 147 held-out handovers).
 
