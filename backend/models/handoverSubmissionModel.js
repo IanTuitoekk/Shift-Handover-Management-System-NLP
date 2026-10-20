@@ -18,4 +18,14 @@ async function updateProcessingStatus(submissionId, status) {
   return result.rows[0];
 }
 
-module.exports = { createSubmission, updateProcessingStatus };
+// The original handover as written. user_id is left out: the report's submitted_by carries it.
+async function getSubmissionById(submissionId) {
+  const result = await pool.query(
+    `SELECT submission_id, input_type, content, language_variant, shift, processing_status, submitted_at
+     FROM handover_submissions WHERE submission_id = $1`,
+    [submissionId]
+  );
+  return result.rows[0] || null;
+}
+
+module.exports = { createSubmission, updateProcessingStatus, getSubmissionById };

@@ -1,5 +1,8 @@
 const { processHandover } = require('../services/handoverService');
 const { listReports, getReportDetail } = require('../services/reportService');
+const realtime = require('../realtime');
+const { transcribe } = require('../services/transcriptionService');
+const { SHIFTS } = require('../config/shifts');
 
 const createHandover = async (req, res) => {
   const { narrative_text, input_type, language_variant, shift } = req.body;
@@ -18,18 +21,80 @@ const createHandover = async (req, res) => {
     });
 
     res.status(201).json(result);
+
+    // Push to everyone signed in. Alerts are broadcast (recipient_id is null), so everyone gets it.
+    try {
+      const detail = await getReportDetail(result.report.report_id);
+      realtime.toAll('handover:created', {
+        report: detail,
+        task: result.task ? { ...result.task, shift: detail.shift } : null,
+        notification: result.notification ? { ...result.notification, is_read: false, read_at: null } : null,
+        submittedBy: req.user.userId,
+      });
+    } catch (pushErr) {
+      console.error('Realtime push failed:', pushErr.message);
+    }
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to process handover' });
   }
 };
 
+/**
+ * GET /api/handovers. Filters (all optional): submitted_by=me|<user id>, shift=day|night,
+ * category=<name>|unclassified, review=true|false, min_confidence, max_confidence (0..1, max
+ * exclusive), from, to (ISO times, to exclusive), sort=newest|confidence, limit (max 100), offset.
+ */
 const getReports = async (req, res) => {
-  const limit = Math.min(parseInt(req.query.limit, 10) || 20, 100); // cap at 100
-  const offset = parseInt(req.query.offset, 10) || 0;
+  const q = req.query;
+  const bad = (message) => res.status(400).json({ error: message });
+  const limit = Math.min(parseInt(q.limit, 10) || 20, 100); // cap at 100
+  const offset = Math.max(parseInt(q.offset, 10) || 0, 0);
+  // Any signed-in user may filter; every report is already visible.
+  const submittedBy = q.submitted_by === 'me' ? req.user.userId : q.submitted_by || null;
+  if (submittedBy && !/^[0-9a-f-]{36}$/i.test(submittedBy)) return bad('submitted_by must be "me" or a user id');
+
+  const shift = q.shift ? String(q.shift).toLowerCase() : null;
+  if (shift && !SHIFTS.includes(shift)) return bad(`shift must be one of: ${SHIFTS.join(', ')}`);
+
+  const review = q.review === undefined ? null : q.review === 'true' ? true : q.review === 'false' ? false : 'bad';
+  if (review === 'bad') return bad('review must be true or false');
+
+  const confidence = (name) => {
+    if (q[name] === undefined || q[name] === '') return null;
+    const n = Number(q[name]);
+    return Number.isFinite(n) && n >= 0 && n <= 1 ? n : NaN;
+  };
+  const minConfidence = confidence('min_confidence');
+  const maxConfidence = confidence('max_confidence');
+  if (Number.isNaN(minConfidence) || Number.isNaN(maxConfidence)) return bad('min_confidence and max_confidence must be between 0 and 1');
+
+  const time = (name) => {
+    if (!q[name]) return null;
+    const d = new Date(q[name]);
+    return Number.isNaN(d.getTime()) ? 'bad' : d.toISOString();
+  };
+  const from = time('from');
+  const to = time('to');
+  if (from === 'bad' || to === 'bad') return bad('from and to must be ISO date-times');
+
+  const sort = q.sort || 'newest';
+  if (!['newest', 'confidence'].includes(sort)) return bad('sort must be newest or confidence');
 
   try {
-    const result = await listReports({ limit, offset });
+    const result = await listReports({
+      limit,
+      offset,
+      sort,
+      submittedBy,
+      shift,
+      category: q.category ? String(q.category) : null,
+      review,
+      minConfidence,
+      maxConfidence,
+      from,
+      to,
+    });
     res.json(result);
   } catch (err) {
     console.error(err);
@@ -51,4 +116,23 @@ const getReport = async (req, res) => {
   }
 };
 
-module.exports = { createHandover, getReports, getReport };
+// POST /api/handovers/transcribe (multipart: `audio`, optional `language` en|sw). Returns the
+// transcript for the crew member to check and edit; nothing is saved until they submit it.
+const transcribeHandover = async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'Attach the recording as "audio"' });
+  try {
+    const result = await transcribe({
+      buffer: req.file.buffer,
+      mimetype: req.file.mimetype,
+      filename: req.file.originalname,
+      language: req.body.language,
+    });
+    res.json(result);
+  } catch (err) {
+    if (err.status) return res.status(err.status).json({ error: err.message });
+    console.error(err);
+    res.status(500).json({ error: 'Failed to transcribe the recording' });
+  }
+};
+
+module.exports = { createHandover, getReports, getReport, transcribeHandover };

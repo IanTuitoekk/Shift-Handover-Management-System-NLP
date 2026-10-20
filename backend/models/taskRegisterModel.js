@@ -1,21 +1,58 @@
 const pool = require('../config/db');
+const { shiftExpression } = require('../config/shifts');
 
-async function createTask({ reportId, description, assignedTo }) {
+// New tasks are due DEFAULT_TASK_DUE_HOURS after they are raised unless a due time is given.
+const DEFAULT_TASK_DUE_HOURS = Number(process.env.DEFAULT_TASK_DUE_HOURS) || 12;
+
+async function createTask({ reportId, description, assignedTo, dueAt }) {
   const result = await pool.query(
-    `INSERT INTO task_register (report_id, description, assigned_to)
-     VALUES ($1, $2, $3)
+    `INSERT INTO task_register (report_id, description, assigned_to, due_at)
+     VALUES ($1, $2, $3, COALESCE($4::timestamptz, now() + make_interval(hours => $5::int)))
      RETURNING *`,
-    [reportId, description, assignedTo || null]
+    [reportId, description, assignedTo || null, dueAt || null, DEFAULT_TASK_DUE_HOURS]
   );
   return result.rows[0];
 }
 
-async function getAllTasks(status) {
-  const query = status
-    ? `SELECT * FROM task_register WHERE status = $1 ORDER BY created_at DESC`
-    : `SELECT * FROM task_register ORDER BY created_at DESC`;
-  const params = status ? [status] : [];
-  const result = await pool.query(query, params);
+// A person as shown on a task: deactivated and deleted ("Former employee") people stay visible.
+const person = (alias) =>
+  `CASE WHEN ${alias}.user_id IS NULL THEN NULL ELSE json_build_object(
+     'user_id', ${alias}.user_id, 'full_name', ${alias}.full_name,
+     'is_active', ${alias}.is_active, 'anonymised', ${alias}.anonymised_at IS NOT NULL) END`;
+
+// The handover report behind a task (alias `r`, categories `c`).
+const REPORT_CONTEXT = `json_build_object(
+  'category_name', c.category_name, 'summary', r.summary, 'category_confidence', r.category_confidence::text) AS report`;
+
+/**
+ * Tasks newest first, each with the `shift` ('day' | 'night') of the handover that raised it,
+ * `report` ({ category_name, summary, category_confidence }) and
+ * `assignee` / `resolver` ({ user_id, full_name, is_active, anonymised } or null).
+ * Optional filters: `status` and `shift`.
+ */
+async function getAllTasks(status, shift) {
+  const conditions = [];
+  const params = [];
+  if (status) {
+    params.push(status);
+    conditions.push(`t.status = $${params.length}`);
+  }
+  if (shift) {
+    params.push(shift);
+    conditions.push(`${shiftExpression('s')} = $${params.length}`);
+  }
+  const result = await pool.query(
+    `SELECT t.*, ${shiftExpression('s')} AS shift, ${person('ua')} AS assignee, ${person('ur')} AS resolver, ${REPORT_CONTEXT}
+     FROM task_register t
+     LEFT JOIN handover_reports r ON t.report_id = r.report_id
+     LEFT JOIN incident_categories c ON r.category_id = c.category_id
+     LEFT JOIN handover_submissions s ON r.submission_id = s.submission_id
+     LEFT JOIN users ua ON t.assigned_to = ua.user_id
+     LEFT JOIN users ur ON t.resolved_by = ur.user_id
+     ${conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''}
+     ORDER BY t.created_at DESC`,
+    params
+  );
   return result.rows;
 }
 
@@ -25,7 +62,16 @@ async function getTaskById(taskId) {
 }
 
 async function getTaskByReportId(reportId) {
-  const result = await pool.query(`SELECT * FROM task_register WHERE report_id = $1`, [reportId]);
+  const result = await pool.query(
+    `SELECT t.*, ${person('ua')} AS assignee, ${person('ur')} AS resolver, ${REPORT_CONTEXT}
+     FROM task_register t
+     LEFT JOIN handover_reports r ON t.report_id = r.report_id
+     LEFT JOIN incident_categories c ON r.category_id = c.category_id
+     LEFT JOIN users ua ON t.assigned_to = ua.user_id
+     LEFT JOIN users ur ON t.resolved_by = ur.user_id
+     WHERE t.report_id = $1`,
+    [reportId]
+  );
   return result.rows[0];
 }
 
@@ -42,13 +88,24 @@ async function resolveTask(taskId, resolvedBy) {
 
 async function assignTask(taskId, assignedTo) {
   const result = await pool.query(
-    `UPDATE task_register SET assigned_to = $1, updated_at = now() WHERE task_id = $2 RETURNING *`,
+    `UPDATE task_register SET assigned_to = $1, needs_reassignment = false, updated_at = now()
+     WHERE task_id = $2 RETURNING *`,
     [assignedTo, taskId]
   );
   return result.rows[0];
 }
 
+/** Sets or clears (null) a task's due time. */
+async function setTaskDue(taskId, dueAt) {
+  const result = await pool.query(
+    `UPDATE task_register SET due_at = $1, updated_at = now() WHERE task_id = $2 RETURNING *`,
+    [dueAt, taskId]
+  );
+  return result.rows[0];
+}
+
 module.exports = {
+  setTaskDue,
   createTask,
   getAllTasks,
   getTaskById,

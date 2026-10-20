@@ -8,6 +8,10 @@ var handoverRouter = require('./routes/handovers');
 var authRouter = require('./routes/auth');
 var taskRouter = require('./routes/tasks');
 var notificationRouter = require('./routes/notifications');
+var userRouter = require('./routes/users');
+var statsRouter = require('./routes/stats');
+var insightsRouter = require('./routes/insights');
+var configRouter = require('./routes/config');
 var helmet = require('helmet');
 
 
@@ -26,6 +30,10 @@ app.use('/api/handovers', handoverRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/tasks', taskRouter);
 app.use('/api/notifications', notificationRouter);
+app.use('/api/users', userRouter);
+app.use('/api/stats', statsRouter);
+app.use('/api/insights', insightsRouter);
+app.use('/api/config', configRouter);
 
 // 404 handler
 app.use(function (req, res) {

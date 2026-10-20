@@ -1,0 +1,200 @@
+/*
+ * Strip board: central theme for the Shift Handover frontend.
+ * This file is the single source of colour, type, spacing, radius, elevation and motion.
+ * Components reference these tokens only. See DESIGN.md for rationale and contrast figures.
+ *
+ * Dark is the default (24/7 shift rotations). Light is [data-theme="light"].
+ *
+ * Colour roles
+ *   --accent*    Calm blue. All interaction: buttons, links, focus, selection, current nav.
+ *   --critical*  Kenya Airways red (#ED1C24). ONLY for overdue tasks, classifications below
+ *                60% confidence, and blocking errors. Never decorative.
+ *   --ok*        Resolved / done.
+ *   --data*      Chart marks only (never text, never interactive).
+ */
+
+:root {
+  color-scheme: dark;
+
+  /* Surfaces: four levels, separated by lightness steps rather than borders. */
+  --surface-base: #0d1218;
+  --surface-raised: #141b24;
+  --surface-overlay: #1b2430;
+  --surface-inset: #0a0e13;
+  --surface-hover: #1a2330;
+  --line: #232d3a;
+  --line-strong: #2f3b4a;
+  --line-control: #5d6b7c;
+
+  /* Text */
+  --text: #e4e9ef;
+  --text-muted: #9ba8b7;
+  --text-faint: #8592a2;
+
+  /* Interaction: calm blue */
+  --accent: #5f9fe8;
+  --accent-hover: #7fb3ee;
+  --accent-soft: #16263a;
+  --accent-text: #8cbcf2;
+  --on-accent: #08111c;
+  --focus: #8cbcf2;
+
+  /* Critical: Kenya Airways red, critical states only */
+  --critical: #ed1c24;
+  --critical-text: #ff7b80;
+  --critical-soft: #2f1416;
+  --on-critical: #fff7f7;
+
+  /* Resolved */
+  --ok: #4fb985;
+  --ok-text: #6fd0a0;
+  --ok-soft: #12281d;
+
+  /* Neutral status (pending, unassigned) */
+  --neutral-tab: #5d6b7c;
+  --neutral-soft: #1b2430;
+
+  /* Chart data (validated with the dataviz script against --surface-raised) */
+  --data: #5b95da;
+  --data-muted: #455262;
+
+  /* Shift rail */
+  --rail-day: #1c2a3a;
+  --rail-night: #111822;
+  --rail-now: var(--accent);
+
+  /* Photography: scrims keep text over photos at AA contrast; the filter calms the photo. */
+  --photo-scrim: linear-gradient(90deg, rgb(13 18 24 / 0.94) 0%, rgb(13 18 24 / 0.82) 38%, rgb(13 18 24 / 0.35) 100%);
+  --photo-fade: linear-gradient(180deg, transparent 55%, var(--surface-base) 100%);
+  --photo-filter: saturate(0.7) brightness(0.8);
+  --photo-panel-scrim: linear-gradient(180deg, rgb(13 18 24 / 0.55) 0%, rgb(13 18 24 / 0.7) 45%, rgb(13 18 24 / 0.96) 100%);
+
+  /* Effects */
+  --elev-1: none;
+  --elev-2: 0 12px 40px rgb(0 0 0 / 0.55);
+  --overlay: rgb(3 6 10 / 0.66);
+
+  /* Type */
+  --font-sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --text-xs: 0.75rem; /* 12 */
+  --text-sm: 0.84375rem; /* 13.5 */
+  --text-md: 0.9375rem; /* 15 */
+  --text-base: 1rem; /* 16 */
+  --text-lg: 1.1875rem; /* 19 */
+  --text-xl: 1.4375rem; /* 23 */
+  --text-2xl: 1.75rem; /* 28 */
+  --leading-tight: 1.2;
+  --leading: 1.5;
+
+  /* Space: 4px grid */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-7: 2rem;
+  --space-8: 2.5rem;
+  --space-9: 3.5rem;
+
+  /* Radius rule: strips and badges 4, controls 6, panels and dialogs 10, counts pill. */
+  --radius-strip: 4px;
+  --radius-control: 6px;
+  --radius-panel: 10px;
+  --radius-pill: 999px;
+
+  /* Density: overridden per role on the shell (.shell--ground / .shell--supervisor). */
+  --control-h: 40px;
+  --control-font: var(--text-md);
+  --body-font: var(--text-md);
+  --strip-pad-y: var(--space-3);
+
+  /* Layout */
+  --page-max: 1400px;
+  --header-h: 60px;
+  --tab-w: 4px;
+
+  /* Motion */
+  --dur-1: 120ms;
+  --dur-2: 200ms;
+  --dur-3: 320ms;
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  /* Layers */
+  --z-header: 10;
+  --z-toast: 30;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --surface-base: #eef1f5;
+  --surface-raised: #fbfcfd;
+  --surface-overlay: #fdfefe;
+  --surface-inset: #e7ebf0;
+  --surface-hover: #f2f5f9;
+  --line: #d6dde5;
+  --line-strong: #c3ccd7;
+  --line-control: #7c8898;
+
+  --text: #141c26;
+  --text-muted: #4b5868;
+  --text-faint: #5b6777;
+
+  --accent: #1f5fae;
+  --accent-hover: #184d8f;
+  --accent-soft: #e3edf9;
+  --accent-text: #1b5499;
+  --on-accent: #f7faff;
+  --focus: #1f5fae;
+
+  --critical: #ed1c24;
+  --critical-text: #b0131a;
+  --critical-soft: #fdeaea;
+  --on-critical: #fff7f7;
+
+  --ok: #1f7a4d;
+  --ok-text: #1b6c44;
+  --ok-soft: #e2f2e9;
+
+  --neutral-tab: #8a95a3;
+  --neutral-soft: #e7ebf0;
+
+  --data: #3d74b8;
+  --data-muted: #a9b3bf;
+
+  --rail-day: #dbe5f1;
+  --rail-night: #c9d3df;
+
+  --photo-scrim: linear-gradient(90deg, rgb(238 241 245 / 0.96) 0%, rgb(238 241 245 / 0.86) 38%, rgb(238 241 245 / 0.3) 100%);
+  --photo-filter: saturate(0.75) brightness(1.02);
+  --photo-panel-scrim: linear-gradient(180deg, rgb(251 252 253 / 0.45) 0%, rgb(251 252 253 / 0.72) 45%, rgb(251 252 253 / 0.97) 100%);
+
+  --elev-1: 0 1px 2px rgb(20 40 70 / 0.06);
+  --elev-2: 0 12px 40px rgb(20 40 70 / 0.18);
+  --overlay: rgb(15 25 40 / 0.4);
+}
+
+/* Role densities: same language, two densities. */
+.shell--ground {
+  --control-h: 44px;
+  --control-font: var(--text-base);
+  --body-font: var(--text-base);
+  --strip-pad-y: var(--space-4);
+}
+
+.shell--supervisor {
+  --control-h: 36px;
+  --control-font: var(--text-sm);
+  --body-font: var(--text-md);
+  --strip-pad-y: var(--space-3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-1: 0ms;
+    --dur-2: 0ms;
+    --dur-3: 0ms;
+  }
+}

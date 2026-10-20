@@ -5,3 +5,4 @@ __pycache__/
 model/*.pt
 model/best_metrics.json
 model/training_log.json
+.pytest_cache/

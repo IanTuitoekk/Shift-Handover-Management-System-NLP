@@ -1,5 +1,4 @@
-const jwt = require('jsonwebtoken');
-const { isTokenRevoked } = require('../models/revokedTokenModel');
+const { resolveSession } = require('../utils/session');
 
 async function requireAuth(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -11,17 +10,14 @@ async function requireAuth(req, res, next) {
   const token = authHeader.split(' ')[1];
 
   try {
-    const revoked = await isTokenRevoked(token);
-    if (revoked) {
-      return res.status(401).json({ error: 'Token has been revoked' });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
+    // Role, active flag and password-change time are read fresh on every request, so changes take
+    // effect immediately instead of when the token expires.
+    const { decoded, user } = await resolveSession(token);
+    req.user = { ...decoded, role: user.role };
     req.token = token; // keep the raw token available for logout
     next();
   } catch (err) {
-    return res.status(401).json({ error: 'Invalid or expired token' });
+    return res.status(401).json({ error: err.message });
   }
 }
 

@@ -5,9 +5,17 @@ CREATE TABLE users (
     user_id        UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     full_name      VARCHAR(255) NOT NULL,
     email          VARCHAR(255) NOT NULL UNIQUE,
-    password_hash  VARCHAR(255) NOT NULL,
+    password_hash  VARCHAR(255),  -- NULL for accounts that only sign in with Google
     role           VARCHAR(50) NOT NULL,
     is_active      BOOLEAN NOT NULL DEFAULT true,
+    password_changed_at  TIMESTAMPTZ,
+    staff_number   VARCHAR(50),
+    station        VARCHAR(100),
+    deactivated_at       TIMESTAMPTZ,
+    deactivated_by       UUID REFERENCES users(user_id) ON DELETE SET NULL,
+    deactivation_reason  TEXT,
+    anonymised_at        TIMESTAMPTZ,
+    google_sub           VARCHAR(255),  -- Google account id, once linked
     created_at     TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -69,7 +77,9 @@ CREATE TABLE task_register (
     resolved_by  UUID REFERENCES users(user_id),
     resolved_at  TIMESTAMPTZ,
     created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+    updated_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+    due_at       TIMESTAMPTZ,  -- NULL = no due time set
+    needs_reassignment BOOLEAN NOT NULL DEFAULT false  -- assignee deactivated or deleted
 );
 
 -- NotificationService
@@ -95,12 +105,23 @@ CREATE TABLE notification_reads (
     PRIMARY KEY (notif_id, user_id)
 );
 
+CREATE TABLE password_reset_tokens (
+    token_hash  TEXT PRIMARY KEY,  -- SHA-256 of the emailed token
+    user_id     UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    expires_at  TIMESTAMPTZ NOT NULL,
+    used_at     TIMESTAMPTZ,
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 CREATE TABLE revoked_tokens (
     token      TEXT PRIMARY KEY,
     revoked_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 
+CREATE UNIQUE INDEX idx_users_google_sub ON users(google_sub) WHERE google_sub IS NOT NULL;
+CREATE UNIQUE INDEX idx_users_staff_number ON users(staff_number) WHERE staff_number IS NOT NULL;
+CREATE INDEX idx_password_reset_tokens_user ON password_reset_tokens(user_id);
 CREATE INDEX idx_notification_reads_user ON notification_reads(user_id);
 CREATE INDEX idx_submissions_user ON handover_submissions(user_id);
 CREATE INDEX idx_submissions_status ON handover_submissions(processing_status);
@@ -110,5 +131,6 @@ CREATE INDEX idx_report_entities_report ON report_entities(report_id);
 CREATE INDEX idx_categories_taxonomy ON incident_categories(taxonomy_id);
 CREATE INDEX idx_tasks_report ON task_register(report_id);
 CREATE INDEX idx_tasks_status ON task_register(status);
+CREATE INDEX idx_tasks_due ON task_register(due_at);
 CREATE INDEX idx_notifications_report ON notifications(report_id);
 CREATE INDEX idx_notifications_recipient ON notifications(recipient_id);

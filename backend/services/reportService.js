@@ -2,22 +2,24 @@ const { getAllReports, getReportById } = require('../models/handoverReportModel'
 const { getEntitiesByReportId } = require('../models/reportEntityModel');
 const { getTaskByReportId } = require('../models/taskRegisterModel');
 const { getNotificationByReportId } = require('../models/notificationModel');
+const { getSubmissionById } = require('../models/handoverSubmissionModel');
 
-async function listReports({ limit, offset } = {}) {
-  return getAllReports({ limit, offset });
+async function listReports(options = {}) {
+  return getAllReports(options);
 }
 
 async function getReportDetail(reportId) {
   const report = await getReportById(reportId);
   if (!report) return null;
 
-  const [entities, task, notification] = await Promise.all([
+  const [entities, task, notification, submission] = await Promise.all([
     getEntitiesByReportId(reportId),
     getTaskByReportId(reportId),
     getNotificationByReportId(reportId),
+    getSubmissionById(report.submission_id),
   ]);
 
-  return { ...report, entities, task, notification };
+  return { ...report, entities, task, notification, submission };
 }
 
 module.exports = { listReports, getReportDetail };

@@ -27,7 +27,7 @@ describe('Handover endpoints', () => {
     expect(res.statusCode).toBe(401);
   });
 
-  test('POST /api/handovers creates a full report with real inference', async () => {
+  test('POST /api/handovers creates a full report through the inference service', async () => {
     const res = await request(app)
       .post('/api/handovers')
       .set('Authorization', `Bearer ${token}`)
