@@ -7,11 +7,32 @@ microservice (`../inference-service`).
 
 ## Setup
 
+Needs Node.js 20+ and PostgreSQL 14+ running locally.
+
 ```bash
 npm install
-cp .env.example .env   # fill in your local DB credentials and secrets
+cp .env.example .env
+npm run db:setup
 npm run dev
 ```
+
+Fill in `.env` before `npm run db:setup` (at least the `DB_*` values and `JWT_SECRET`).
+`db:setup` creates the database if it doesn't exist and applies `db/schema.sql`, every file in
+`db/migrations/` and `db/seed.sql`. Run it again after pulling new code: on an existing database it
+only applies the migrations, which are all safe to repeat.
+
+The API listens on http://localhost:3000. The first supervisor is made from the command line after
+signing up in the app: `npm run set-role -- <email> supervisor`.
+
+| Command | |
+|---|---|
+| `npm run dev` | API with auto-restart (nodemon) |
+| `npm start` | API without auto-restart |
+| `npm run db:setup` | Create or update the database |
+| `npm run set-role -- <email> <ground_crew\|supervisor>` | Change someone's role |
+| `npm test` | Tests, on a separate `_test` database rebuilt each run |
+| `npm run test-email -- <address>` | Send a sample email to check the SMTP settings |
+| `npm run reprocess-entities` | Re-run the model on stored handovers (preview; `--apply` to save) |
 
 ## API Endpoints
 
