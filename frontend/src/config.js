@@ -1,5 +1,6 @@
 // Operational settings for the frontend. Adjust these to match station policy.
 
+// Absolute (separate API server) or relative to this site, e.g. "/api" behind one web address.
 export const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api';
 
 // Sign in with Google: the OAuth client ID from Google Cloud (web application). Not secret.

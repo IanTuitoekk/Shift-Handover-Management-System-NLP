@@ -104,6 +104,40 @@ npm run set-role -- you@example.com supervisor
 emails (`SMTP_*` in `backend/.env`); see the backend README. Without them the Google button is hidden
 and reset emails are printed in the backend terminal.
 
+## Running it with Docker
+
+The whole app (web server, backend, inference service and PostgreSQL) in containers, on one web
+address. Needs Docker with **at least 8 GB of memory** for the containers (the models use about 3–5 GB),
+and the model weights in `inference-service/model/` as above.
+
+```bash
+cp .env.example .env
+docker compose up -d --build
+```
+
+Edit `.env` first: at least `DB_PASSWORD` and `JWT_SECRET` (e.g. `openssl rand -hex 32`). Then open
+http://localhost:8080. The first start downloads mBERT and Whisper into a volume (about 6 minutes);
+later starts take seconds. Make the first supervisor with
+`docker compose exec backend npm run set-role -- you@example.com supervisor`.
+
+| Container | What it does |
+|---|---|
+| `web` | Caddy: serves the built frontend and forwards `/api` and `/socket.io` to the backend. With a domain in `SITE_ADDRESS` it gets HTTPS certificates itself |
+| `backend` | The API; brings the database up to date on every start (`npm run db:setup`) |
+| `inference` | Models; weights mounted read-only from `inference-service/model`, downloads cached in a volume |
+| `db` | PostgreSQL 16; data in the `db-data` volume |
+
+Useful commands: `docker compose ps` (status), `docker compose logs -f backend` (logs),
+`docker compose down` (stop; data is kept), `docker compose down -v` (stop and **delete all data**).
+
+**On a server:** a Linux VPS with 8 GB of RAM and Docker. Point a domain at it and set
+`SITE_ADDRESS=your.domain`, `PUBLIC_URL=https://your.domain`, `HTTP_PORT=80` and `HTTPS_PORT=443` in
+`.env`; Caddy then serves HTTPS automatically (required for the microphone and Google sign-in). On a
+platform that gives its own HTTPS address, keep `SITE_ADDRESS=:80`, point the platform at the web
+container and set `PUBLIC_URL` to that address. Also set the `SMTP_*` settings for reset emails, add
+`PUBLIC_URL` to the Google client's authorised JavaScript origins, and back up the `db-data` volume
+(`docker compose exec db pg_dump -U shift shift_handover > backup.sql`).
+
 ## Tests
 
 | Suite | Command | What it covers |
@@ -113,7 +147,7 @@ and reset emails are printed in the backend terminal.
 | Frontend | `cd frontend && npm run lint && npm run build` | Lint and production build |
 | End to end | `cd e2e && npm install && npm run install-browser && npm test` | The whole app in a browser, on its own ports and database |
 
-**On GitHub** all four run automatically ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) on
+**On GitHub** all four run automatically, plus a check that the Docker images build ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) on
 every pull request into `dev` or `main` and every push to them. CI needs no secrets or model files:
 it uses throwaway PostgreSQL databases, the end-to-end suite's fake inference service, and only
 `pytest` for the inference unit tests (the one test that needs the mBERT tokenizer skips itself).
@@ -135,8 +169,7 @@ entities, and fault words included in component names. See the inference-service
 Working: everything listed under "What it does", with the tests above.
 
 Next:
-- Deployment: Docker Compose, HTTPS (required for the microphone and Google sign-in), production
-  email with a verified domain, database backups.
+- Deployment to a server: the Docker setup is ready; hosting, a domain and production email remain.
 - Multi-factor authentication (designed, postponed).
 - Retraining for better entity accuracy.
 

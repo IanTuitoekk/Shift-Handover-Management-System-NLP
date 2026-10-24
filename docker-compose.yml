@@ -1,0 +1,97 @@
+# The whole app in containers: `docker compose up -d --build`, then open PUBLIC_URL.
+# Settings come from ./.env (copy .env.example; see the "Docker" section of the README).
+name: shift-handover
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-shift_handover}
+      POSTGRES_USER: ${DB_USER:-shift}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  inference:
+    build: ./inference-service
+    restart: unless-stopped
+    environment:
+      WHISPER_MODEL: ${WHISPER_MODEL:-large-v3-turbo}
+    volumes:
+      # The trained weights stay outside the image (they're not in git).
+      - ./inference-service/model:/app/model:ro
+      # mBERT and Whisper are downloaded once into this volume.
+      - model-cache:/models-cache
+    healthcheck:
+      test: ['CMD', 'python', '-c', 'import urllib.request; urllib.request.urlopen("http://localhost:8000/health")']
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      # The first start downloads the language models (several GB).
+      start_period: 15m
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      inference:
+        condition: service_started
+    environment:
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-shift_handover}
+      DB_USER: ${DB_USER:-shift}
+      DB_PASSWORD: ${DB_PASSWORD}
+      INFERENCE_SERVICE_URL: http://inference:8000
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env (e.g. openssl rand -hex 32)}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-12h}
+      # The address people use; Socket.IO accepts it and reset emails link to it.
+      FRONTEND_ORIGIN: ${PUBLIC_URL:-http://localhost:8080}
+      FRONTEND_URL: ${PUBLIC_URL:-http://localhost:8080}
+      # One proxy (Caddy, below) sits in front of the API.
+      TRUST_PROXY: ${TRUST_PROXY:-1}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-465}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      MAIL_FROM: ${MAIL_FROM:-}
+    healthcheck:
+      test: ['CMD', 'node', '-e', "fetch('http://localhost:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  web:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: /api
+        VITE_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      # ":80" serves plain HTTP; a domain name (e.g. handover.example.com) makes Caddy get HTTPS.
+      SITE_ADDRESS: ${SITE_ADDRESS:-:80}
+    ports:
+      - '${HTTP_PORT:-8080}:80'
+      - '${HTTPS_PORT:-8443}:443'
+    volumes:
+      - caddy-data:/data
+
+volumes:
+  db-data:
+  model-cache:
+  caddy-data:
