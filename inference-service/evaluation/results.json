@@ -1,0 +1,1093 @@
+{
+  "data": "/Users/ian/Strath-Project/shift-handover-nlp/machine-learning/data/processed/test_processed.jsonl",
+  "date": "2026-10-25",
+  "seconds": 23.5,
+  "overall": {
+    "handovers": 147,
+    "category": {
+      "accuracy": 0.619,
+      "macro_f1": 0.5786,
+      "per_label": {
+        "Aircraft Equipment Problem": [
+          0.6538,
+          0.6538,
+          0.6538
+        ],
+        "Deviation/Discrepancy - Procedural": [
+          0.5735,
+          0.5909,
+          0.5821
+        ],
+        "Other/Rare Ground Event": [
+          1.0,
+          0.3333,
+          0.5
+        ]
+      },
+      "confusion": [
+        [
+          "Deviation/Discrepancy - Procedural → Aircraft Equipment Problem",
+          27
+        ],
+        [
+          "Aircraft Equipment Problem → Deviation/Discrepancy - Procedural",
+          27
+        ],
+        [
+          "Other/Rare Ground Event → Deviation/Discrepancy - Procedural",
+          2
+        ]
+      ],
+      "gold_counts": {
+        "Deviation/Discrepancy - Procedural": 66,
+        "Aircraft Equipment Problem": 78,
+        "Other/Rare Ground Event": 3
+      }
+    },
+    "entities": {
+      "exact": {
+        "micro": [
+          0.6647,
+          0.64,
+          0.6521
+        ],
+        "per_type": {
+          "AIRCRAFT": [
+            0.9091,
+            0.9524,
+            0.9302
+          ],
+          "COMPONENT": [
+            0.642,
+            0.5835,
+            0.6114
+          ],
+          "LOCATION": [
+            0.6506,
+            0.5455,
+            0.5934
+          ],
+          "ROLE": [
+            0.7751,
+            0.7122,
+            0.7423
+          ],
+          "TASK": [
+            0.5391,
+            0.5501,
+            0.5445
+          ],
+          "TIME": [
+            0.7314,
+            0.7564,
+            0.7437
+          ]
+        }
+      },
+      "partial": {
+        "micro": [
+          0.7853,
+          0.7561,
+          0.7705
+        ],
+        "per_type": {
+          "AIRCRAFT": [
+            0.9242,
+            0.9683,
+            0.9457
+          ],
+          "COMPONENT": [
+            0.7879,
+            0.716,
+            0.7502
+          ],
+          "LOCATION": [
+            0.7108,
+            0.596,
+            0.6484
+          ],
+          "ROLE": [
+            0.8835,
+            0.8118,
+            0.8462
+          ],
+          "TASK": [
+            0.6894,
+            0.7035,
+            0.6964
+          ],
+          "TIME": [
+            0.8264,
+            0.8547,
+            0.8403
+          ]
+        }
+      }
+    },
+    "summary": {
+      "summary": {
+        "rouge1": 0.3265,
+        "rouge2": 0.1244,
+        "rougeL": 0.2201
+      },
+      "lead2": {
+        "rouge1": 0.3309,
+        "rouge2": 0.1313,
+        "rougeL": 0.2234
+      },
+      "handovers": 147
+    },
+    "errors": {
+      "counts": {
+        "correct": 1152,
+        "boundary": 192,
+        "type": 129,
+        "missed": 327,
+        "spurious": 260
+      },
+      "by_type": {
+        "AIRCRAFT": {
+          "correct": 120,
+          "boundary": 2,
+          "type": 1,
+          "missed": 3,
+          "spurious": 1
+        },
+        "COMPONENT": {
+          "correct": 339,
+          "boundary": 71,
+          "type": 46,
+          "missed": 125,
+          "spurious": 80
+        },
+        "LOCATION": {
+          "correct": 54,
+          "boundary": 5,
+          "type": 22,
+          "missed": 18,
+          "spurious": 15
+        },
+        "ROLE": {
+          "correct": 193,
+          "boundary": 27,
+          "type": 24,
+          "missed": 27,
+          "spurious": 22
+        },
+        "TASK": {
+          "correct": 269,
+          "boundary": 64,
+          "type": 27,
+          "missed": 129,
+          "spurious": 120
+        },
+        "TIME": {
+          "correct": 177,
+          "boundary": 23,
+          "type": 9,
+          "missed": 25,
+          "spurious": 22
+        }
+      },
+      "details": [
+        [
+          "boundary: too short",
+          99
+        ],
+        [
+          "boundary: too long",
+          88
+        ],
+        [
+          "type: COMPONENT → TASK",
+          35
+        ],
+        [
+          "type: TASK → COMPONENT",
+          20
+        ],
+        [
+          "type: ROLE → TIME",
+          19
+        ],
+        [
+          "type: LOCATION → COMPONENT",
+          17
+        ],
+        [
+          "type: COMPONENT → LOCATION",
+          5
+        ],
+        [
+          "boundary: shifted",
+          5
+        ],
+        [
+          "type: TIME → TASK",
+          4
+        ],
+        [
+          "type: TASK → AIRCRAFT",
+          4
+        ],
+        [
+          "type: COMPONENT → AIRCRAFT",
+          3
+        ],
+        [
+          "type: ROLE → TASK",
+          3
+        ],
+        [
+          "type: LOCATION → TASK",
+          3
+        ],
+        [
+          "type: TIME → ROLE",
+          3
+        ],
+        [
+          "type: COMPONENT → ROLE",
+          3
+        ],
+        [
+          "type: TIME → LOCATION",
+          2
+        ],
+        [
+          "type: LOCATION → AIRCRAFT",
+          2
+        ],
+        [
+          "type: ROLE → LOCATION",
+          1
+        ],
+        [
+          "type: TASK → TIME",
+          1
+        ],
+        [
+          "type: TASK → ROLE",
+          1
+        ],
+        [
+          "type: TASK → LOCATION",
+          1
+        ],
+        [
+          "type: ROLE → COMPONENT",
+          1
+        ],
+        [
+          "type: AIRCRAFT → TASK",
+          1
+        ]
+      ]
+    }
+  },
+  "by_language": {
+    "English": {
+      "handovers": 49,
+      "category": {
+        "accuracy": 0.6122,
+        "macro_f1": 0.4105,
+        "per_label": {
+          "Aircraft Equipment Problem": [
+            0.6538,
+            0.6538,
+            0.6538
+          ],
+          "Deviation/Discrepancy - Procedural": [
+            0.5652,
+            0.5909,
+            0.5778
+          ],
+          "Other/Rare Ground Event": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "confusion": [
+          [
+            "Deviation/Discrepancy - Procedural → Aircraft Equipment Problem",
+            9
+          ],
+          [
+            "Aircraft Equipment Problem → Deviation/Discrepancy - Procedural",
+            9
+          ],
+          [
+            "Other/Rare Ground Event → Deviation/Discrepancy - Procedural",
+            1
+          ]
+        ],
+        "gold_counts": {
+          "Deviation/Discrepancy - Procedural": 22,
+          "Aircraft Equipment Problem": 26,
+          "Other/Rare Ground Event": 1
+        }
+      },
+      "entities": {
+        "exact": {
+          "micro": [
+            0.6569,
+            0.6437,
+            0.6503
+          ],
+          "per_type": {
+            "AIRCRAFT": [
+              0.8913,
+              0.9535,
+              0.9213
+            ],
+            "COMPONENT": [
+              0.6541,
+              0.5622,
+              0.6047
+            ],
+            "LOCATION": [
+              0.625,
+              0.5,
+              0.5556
+            ],
+            "ROLE": [
+              0.8111,
+              0.7449,
+              0.7766
+            ],
+            "TASK": [
+              0.5215,
+              0.5843,
+              0.5511
+            ],
+            "TIME": [
+              0.6795,
+              0.726,
+              0.702
+            ]
+          }
+        },
+        "partial": {
+          "micro": [
+            0.7667,
+            0.7513,
+            0.7589
+          ],
+          "per_type": {
+            "AIRCRAFT": [
+              0.8913,
+              0.9535,
+              0.9213
+            ],
+            "COMPONENT": [
+              0.7987,
+              0.6865,
+              0.7384
+            ],
+            "LOCATION": [
+              0.6667,
+              0.5333,
+              0.5926
+            ],
+            "ROLE": [
+              0.8667,
+              0.7959,
+              0.8298
+            ],
+            "TASK": [
+              0.6667,
+              0.747,
+              0.7045
+            ],
+            "TIME": [
+              0.7821,
+              0.8356,
+              0.8079
+            ]
+          }
+        }
+      },
+      "summary": {
+        "summary": {
+          "rouge1": 0.3271,
+          "rouge2": 0.1089,
+          "rougeL": 0.2106
+        },
+        "lead2": {
+          "rouge1": 0.3342,
+          "rouge2": 0.1181,
+          "rougeL": 0.2163
+        },
+        "handovers": 49
+      },
+      "errors": {
+        "counts": {
+          "correct": 383,
+          "boundary": 59,
+          "type": 47,
+          "missed": 106,
+          "spurious": 94
+        },
+        "by_type": {
+          "AIRCRAFT": {
+            "correct": 41,
+            "boundary": 0,
+            "type": 0,
+            "missed": 2,
+            "spurious": 1
+          },
+          "COMPONENT": {
+            "correct": 104,
+            "boundary": 21,
+            "type": 16,
+            "missed": 44,
+            "spurious": 25
+          },
+          "LOCATION": {
+            "correct": 15,
+            "boundary": 1,
+            "type": 9,
+            "missed": 5,
+            "spurious": 5
+          },
+          "ROLE": {
+            "correct": 73,
+            "boundary": 5,
+            "type": 12,
+            "missed": 8,
+            "spurious": 9
+          },
+          "TASK": {
+            "correct": 97,
+            "boundary": 24,
+            "type": 6,
+            "missed": 39,
+            "spurious": 47
+          },
+          "TIME": {
+            "correct": 53,
+            "boundary": 8,
+            "type": 4,
+            "missed": 8,
+            "spurious": 7
+          }
+        },
+        "details": [
+          [
+            "boundary: too short",
+            34
+          ],
+          [
+            "boundary: too long",
+            23
+          ],
+          [
+            "type: COMPONENT → TASK",
+            12
+          ],
+          [
+            "type: ROLE → TIME",
+            9
+          ],
+          [
+            "type: LOCATION → COMPONENT",
+            6
+          ],
+          [
+            "type: TASK → COMPONENT",
+            3
+          ],
+          [
+            "type: COMPONENT → AIRCRAFT",
+            2
+          ],
+          [
+            "type: TIME → TASK",
+            2
+          ],
+          [
+            "boundary: shifted",
+            2
+          ],
+          [
+            "type: ROLE → TASK",
+            2
+          ],
+          [
+            "type: LOCATION → TASK",
+            2
+          ],
+          [
+            "type: ROLE → LOCATION",
+            1
+          ],
+          [
+            "type: TASK → TIME",
+            1
+          ],
+          [
+            "type: TASK → ROLE",
+            1
+          ],
+          [
+            "type: TIME → ROLE",
+            1
+          ],
+          [
+            "type: COMPONENT → ROLE",
+            1
+          ],
+          [
+            "type: TASK → AIRCRAFT",
+            1
+          ],
+          [
+            "type: TIME → LOCATION",
+            1
+          ],
+          [
+            "type: COMPONENT → LOCATION",
+            1
+          ],
+          [
+            "type: LOCATION → AIRCRAFT",
+            1
+          ]
+        ]
+      }
+    },
+    "Swahili": {
+      "handovers": 49,
+      "category": {
+        "accuracy": 0.6327,
+        "macro_f1": 0.7429,
+        "per_label": {
+          "Aircraft Equipment Problem": [
+            0.6333,
+            0.7308,
+            0.6786
+          ],
+          "Deviation/Discrepancy - Procedural": [
+            0.6111,
+            0.5,
+            0.55
+          ],
+          "Other/Rare Ground Event": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "confusion": [
+          [
+            "Deviation/Discrepancy - Procedural → Aircraft Equipment Problem",
+            11
+          ],
+          [
+            "Aircraft Equipment Problem → Deviation/Discrepancy - Procedural",
+            7
+          ]
+        ],
+        "gold_counts": {
+          "Deviation/Discrepancy - Procedural": 22,
+          "Aircraft Equipment Problem": 26,
+          "Other/Rare Ground Event": 1
+        }
+      },
+      "entities": {
+        "exact": {
+          "micro": [
+            0.6466,
+            0.6144,
+            0.6301
+          ],
+          "per_type": {
+            "AIRCRAFT": [
+              0.9286,
+              0.975,
+              0.9512
+            ],
+            "COMPONENT": [
+              0.5909,
+              0.5417,
+              0.5652
+            ],
+            "LOCATION": [
+              0.6552,
+              0.6129,
+              0.6333
+            ],
+            "ROLE": [
+              0.7162,
+              0.6163,
+              0.6625
+            ],
+            "TASK": [
+              0.4914,
+              0.479,
+              0.4851
+            ],
+            "TIME": [
+              0.7821,
+              0.8243,
+              0.8026
+            ]
+          }
+        },
+        "partial": {
+          "micro": [
+            0.8039,
+            0.7638,
+            0.7833
+          ],
+          "per_type": {
+            "AIRCRAFT": [
+              0.9524,
+              1.0,
+              0.9756
+            ],
+            "COMPONENT": [
+              0.7898,
+              0.724,
+              0.7554
+            ],
+            "LOCATION": [
+              0.6552,
+              0.6129,
+              0.6333
+            ],
+            "ROLE": [
+              0.9054,
+              0.7791,
+              0.8375
+            ],
+            "TASK": [
+              0.7069,
+              0.6891,
+              0.6979
+            ],
+            "TIME": [
+              0.859,
+              0.9054,
+              0.8816
+            ]
+          }
+        }
+      },
+      "summary": {
+        "summary": {
+          "rouge1": 0.3535,
+          "rouge2": 0.1629,
+          "rougeL": 0.2422
+        },
+        "lead2": {
+          "rouge1": 0.3576,
+          "rouge2": 0.1675,
+          "rougeL": 0.2454
+        },
+        "handovers": 49
+      },
+      "errors": {
+        "counts": {
+          "correct": 333,
+          "boundary": 71,
+          "type": 30,
+          "missed": 108,
+          "spurious": 81
+        },
+        "by_type": {
+          "AIRCRAFT": {
+            "correct": 39,
+            "boundary": 1,
+            "type": 0,
+            "missed": 0,
+            "spurious": 0
+          },
+          "COMPONENT": {
+            "correct": 104,
+            "boundary": 32,
+            "type": 13,
+            "missed": 43,
+            "spurious": 30
+          },
+          "LOCATION": {
+            "correct": 19,
+            "boundary": 0,
+            "type": 4,
+            "missed": 8,
+            "spurious": 8
+          },
+          "ROLE": {
+            "correct": 53,
+            "boundary": 14,
+            "type": 6,
+            "missed": 13,
+            "spurious": 5
+          },
+          "TASK": {
+            "correct": 57,
+            "boundary": 18,
+            "type": 6,
+            "missed": 38,
+            "spurious": 31
+          },
+          "TIME": {
+            "correct": 61,
+            "boundary": 6,
+            "type": 1,
+            "missed": 6,
+            "spurious": 7
+          }
+        },
+        "details": [
+          [
+            "boundary: too short",
+            36
+          ],
+          [
+            "boundary: too long",
+            33
+          ],
+          [
+            "type: COMPONENT → TASK",
+            9
+          ],
+          [
+            "type: TASK → COMPONENT",
+            5
+          ],
+          [
+            "type: LOCATION → COMPONENT",
+            4
+          ],
+          [
+            "type: ROLE → TIME",
+            4
+          ],
+          [
+            "type: COMPONENT → LOCATION",
+            2
+          ],
+          [
+            "boundary: shifted",
+            2
+          ],
+          [
+            "type: COMPONENT → ROLE",
+            1
+          ],
+          [
+            "type: TASK → AIRCRAFT",
+            1
+          ],
+          [
+            "type: TIME → ROLE",
+            1
+          ],
+          [
+            "type: ROLE → COMPONENT",
+            1
+          ],
+          [
+            "type: COMPONENT → AIRCRAFT",
+            1
+          ],
+          [
+            "type: ROLE → TASK",
+            1
+          ]
+        ]
+      }
+    },
+    "code-switched": {
+      "handovers": 49,
+      "category": {
+        "accuracy": 0.6122,
+        "macro_f1": 0.4124,
+        "per_label": {
+          "Aircraft Equipment Problem": [
+            0.6818,
+            0.5769,
+            0.625
+          ],
+          "Deviation/Discrepancy - Procedural": [
+            0.5556,
+            0.6818,
+            0.6122
+          ],
+          "Other/Rare Ground Event": [
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "confusion": [
+          [
+            "Aircraft Equipment Problem → Deviation/Discrepancy - Procedural",
+            11
+          ],
+          [
+            "Deviation/Discrepancy - Procedural → Aircraft Equipment Problem",
+            7
+          ],
+          [
+            "Other/Rare Ground Event → Deviation/Discrepancy - Procedural",
+            1
+          ]
+        ],
+        "gold_counts": {
+          "Deviation/Discrepancy - Procedural": 22,
+          "Aircraft Equipment Problem": 26,
+          "Other/Rare Ground Event": 1
+        }
+      },
+      "entities": {
+        "exact": {
+          "micro": [
+            0.6866,
+            0.6576,
+            0.6718
+          ],
+          "per_type": {
+            "AIRCRAFT": [
+              0.9091,
+              0.9302,
+              0.9195
+            ],
+            "COMPONENT": [
+              0.6788,
+              0.6422,
+              0.6599
+            ],
+            "LOCATION": [
+              0.6667,
+              0.5263,
+              0.5882
+            ],
+            "ROLE": [
+              0.7882,
+              0.7701,
+              0.7791
+            ],
+            "TASK": [
+              0.5838,
+              0.5637,
+              0.5736
+            ],
+            "TIME": [
+              0.7326,
+              0.7241,
+              0.7283
+            ]
+          }
+        },
+        "partial": {
+          "micro": [
+            0.7874,
+            0.7541,
+            0.7704
+          ],
+          "per_type": {
+            "AIRCRAFT": [
+              0.9318,
+              0.9535,
+              0.9425
+            ],
+            "COMPONENT": [
+              0.7772,
+              0.7353,
+              0.7557
+            ],
+            "LOCATION": [
+              0.8,
+              0.6316,
+              0.7059
+            ],
+            "ROLE": [
+              0.8824,
+              0.8621,
+              0.8721
+            ],
+            "TASK": [
+              0.7005,
+              0.6765,
+              0.6883
+            ],
+            "TIME": [
+              0.8372,
+              0.8276,
+              0.8324
+            ]
+          }
+        }
+      },
+      "summary": {
+        "summary": {
+          "rouge1": 0.2989,
+          "rouge2": 0.1015,
+          "rougeL": 0.2074
+        },
+        "lead2": {
+          "rouge1": 0.301,
+          "rouge2": 0.1082,
+          "rougeL": 0.2084
+        },
+        "handovers": 49
+      },
+      "errors": {
+        "counts": {
+          "correct": 436,
+          "boundary": 62,
+          "type": 52,
+          "missed": 113,
+          "spurious": 85
+        },
+        "by_type": {
+          "AIRCRAFT": {
+            "correct": 40,
+            "boundary": 1,
+            "type": 1,
+            "missed": 1,
+            "spurious": 0
+          },
+          "COMPONENT": {
+            "correct": 131,
+            "boundary": 18,
+            "type": 17,
+            "missed": 38,
+            "spurious": 25
+          },
+          "LOCATION": {
+            "correct": 20,
+            "boundary": 4,
+            "type": 9,
+            "missed": 5,
+            "spurious": 2
+          },
+          "ROLE": {
+            "correct": 67,
+            "boundary": 8,
+            "type": 6,
+            "missed": 6,
+            "spurious": 8
+          },
+          "TASK": {
+            "correct": 115,
+            "boundary": 22,
+            "type": 15,
+            "missed": 52,
+            "spurious": 42
+          },
+          "TIME": {
+            "correct": 63,
+            "boundary": 9,
+            "type": 4,
+            "missed": 11,
+            "spurious": 8
+          }
+        },
+        "details": [
+          [
+            "boundary: too long",
+            32
+          ],
+          [
+            "boundary: too short",
+            29
+          ],
+          [
+            "type: COMPONENT → TASK",
+            14
+          ],
+          [
+            "type: TASK → COMPONENT",
+            12
+          ],
+          [
+            "type: LOCATION → COMPONENT",
+            7
+          ],
+          [
+            "type: ROLE → TIME",
+            6
+          ],
+          [
+            "type: COMPONENT → LOCATION",
+            2
+          ],
+          [
+            "type: TASK → AIRCRAFT",
+            2
+          ],
+          [
+            "type: TIME → TASK",
+            2
+          ],
+          [
+            "boundary: shifted",
+            1
+          ],
+          [
+            "type: COMPONENT → ROLE",
+            1
+          ],
+          [
+            "type: TASK → LOCATION",
+            1
+          ],
+          [
+            "type: LOCATION → TASK",
+            1
+          ],
+          [
+            "type: TIME → LOCATION",
+            1
+          ],
+          [
+            "type: TIME → ROLE",
+            1
+          ],
+          [
+            "type: AIRCRAFT → TASK",
+            1
+          ],
+          [
+            "type: LOCATION → AIRCRAFT",
+            1
+          ]
+        ]
+      }
+    }
+  },
+  "mid_word_spans": 0,
+  "skipped_gold_entities": {
+    "P2-1 panel connections": 1
+  },
+  "shift_labels": {
+    "counts": {
+      "TIME": 156,
+      "ROLE": 41,
+      "TASK": 3
+    },
+    "examples": {
+      "TIME": [
+        "Next shift",
+        "Zamu inayofuata",
+        "shift inayofuata",
+        "zamu ya usiku"
+      ],
+      "ROLE": [
+        "night shift",
+        "wafanyakazi wa zamu ya usiku",
+        "next shift",
+        "shift"
+      ],
+      "TASK": [
+        "kitabu cha mabadiliko ya zamu",
+        "shift turnover procedures",
+        "shift turnover"
+      ]
+    }
+  }
+}
