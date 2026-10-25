@@ -51,12 +51,25 @@ made it put a comma after every word. `tests/test_transcribe_prompts.py` guards 
 ## Tests and evaluation
 
 ```bash
-venv/bin/python -m pytest tests                 # decoder and registration tests (fast, no model)
-venv/bin/python -m scripts.evaluate             # the served model on ../machine-learning/data/processed/test_processed.jsonl
-venv/bin/python -m scripts.evaluate --out results.json
+venv/bin/python -m pytest tests                 # unit tests (fast, no model needed)
+venv/bin/python -m scripts.evaluate             # evaluate the served model (about 30 s)
 ```
 
-Baseline on the 147 test handovers (15 Oct 2026): category accuracy 0.62 (macro F1 0.58); entities
-exact-match F1 0.65 (P 0.67, R 0.64), partial-match F1 0.77; 0 entities starting or ending
-mid-word. Weakest types: TASK (F1 0.51), LOCATION (0.57), COMPONENT (0.60). Use this to compare a
-retrained model.
+`scripts/evaluate.py` runs the model exactly as the API does over the 147 held-out test handovers
+(`../machine-learning/data/processed/test_processed.jsonl`, never used in training) and writes:
+
+- **[`evaluation/results.md`](evaluation/results.md)**: a report with tables ready for a write-up:
+  results by language (English, Swahili, code-switched), entity F1 by type and language, summary
+  ROUGE compared with a lead-2 baseline, an entity error analysis with examples, category confusion
+  and a label-consistency check.
+- `evaluation/results.json`: the same numbers, machine-readable.
+
+The scoring functions are in `scripts/metrics.py` and unit-tested in `tests/test_metrics.py`. Rerun
+the evaluation after retraining and compare the two reports (they are committed, so `git diff`
+shows what changed).
+
+Baseline (25 Oct 2026): category accuracy 0.62; entity F1 0.65 exact and 0.77 partial; similar
+across languages (exact F1: English 0.65, Swahili 0.63, code-switched 0.67). Aircraft are found
+reliably (F1 0.93); TASK (0.54), LOCATION (0.59) and COMPONENT (0.61) are weakest, mostly through
+span boundaries and missed entities. The extractive summary scores the same as taking the first two
+sentences (ROUGE-L 0.22 for both). No entity starts or ends mid-word.
