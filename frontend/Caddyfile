@@ -1,0 +1,32 @@
+# One web address for the whole app.
+#   SITE_ADDRESS ":80"               plain HTTP on port 80 (local testing, or a host that adds HTTPS)
+#   SITE_ADDRESS "handover.example"  Caddy gets and renews an HTTPS certificate automatically
+#                                    (needs ports 80 and 443 reachable and DNS pointing here)
+{$SITE_ADDRESS::80} {
+	encode zstd gzip
+
+	# API and live updates go to the backend container.
+	handle /api/* {
+		reverse_proxy {$BACKEND_ADDRESS:backend:3000}
+	}
+	handle /socket.io/* {
+		reverse_proxy {$BACKEND_ADDRESS:backend:3000}
+	}
+
+	# Everything else is the single-page app: real files, otherwise index.html (client-side routes).
+	handle {
+		root * /srv
+		@assets path /assets/*
+		header @assets Cache-Control "public, max-age=31536000, immutable"
+		try_files {path} /index.html
+		file_server
+	}
+
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		# Voice input needs the microphone on this site only.
+		Permissions-Policy "microphone=(self), camera=(), geolocation=()"
+		-Server
+	}
+}

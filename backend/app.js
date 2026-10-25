@@ -19,6 +19,14 @@ var helmet = require('helmet');
 
 var app = express();
 
+// Behind a reverse proxy (Caddy in Docker, or a hosting platform's), trust its X-Forwarded-For so
+// rate limits and logs see each person's address instead of the proxy's. TRUST_PROXY is the number
+// of proxies in front of the app (e.g. 1); unset in development, where there is none.
+if (process.env.TRUST_PROXY) {
+  const hops = Number(process.env.TRUST_PROXY);
+  app.set('trust proxy', Number.isInteger(hops) ? hops : process.env.TRUST_PROXY);
+}
+
 app.use(logger('dev'));
 app.use(cors());
 app.use(express.json());

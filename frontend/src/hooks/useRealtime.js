@@ -2,8 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
 import { API_URL } from '../config';
 
-// Socket.IO runs on the same origin as the REST API (e.g. http://localhost:3000).
-const SOCKET_URL = new URL(API_URL).origin;
+// Socket.IO runs on the same origin as the REST API: http://localhost:3000 in development, or this
+// site itself when the API is served from the same address (VITE_API_URL=/api, as in Docker).
+const SOCKET_URL = new URL(API_URL, window.location.origin).origin;
 
 /**
  * Connects to the backend's real-time push with the user's JWT and calls `handlers[event](data)`

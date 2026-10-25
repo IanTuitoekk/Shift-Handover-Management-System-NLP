@@ -122,3 +122,15 @@ jobs:
           name: playwright-report
           path: e2e/playwright-report/
           retention-days: 7
+
+  docker:
+    name: Docker images build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Builds all images (no push) so a broken Dockerfile shows up on the PR. Dummy values only
+      # satisfy the compose file's required settings.
+      - run: docker compose build
+        env:
+          DB_PASSWORD: ci-only
+          JWT_SECRET: ci-only
