@@ -1,10 +1,13 @@
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Bell, CheckCircle, WarningOctagon } from '@phosphor-icons/react';
+import { ArrowLeft, Bell, CheckCircle, PencilSimple, WarningOctagon } from '@phosphor-icons/react';
 import { api } from '../api/client';
 import { useShell } from '../components/shell/ShellContext';
 import { useResource } from '../hooks/useResource';
 import { Section, ErrorState } from '../components/ui/Layout';
-import { AssigneeBadge, CategoryBadge, DueBadge, SubmitterBadge, TaskStatusBadge } from '../components/ui/Badges';
+import { AssigneeBadge, CategoryBadge, DueBadge, ReviewedBadge, SubmitterBadge, TaskStatusBadge } from '../components/ui/Badges';
+import { ReviewDialog } from '../components/report/ReviewDialog';
+import { REPORTS_CHANGED } from '../hooks/useRealtime';
 import { DueControl } from '../components/tasks/DueControl';
 import { ConfidenceMeter } from '../components/ui/ConfidenceMeter';
 import { EntityGroups } from '../components/report/EntityGroups';
@@ -21,6 +24,12 @@ export function ReportDetailPage() {
   const shell = useShell();
   const { me, supervisor, now, notifications, markRead, users, usersById, tasks, applyTaskUpdate, assignTask } = shell;
   const { data: report, error, loading, reload, mutate } = useResource(`report:${reportId}`, () => api.getReport(reportId));
+  const [reviewing, setReviewing] = useState(false);
+  // Someone else may review this report while it's open.
+  useEffect(() => {
+    window.addEventListener(REPORTS_CHANGED, reload);
+    return () => window.removeEventListener(REPORTS_CHANGED, reload);
+  }, [reload]);
   const notFound = error?.response?.status === 404 || error?.response?.status === 400;
 
   const task = report?.task;
@@ -59,7 +68,7 @@ export function ReportDetailPage() {
             <div className="detail-head__text">
               <div className="detail-head__row">
                 <CategoryBadge name={report.category_name} />
-                <ConfidenceMeter report={report} size="lg" />
+                {report.reviewed_at ? <ReviewedBadge report={report} /> : <ConfidenceMeter report={report} size="lg" />}
               </div>
               <h1 className="page-title detail-head__title">{report.summary || 'Handover report'}</h1>
               <p className="page-sub">
@@ -110,13 +119,45 @@ export function ReportDetailPage() {
                   The classifier is {confidence === null ? 'unsure' : `only ${formatPercent(confidence)} confident`} about
                   this category (below {formatPercent(LOW_CONFIDENCE_THRESHOLD)}). Compare the summary and details with the
                   original handover below{supervisor ? ' before assigning work from it' : ''}.
+                  {supervisor && (
+                    <>
+                      {' '}
+                      <button type="button" className="link-btn" onClick={() => setReviewing(true)}>
+                        Review now
+                      </button>
+                    </>
+                  )}
                 </span>
               </p>
             )}
             {report.submission && <OriginalHandover submission={report.submission} />}
-            <Section id="details" title="Extracted details" variant="raised">
+            <Section
+              id="details"
+              title="Extracted details"
+              variant="raised"
+              action={
+                supervisor && (
+                  <button type="button" className="btn btn-secondary" onClick={() => setReviewing(true)}>
+                    <PencilSimple size={16} aria-hidden="true" />
+                    {report.reviewed_at ? 'Edit review' : 'Review analysis'}
+                  </button>
+                )
+              }
+            >
               <EntityGroups entities={report.entities} ruled />
+              {report.review && <ReviewHistory review={report.review} />}
             </Section>
+            {reviewing && (
+              <ReviewDialog
+                report={report}
+                open={reviewing}
+                onClose={() => setReviewing(false)}
+                onSaved={(updated) => {
+                  mutate(() => updated);
+                  setReviewing(false);
+                }}
+              />
+            )}
           </div>
 
           <aside className="stack">
@@ -208,5 +249,27 @@ function OriginalHandover({ submission }) {
         </span>
       </p>
     </Section>
+  );
+}
+
+/** Who reviewed the report, and what the model said before the review. */
+function ReviewHistory({ review }) {
+  const model = review.model;
+  const confidence = model.category_confidence === null ? null : Number(model.category_confidence);
+  return (
+    <div className="review-history">
+      <p className="field-hint">
+        Reviewed{review.reviewed_by ? ` by ${personName(review.reviewed_by)}` : ''}, {formatDateTime(review.reviewed_at)}
+        {review.review_count > 1 ? ` (${review.review_count} reviews)` : ''}. These details are the reviewer’s.
+      </p>
+      <details className="review-history__model">
+        <summary>What the model originally said</summary>
+        <p>
+          <CategoryBadge name={model.category_name} />{' '}
+          {confidence !== null && <span className="field-hint num">{formatPercent(confidence)} confident</span>}
+        </p>
+        <EntityGroups entities={model.entities} />
+      </details>
+    </div>
   );
 }

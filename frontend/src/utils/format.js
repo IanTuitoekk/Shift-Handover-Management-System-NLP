@@ -101,7 +101,9 @@ export function parseConfidence(report) {
   return Number.isFinite(value) ? value : null;
 }
 
+/** A report needs a person to check it: not reviewed yet, and unclassified or low confidence. */
 export function needsReview(report) {
+  if (report?.reviewed_at) return false;
   const confidence = parseConfidence(report);
   return !report.category_name || confidence === null || confidence < LOW_CONFIDENCE_THRESHOLD;
 }

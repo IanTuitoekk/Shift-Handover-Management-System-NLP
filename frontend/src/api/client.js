@@ -76,6 +76,8 @@ export const api = {
   recurringEntities: (params) => client.get('/insights/entities', { params }).then((r) => r.data),
   shiftConfig: () => client.get('/config/shifts').then((r) => r.data),
   getReport: (reportId) => client.get(`/handovers/${reportId}`).then((r) => r.data),
+  /** Supervisor correction: { category_name, entities: [{ type, text }] }. Returns the updated report. */
+  reviewReport: (reportId, review) => client.put(`/handovers/${reportId}/review`, review).then((r) => r.data),
   submitHandover: (payload) => client.post('/handovers', payload).then((r) => r.data),
   /** Speech to text (Whisper on the server). Returns { text, language, language_probability, duration }. */
   transcribeHandover: (blob) => {

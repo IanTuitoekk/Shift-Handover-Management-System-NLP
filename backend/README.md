@@ -33,6 +33,7 @@ signing up in the app: `npm run set-role -- <email> supervisor`.
 | `npm test` | Tests, on a separate `_test` database rebuilt each run |
 | `npm run test-email -- <address>` | Send a sample email to check the SMTP settings |
 | `npm run reprocess-entities` | Re-run the model on stored handovers (preview; `--apply` to save) |
+| `npm run export-reviews` | Export supervisor-reviewed reports as training data (see below) |
 
 ## API Endpoints
 
@@ -49,6 +50,7 @@ signing up in the app: `npm run set-role -- <email> supervisor`.
 | POST | /api/handovers | Yes | Submit a handover narrative for NLP processing (`input_type`: `text` or `voice`) |
 | POST | /api/handovers/transcribe | Yes (20 per 10 min per person) | Voice input: multipart `audio` (≤ 10 MB) and optional `language` (`en`/`sw`). Returns `{ text, language, language_probability, duration }` from the inference service's Whisper. Nothing is saved; the recording is kept in memory only. 503 if the inference service is down |
 | GET | /api/handovers | Yes | List handover reports (`limit` ≤ 100, `offset`). Filters: `submitted_by=me` or a user id, `shift=day|night`, `category=<name>|unclassified`, `review=true|false` (below `LOW_CONFIDENCE_THRESHOLD`, default 0.6, or unclassified), `min_confidence`, `max_confidence` (0–1, max exclusive), `from`, `to` (ISO, `to` exclusive), `sort=newest|confidence`. Returns `{ reports, total, needs_review, shift_counts: { day, night }, limit, offset }`; each report includes `submitted_by` and `shift` |
+| PUT | /api/handovers/:reportId/review | Yes (supervisor) | Review the model's analysis: `{ category_name, entities: [{ type, text }] }`. Replaces the report's category and entities (each entity's text must appear in the handover), marks it reviewed (it leaves the "needs review" filter and counts), keeps the model's original answer, and updates the task text if the category changed. Returns the report detail |
 | GET | /api/handovers/:reportId | Yes | Get full detail for one report (entities, task, notification, submitted_by, and `submission`: the original text, shift, detected language and submission time) |
 | GET | /api/tasks | Yes | List tasks (optional `status`, `shift=day|night`); each task includes the `shift` of the handover that raised it, `needs_reassignment`, and `assignee` / `resolver` as `{ user_id, full_name, is_active, anonymised }` |
 | PATCH | /api/tasks/:taskId/resolve | Yes | Mark a task resolved |
@@ -194,6 +196,18 @@ is hidden.
 - Whether Google sign-ins will also need our MFA is decided when MFA is built.
 - While the Google Cloud consent screen is in "Testing", only its listed test users can sign in;
   publish it to allow any Google account.
+
+## Supervisor reviews and training data
+
+A supervisor can confirm or correct a report's category and entities ("Review analysis" on the
+report page). The correction replaces the model's output everywhere; the model's original answer is
+kept in `report_reviews` and shown on the report. `npm run export-reviews` writes every reviewed
+report to `../machine-learning/data/corrections/reviewed_handovers.jsonl` (ignored by git: real
+handover text) in the same shape as the training data (`narrative_text`, `incident_category`,
+`incident_category_grouped`, `entities`, `summary`, `language_variant`), plus `model_output` with
+what the model originally said. Add `--since 2026-10-01` for recent reviews only, or `--out <file>`.
+To use them: add the records to the training split, rerun `process_corpus.py` and training, then
+compare `inference-service/evaluation/results.md` before and after.
 
 ## Repairing stored entities
 

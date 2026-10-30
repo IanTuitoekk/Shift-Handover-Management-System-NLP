@@ -1,5 +1,5 @@
 import { Strip } from '../ui/Strip';
-import { CategoryBadge, SubmitterBadge } from '../ui/Badges';
+import { CategoryBadge, ReviewedBadge, SubmitterBadge } from '../ui/Badges';
 import { ConfidenceMeter } from '../ui/ConfidenceMeter';
 import { categoryMeta } from '../../utils/categories';
 import { formatDay, isToday, needsReview } from '../../utils/format';
@@ -23,7 +23,7 @@ export function ReportStrip({ report, now, showDay = true, currentUserId }) {
           <SubmitterBadge submittedBy={report.submitted_by} currentUserId={currentUserId} />
         </>
       }
-      aside={<ConfidenceMeter report={report} />}
+      aside={report.reviewed_at ? <ReviewedBadge report={report} /> : <ConfidenceMeter report={report} />}
     />
   );
 }

@@ -97,6 +97,8 @@ export function AppShell() {
         });
       }
     },
+    // A supervisor corrected a report: report lists, stats and that report's page refresh.
+    'report:reviewed': () => window.dispatchEvent(new CustomEvent(REPORTS_CHANGED)),
     'task:updated': ({ task, by }) => {
       if (by === me) return;
       upsertTask(task);
