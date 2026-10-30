@@ -54,7 +54,9 @@ CREATE TABLE handover_reports (
     category_id           UUID REFERENCES incident_categories(category_id),
     category_confidence   NUMERIC(5,4),
     generated_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at            TIMESTAMPTZ NOT NULL DEFAULT now()
+    updated_at            TIMESTAMPTZ NOT NULL DEFAULT now(),
+    reviewed_at           TIMESTAMPTZ,  -- set when a supervisor reviews or corrects the analysis
+    reviewed_by           UUID REFERENCES users(user_id) ON DELETE SET NULL
 );
 
 -- entities: List on HandoverReport
@@ -105,6 +107,16 @@ CREATE TABLE notification_reads (
     PRIMARY KEY (notif_id, user_id)
 );
 
+-- What the model originally said, kept when a supervisor reviews a report
+CREATE TABLE report_reviews (
+    report_id                  UUID PRIMARY KEY REFERENCES handover_reports(report_id) ON DELETE CASCADE,
+    model_category_id          UUID REFERENCES incident_categories(category_id),
+    model_category_confidence  NUMERIC(5,4),
+    model_entities             JSONB NOT NULL DEFAULT '[]',
+    first_reviewed_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+    review_count               INTEGER NOT NULL DEFAULT 1
+);
+
 CREATE TABLE password_reset_tokens (
     token_hash  TEXT PRIMARY KEY,  -- SHA-256 of the emailed token
     user_id     UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
@@ -127,6 +139,7 @@ CREATE INDEX idx_submissions_user ON handover_submissions(user_id);
 CREATE INDEX idx_submissions_status ON handover_submissions(processing_status);
 CREATE INDEX idx_reports_submission ON handover_reports(submission_id);
 CREATE INDEX idx_reports_category ON handover_reports(category_id);
+CREATE INDEX idx_reports_reviewed ON handover_reports(reviewed_at);
 CREATE INDEX idx_report_entities_report ON report_entities(report_id);
 CREATE INDEX idx_categories_taxonomy ON incident_categories(taxonomy_id);
 CREATE INDEX idx_tasks_report ON task_register(report_id);

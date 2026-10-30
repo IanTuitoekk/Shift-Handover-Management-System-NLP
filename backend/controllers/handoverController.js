@@ -1,5 +1,5 @@
 const { processHandover } = require('../services/handoverService');
-const { listReports, getReportDetail } = require('../services/reportService');
+const { listReports, getReportDetail, reviewReport } = require('../services/reportService');
 const realtime = require('../realtime');
 const { transcribe } = require('../services/transcriptionService');
 const { SHIFTS } = require('../config/shifts');
@@ -135,4 +135,25 @@ const transcribeHandover = async (req, res) => {
   }
 };
 
-module.exports = { createHandover, getReports, getReport, transcribeHandover };
+// PUT /api/handovers/:reportId/review (supervisor) { category_name, entities: [{ type, text }] }
+const reviewHandover = async (req, res) => {
+  try {
+    const result = await reviewReport(req.params.reportId, {
+      categoryName: req.body.category_name,
+      entities: req.body.entities,
+      reviewerId: req.user.userId,
+    });
+    if (!result) return res.status(404).json({ error: 'Report not found' });
+    const detail = await getReportDetail(req.params.reportId);
+    res.json(detail);
+    // Report lists, stats and the task text change for everyone.
+    realtime.toAll('report:reviewed', { report_id: req.params.reportId, by: req.user.userId });
+    if (result.task) realtime.toAll('task:updated', { task: result.task, by: req.user.userId });
+  } catch (err) {
+    if (err.status) return res.status(err.status).json({ error: err.message });
+    console.error(err);
+    res.status(500).json({ error: 'Failed to save the review' });
+  }
+};
+
+module.exports = { createHandover, getReports, getReport, transcribeHandover, reviewHandover };

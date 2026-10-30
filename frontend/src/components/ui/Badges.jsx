@@ -1,6 +1,6 @@
-import { ArrowsClockwise, CalendarBlank, CheckCircle, CircleDashed, Clock, PencilSimpleLine, UserCircle, WarningOctagon } from '@phosphor-icons/react';
+import { ArrowsClockwise, CalendarBlank, CheckCircle, CircleDashed, Clock, PencilSimpleLine, SealCheck, UserCircle, WarningOctagon } from '@phosphor-icons/react';
 import { categoryMeta } from '../../utils/categories';
-import { dueInfo, isOverdue, personName, roleLabel, taskPerson } from '../../utils/format';
+import { dueInfo, formatDateTime, isOverdue, personName, roleLabel, taskPerson } from '../../utils/format';
 
 /** Category: neutral badge with a fixed icon per category (identity is never colour-only). */
 export function CategoryBadge({ name, short = false }) {
@@ -10,6 +10,18 @@ export function CategoryBadge({ name, short = false }) {
     <span className="badge" title={meta.label}>
       <Icon size={14} aria-hidden="true" />
       {short ? meta.short : meta.label}
+    </span>
+  );
+}
+
+/** A supervisor has checked (and possibly corrected) the model's analysis of this report. */
+export function ReviewedBadge({ report }) {
+  if (!report?.reviewed_at) return null;
+  const who = report.review?.reviewed_by ? ` by ${personName(report.review.reviewed_by)}` : '';
+  return (
+    <span className="badge badge--ok" title={`Reviewed${who}, ${formatDateTime(report.reviewed_at)}`}>
+      <SealCheck size={14} weight="fill" aria-hidden="true" />
+      Reviewed
     </span>
   );
 }

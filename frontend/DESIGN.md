@@ -171,6 +171,7 @@ opens the composer in a dialog.
 | `PeoplePanel` (Manage dialog: ground crew details, role, deactivate with reason / reactivate, delete permanently with typed-email confirmation) | supervisor | on the Team page |
 | `ChangePasswordForm`, `AccountPage` | shared | change your own password; your details |
 | `ForgotPasswordPage`, `ResetPasswordPage` | public | email reset link |
+| `ReviewDialog`, `ReviewedBadge` | supervisor | correct a report's category and entities (words must come from the handover; select text to add it); reviewed reports show "Reviewed" instead of the confidence meter and leave the review queue |
 | `GoogleSignIn` | public (log in, create account) | Google's own button (official branding, not restyled); "link with your password" step replaces the form when the email already has an account |
 | `ReassignBadge`, `personName()` | shared | "Needs reassignment"; "Name (deactivated)" and "Former employee" everywhere a name appears |
 

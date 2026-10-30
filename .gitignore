@@ -17,3 +17,5 @@ machine-learning/models/*
 .agents/
 skills-lock.json
 frontend/.superdesign/
+# Exported supervisor reviews contain real handover text
+machine-learning/data/corrections/

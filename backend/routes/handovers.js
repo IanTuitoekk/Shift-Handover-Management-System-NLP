@@ -2,9 +2,9 @@ var express = require('express');
 var router = express.Router();
 var multer = require('multer');
 var rateLimit = require('express-rate-limit');
-var { body } = require('express-validator');
-var { createHandover, getReports, getReport, transcribeHandover } = require('../controllers/handoverController');
-var { requireAuth } = require('../middleware/auth');
+var { body, param } = require('express-validator');
+var { createHandover, getReports, getReport, transcribeHandover, reviewHandover } = require('../controllers/handoverController');
+var { requireAuth, requireRole } = require('../middleware/auth');
 var { validate } = require('../middleware/validate');
 
 const handoverValidation = [
@@ -51,5 +51,21 @@ router.post(
 );
 router.get('/', requireAuth, getReports);
 router.get('/:reportId', requireAuth, getReport);
+
+// Supervisors correct the model's category and entities (or confirm them unchanged).
+router.put(
+  '/:reportId/review',
+  requireAuth,
+  requireRole('supervisor'),
+  [
+    param('reportId').isUUID().withMessage('reportId must be a valid id'),
+    body('category_name').isString().notEmpty().withMessage('category_name is required'),
+    body('entities').isArray({ max: 200 }).withMessage('entities must be a list (up to 200)'),
+    body('entities.*.type').isString().withMessage('each entity needs a type'),
+    body('entities.*.text').isString().isLength({ max: 300 }).withMessage('each entity needs a text of up to 300 characters'),
+  ],
+  validate,
+  reviewHandover
+);
 
 module.exports = router;

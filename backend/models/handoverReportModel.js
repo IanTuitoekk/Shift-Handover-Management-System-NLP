@@ -45,8 +45,11 @@ async function getReportById(reportId) {
 
 const LOW_CONFIDENCE_THRESHOLD = Number(process.env.LOW_CONFIDENCE_THRESHOLD) || 0.6;
 
-/** SQL: true when a report should be checked by a person (no category, no score, or a low score). */
-const NEEDS_REVIEW = `(r.category_id IS NULL OR r.category_confidence IS NULL OR r.category_confidence < ${LOW_CONFIDENCE_THRESHOLD})`;
+/**
+ * SQL: true when a report should be checked by a person: not reviewed yet, and no category, no
+ * score, or a low score.
+ */
+const NEEDS_REVIEW = `(r.reviewed_at IS NULL AND (r.category_id IS NULL OR r.category_confidence IS NULL OR r.category_confidence < ${LOW_CONFIDENCE_THRESHOLD}))`;
 
 /**
  * WHERE conditions for the report list. Every value is a bound parameter; `params` is appended to.
