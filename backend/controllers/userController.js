@@ -63,7 +63,7 @@ async function setRole(req, res, next) {
 }
 
 async function updateUser(req, res, next) {
-  const { full_name, email, staff_number, station } = req.body;
+  const { full_name, email, staff_number, station, shift } = req.body;
   const blankToNull = (v) => (v === undefined ? undefined : v === null || String(v).trim() === '' ? null : String(v).trim());
   try {
     const user = await userService.updateDetails(req.params.userId, {
@@ -71,6 +71,7 @@ async function updateUser(req, res, next) {
       email,
       staffNumber: blankToNull(staff_number),
       station: blankToNull(station),
+      shift: blankToNull(shift),
     });
     if (!user) return res.status(404).json({ error: 'User not found' });
     res.json(user);

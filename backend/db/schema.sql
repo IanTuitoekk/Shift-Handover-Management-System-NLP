@@ -11,6 +11,7 @@ CREATE TABLE users (
     password_changed_at  TIMESTAMPTZ,
     staff_number   VARCHAR(50),
     station        VARCHAR(100),
+    shift          VARCHAR(10) CHECK (shift IN ('day', 'night')),  -- rostered shift; NULL = not rostered
     deactivated_at       TIMESTAMPTZ,
     deactivated_by       UUID REFERENCES users(user_id) ON DELETE SET NULL,
     deactivation_reason  TEXT,
@@ -81,7 +82,9 @@ CREATE TABLE task_register (
     created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
     due_at       TIMESTAMPTZ,  -- NULL = no due time set
-    needs_reassignment BOOLEAN NOT NULL DEFAULT false  -- assignee deactivated or deleted
+    needs_reassignment BOOLEAN NOT NULL DEFAULT false,  -- assignee deactivated or deleted
+    done_at      TIMESTAMPTZ,  -- assignee marked it done; awaiting a supervisor's sign-off
+    done_by      UUID REFERENCES users(user_id) ON DELETE SET NULL
 );
 
 -- NotificationService

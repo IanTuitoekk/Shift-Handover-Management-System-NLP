@@ -725,6 +725,15 @@
   color: var(--critical);
 }
 
+/* Sign-off spans the board: it is the supervisor's first job, and its strips need room for two actions. */
+.bay--signoff {
+  grid-column: 1 / -1;
+}
+
+.bay--signoff .bay__title svg {
+  color: var(--ok);
+}
+
 .bay--focus .strip-list,
 .bay--focus .bay__empty {
   box-shadow: 0 0 0 2px var(--accent);
@@ -1039,6 +1048,13 @@
 
 .composer__voice-note {
   color: var(--accent-text);
+}
+
+.composer__redo {
+  justify-self: start;
+  align-self: flex-start;
+  min-height: 36px;
+  margin-top: var(--space-1);
 }
 
 .composer__controls {

@@ -12,7 +12,8 @@ const window = (s) => ({ key: s.key, name: s.name, start: s.start.toISOString(),
  *   today           the operational day with reports per hour (24 numbers)
  *   reports         { total, needs_review } across all reports
  *   categories      [{ category_name (null = unclassified), reports }] across all reports, most first
- *   tasks           { open, overdue, unassigned } (unassigned includes tasks needing reassignment)
+ *   tasks           { open, overdue, awaiting_sign_off, unassigned } (unassigned includes tasks needing
+ *                   reassignment; tasks marked done are not overdue)
  * Report times are generated_at; shift windows use SHIFT_TIMEZONE.
  */
 async function overview({ at = new Date(), trendShifts = 6 } = {}) {
@@ -43,7 +44,8 @@ async function overview({ at = new Date(), trendShifts = 6 } = {}) {
     ),
     pool.query(
       `SELECT COUNT(*)::int AS open,
-              COUNT(*) FILTER (WHERE due_at IS NOT NULL AND due_at < now())::int AS overdue,
+              COUNT(*) FILTER (WHERE due_at IS NOT NULL AND due_at < now() AND done_at IS NULL)::int AS overdue,
+              COUNT(*) FILTER (WHERE done_at IS NOT NULL)::int AS awaiting_sign_off,
               COUNT(*) FILTER (WHERE assigned_to IS NULL OR needs_reassignment)::int AS unassigned
        FROM task_register WHERE status = 'pending'`
     ),
@@ -100,7 +102,7 @@ async function workload({ since = shiftAt().start } = {}) {
     `SELECT u.user_id, u.full_name, u.role,
             (SELECT COUNT(*)::int FROM task_register t WHERE t.assigned_to = u.user_id AND t.status = 'pending') AS open,
             (SELECT COUNT(*)::int FROM task_register t WHERE t.assigned_to = u.user_id AND t.status = 'pending'
-               AND t.due_at IS NOT NULL AND t.due_at < now()) AS overdue,
+               AND t.due_at IS NOT NULL AND t.due_at < now() AND t.done_at IS NULL) AS overdue,
             (SELECT COUNT(*)::int FROM task_register t WHERE t.resolved_by = u.user_id AND t.resolved_at >= $1) AS resolved_since,
             (SELECT COUNT(*)::int FROM handover_submissions s WHERE s.user_id = u.user_id AND s.submitted_at >= $1) AS handovers_since
      FROM users u

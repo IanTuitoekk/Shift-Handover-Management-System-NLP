@@ -4,7 +4,7 @@ import { api } from '../../api/client';
 import { ROLES } from '../../config';
 import { useResource } from '../../hooks/useResource';
 import { USERS_CHANGED } from '../../hooks/useRealtime';
-import { errorMessage, formatDateTime, personName, roleLabel } from '../../utils/format';
+import { errorMessage, formatDateTime, personName, roleLabel, rosterLabel } from '../../utils/format';
 import { Section, ErrorState } from '../ui/Layout';
 import { Strip, StripList, StripSkeleton } from '../ui/Strip';
 import { Dialog } from '../ui/Dialog';
@@ -23,7 +23,7 @@ function FormError({ message }) {
   );
 }
 
-/** Name, email, staff number and station of a ground crew member. Sends only what changed. */
+/** Name, email, staff number, station and shift of a ground crew member. Sends only what changed. */
 function DetailsForm({ person, onSaved }) {
   const nameRef = useRef(null);
   const emailRef = useRef(null);
@@ -39,6 +39,7 @@ function DetailsForm({ person, onSaved }) {
       email: String(data.get('email') ?? '').trim(),
       staff_number: String(data.get('staff_number') ?? '').trim(),
       station: String(data.get('station') ?? '').trim(),
+      shift: String(data.get('shift') ?? ''),
     };
     const e = {};
     if (!values.full_name) e.name = 'Enter their full name.';
@@ -96,6 +97,19 @@ function DetailsForm({ person, onSaved }) {
           placeholder="e.g. JKIA…"
           hint="Optional."
         />
+      </div>
+      <div className="field">
+        <label className="field-label" htmlFor="person-shift">
+          Shift
+        </label>
+        <select id="person-shift" name="shift" className="select" defaultValue={person.shift ?? ''} aria-describedby="person-shift-hint" autoComplete="off">
+          <option value="">Not rostered</option>
+          <option value="day">Day</option>
+          <option value="night">Night</option>
+        </select>
+        <p className="field-hint" id="person-shift-hint">
+          Tasks from each handover go to the least busy person on the incoming shift. Not rostered: never assigned automatically.
+        </p>
       </div>
       <button type="submit" className="btn btn-primary" disabled={saving}>
         {saving ? 'Saving…' : 'Save details'}
@@ -266,7 +280,9 @@ function DeleteDialog({ person, open, onClose, onDeleted }) {
 }
 
 function PersonMeta({ p }) {
-  const extra = [p.staff_number && `Staff ${p.staff_number}`, p.station].filter(Boolean).join(' · ');
+  const extra = [p.staff_number && `Staff ${p.staff_number}`, p.station, p.role === 'ground_crew' && (rosterLabel(p.shift) ?? 'Not rostered')]
+    .filter(Boolean)
+    .join(' · ');
   return (
     <>
       <span className="badge badge--role">{roleLabel(p.role)}</span>

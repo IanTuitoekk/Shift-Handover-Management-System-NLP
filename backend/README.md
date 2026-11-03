@@ -47,13 +47,15 @@ signing up in the app: `npm run set-role -- <email> supervisor`.
 | POST | /api/auth/google/link | No (rate-limited) | `{ link_ticket, password }`: the existing account's password links Google and signs in. The ticket lasts 5 minutes and can't be used as a session |
 | POST | /api/auth/forgot-password | No (rate-limited) | `{ email }`. Emails a one-time reset link to an active account. Always answers the same, whether or not the email exists |
 | POST | /api/auth/reset-password | No (rate-limited) | `{ token, new_password }` from the emailed link. Ends every session of that account |
-| POST | /api/handovers | Yes | Submit a handover narrative for NLP processing (`input_type`: `text` or `voice`) |
+| POST | /api/handovers | Yes | Submit a handover narrative for NLP processing (`input_type`: `text` or `voice`). The task it raises is assigned automatically (see Due times, assignment and sign-off) |
 | POST | /api/handovers/transcribe | Yes (20 per 10 min per person) | Voice input: multipart `audio` (≤ 10 MB) and optional `language` (`en`/`sw`). Returns `{ text, language, language_probability, duration }` from the inference service's Whisper. Nothing is saved; the recording is kept in memory only. 503 if the inference service is down |
 | GET | /api/handovers | Yes | List handover reports (`limit` ≤ 100, `offset`). Filters: `submitted_by=me` or a user id, `shift=day|night`, `category=<name>|unclassified`, `review=true|false` (below `LOW_CONFIDENCE_THRESHOLD`, default 0.6, or unclassified), `min_confidence`, `max_confidence` (0–1, max exclusive), `from`, `to` (ISO, `to` exclusive), `sort=newest|confidence`. Returns `{ reports, total, needs_review, shift_counts: { day, night }, limit, offset }`; each report includes `submitted_by` and `shift` |
 | PUT | /api/handovers/:reportId/review | Yes (supervisor) | Review the model's analysis: `{ category_name, entities: [{ type, text }] }`. Replaces the report's category and entities (each entity's text must appear in the handover), marks it reviewed (it leaves the "needs review" filter and counts), keeps the model's original answer, and updates the task text if the category changed. Returns the report detail |
 | GET | /api/handovers/:reportId | Yes | Get full detail for one report (entities, task, notification, submitted_by, and `submission`: the original text, shift, detected language and submission time) |
-| GET | /api/tasks | Yes | List tasks (optional `status`, `shift=day|night`); each task includes the `shift` of the handover that raised it, `needs_reassignment`, and `assignee` / `resolver` as `{ user_id, full_name, is_active, anonymised }` |
-| PATCH | /api/tasks/:taskId/resolve | Yes | Mark a task resolved |
+| GET | /api/tasks | Yes | List tasks (optional `status`, `shift=day|night`); each task includes the `shift` of the handover that raised it, `needs_reassignment`, `done_at` / `done_by` (marked done, awaiting sign-off), and `assignee` / `resolver` as `{ user_id, full_name, is_active, anonymised }` |
+| PATCH | /api/tasks/:taskId/done | Yes | The assignee marks their task done (403 for anyone else); it stays pending, waiting for a supervisor's sign-off. 409 if resolved or already done |
+| PATCH | /api/tasks/:taskId/resolve | Yes (supervisor) | Sign a task off as resolved, whether or not it was marked done; 409 if already resolved |
+| PATCH | /api/tasks/:taskId/send-back | Yes (supervisor) | Not finished: clears "done" and returns the task to its assignee; 409 unless it is waiting for sign-off |
 | PATCH | /api/tasks/:taskId/assign | Yes (supervisor only) | `{ "assigned_to": "<user id>" }` assigns (active people only); `{ "assigned_to": null }` unassigns. Resolved tasks can't be reassigned |
 | PATCH | /api/tasks/:taskId/due | Yes (supervisor only) | Set (`{ "due_at": "ISO date-time" }`) or clear (`{ "due_at": null }`) a task's due time |
 | GET | /api/notifications | Yes | List notifications for current user, with per-user read status |
@@ -65,7 +67,7 @@ signing up in the app: `npm run set-role -- <email> supervisor`.
 | GET | /api/users | Yes (supervisor) | List active users for task assignment |
 | GET | /api/users/workload | Yes (supervisor) | Per active person: `open`, `overdue`, and `resolved_since` / `handovers_since` since `?since=ISO` (default: start of the current shift) |
 | GET | /api/users/directory | Yes (supervisor) | Everyone with an account, including deactivated and deleted ("Former employee") ones, with `staff_number`, `station`, `deactivated_at`, `deactivated_by { user_id, full_name }`, `deactivation_reason`, `anonymised_at` |
-| PATCH | /api/users/:userId | Yes (supervisor) | Edit a ground crew member's `full_name`, `email`, `staff_number`, `station` (empty clears the last two). 409 if the email or staff number is taken; 403 for supervisor accounts |
+| PATCH | /api/users/:userId | Yes (supervisor) | Edit a ground crew member's `full_name`, `email`, `staff_number`, `station`, `shift` (`day` / `night`; empty clears the last three). 409 if the email or staff number is taken; 403 for supervisor accounts |
 | PATCH | /api/users/:userId/role | Yes (supervisor) | Change a role `{ role }` |
 | PATCH | /api/users/:userId/active | Yes (supervisor) | `{ active: false, reason? }` deactivates (signs them out at once, flags their open tasks `needs_reassignment`); `{ active: true }` reactivates |
 | DELETE | /api/users/:userId | Yes (supervisor) | Permanent delete of a **deactivated ground crew** account (see below) |
@@ -139,6 +141,8 @@ REST API and the socket is closed when the token expires.
 |---|---|---|
 | `handover:created` | a handover has been processed | `{ report, task, notification, submittedBy }` |
 | `task:assigned` | a supervisor assigns or reassigns a task | `{ task, by, previousAssignee }` |
+| `task:done` | the assignee marked a task done (awaiting sign-off) | `{ task, by }` |
+| `task:sent-back` | a supervisor sent a done task back to its assignee | `{ task, by }` |
 | `task:resolved` | a task is resolved | `{ task, by }` |
 | `task:updated` | a supervisor changes a task's due time | `{ task, by }` |
 | `user:role-changed` | (to that user) a supervisor changed their role | `{ role }` |
@@ -156,12 +160,25 @@ submission time falls in. Configure with `DAY_SHIFT_START` (default 6), `NIGHT_S
 `SHIFT_TIMEZONE` (`Africa/Nairobi`). The frontend reads the same values from `GET /api/config/shifts`,
 and the overview statistics count shifts in `SHIFT_TIMEZONE`.
 
-## Due times
+## Due times, assignment and sign-off
 
 Tasks have a `due_at`. New tasks are due `DEFAULT_TASK_DUE_HOURS` (default 12) after they are
 raised; supervisors can change or clear it. A pending task past its `due_at` is overdue; a task with
 no due time is never shown as overdue. Existing databases need the migration once:
 `psql -d <db> -f db/migrations/2026-10-12-task-due-at.sql`.
+
+A new task is assigned straight away to the **incoming shift**: the shift after the one handing over
+(the shift chosen on the form, or the one the submission time falls in), so a day handover goes to
+the night crew and a night handover to the day crew. Within that shift it goes to the active ground
+crew member with the fewest open tasks, never the person who wrote the handover; ties go to whoever
+was given a task longest ago. Supervisors roster people on a shift with `PATCH /api/users/:userId`
+(`shift`: `day`, `night`, or null for not rostered). If nobody is rostered on the incoming shift the
+task stays unassigned for a supervisor. Supervisors can reassign or unassign any task.
+
+Ground crew can't resolve tasks. The assignee marks a task **done** (`done_at`, `done_by`), which puts
+it in the supervisors' sign-off queue; a supervisor then resolves it or sends it back. A task marked
+done is not counted as overdue, and reassigning it clears "done". Existing databases need
+`npm run db:setup` once (adds `users.shift`, `task_register.done_at` and `done_by`).
 
 ## Language detection
 

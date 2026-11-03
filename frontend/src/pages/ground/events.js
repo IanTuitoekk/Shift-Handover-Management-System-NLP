@@ -1,6 +1,6 @@
 /**
  * Personal shift events for the rail and timeline: handovers this user submitted
- * (GET /api/handovers?submitted_by=me) and tasks this user resolved.
+ * (GET /api/handovers?submitted_by=me) and tasks assigned to this user that were resolved.
  */
 export function myShiftEvents({ myReports = [], tasks, me }) {
   const submitted = myReports.map((r) => ({
@@ -10,7 +10,7 @@ export function myShiftEvents({ myReports = [], tasks, me }) {
     reportId: r.report_id,
   }));
   const resolved = tasks
-    .filter((t) => t.status === 'resolved' && t.resolved_by === me.user_id && t.resolved_at)
+    .filter((t) => t.status === 'resolved' && t.assigned_to === me.user_id && t.resolved_at)
     .map((t) => ({ kind: 'resolved', at: t.resolved_at, label: 'Task resolved', reportId: t.report_id, task: t }));
   return [...submitted, ...resolved].sort((a, b) => new Date(b.at) - new Date(a.at));
 }

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { CircleNotch, Microphone, Stop, X } from '@phosphor-icons/react';
 import { api } from '../../api/client';
 import { errorMessage } from '../../utils/format';
@@ -63,10 +63,13 @@ const clock = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 
 /**
  * Record a spoken handover and turn it into text on the server (Whisper, English and Swahili).
- * Nothing is submitted: `onTranscript({ text, language })` hands the text to the composer so the
- * crew member can check and correct it first. `onError(message)` reports problems ('' clears).
+ * Nothing is submitted: `onTranscript({ text, language }, context)` hands the text to the composer so
+ * the crew member can check and correct it first. `onError(message)` reports problems ('' clears),
+ * `onStateChange(state)` reports idle | permission | starting | recording | transcribing.
+ * `ref.current.start(context)` starts a recording from outside (e.g. "Record again"); `context` is
+ * handed back with that recording's transcript.
  */
-export function VoiceInput({ id, onTranscript, onError, disabled = false }) {
+export function VoiceInput({ id, onTranscript, onError, onStateChange, disabled = false, ref }) {
   const [state, setState] = useState('idle'); // idle | permission | starting | recording | transcribing
   const [seconds, setSeconds] = useState(0);
   const [level, setLevel] = useState(0);
@@ -76,6 +79,7 @@ export function VoiceInput({ id, onTranscript, onError, disabled = false }) {
   const cancelled = useRef(false);
   const attempt = useRef(0); // bumps on every start and on cancel, so stale permission replies are ignored
   const timer = useRef(null);
+  const context = useRef(null); // what the current recording was started for
   const canRecord = supported();
   const setError = (message) => onError?.(message);
 
@@ -105,7 +109,7 @@ export function VoiceInput({ id, onTranscript, onError, disabled = false }) {
     setState('transcribing');
     try {
       const result = await api.transcribeHandover(blob);
-      if (result.text) onTranscript(result);
+      if (result.text) onTranscript(result, context.current);
       else if (quiet)
         setError(
           `Nothing was heard: “${micName}” sent almost no sound. Check that the Mac hears you (System Settings → Sound → Input, the level bars should move as you speak; the built-in microphone is off while the lid is closed), then try again.`,
@@ -118,9 +122,10 @@ export function VoiceInput({ id, onTranscript, onError, disabled = false }) {
     }
   }
 
-  async function start() {
+  async function start(ctx = null) {
     if (starting.current || recorder.current) return;
     starting.current = true;
+    context.current = ctx;
     cancelled.current = false;
     const mine = ++attempt.current;
     setError('');
@@ -247,6 +252,12 @@ export function VoiceInput({ id, onTranscript, onError, disabled = false }) {
     setState('idle');
   }
 
+  useImperativeHandle(ref, () => ({ start }));
+
+  useEffect(() => {
+    onStateChange?.(state);
+  }, [state, onStateChange]);
+
   const recording = state === 'recording';
   const waiting = state === 'permission' || state === 'starting';
   const busy = waiting || state === 'transcribing';
@@ -267,7 +278,7 @@ export function VoiceInput({ id, onTranscript, onError, disabled = false }) {
         type="button"
         id={id}
         className={`mic-btn ${recording ? 'mic-btn--recording' : ''}`}
-        onClick={recording ? stop : start}
+        onClick={recording ? stop : () => start()}
         disabled={!canRecord || busy || disabled}
         aria-describedby={noteId}
         aria-label={recording ? 'Stop recording and turn it into text' : 'Speak the handover'}

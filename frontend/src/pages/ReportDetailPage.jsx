@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Bell, CheckCircle, PencilSimple, WarningOctagon } from '@phosphor-icons/react';
+import { ArrowLeft, ArrowUUpLeft, Bell, Check, CheckCircle, HourglassMedium, PencilSimple, WarningOctagon } from '@phosphor-icons/react';
 import { api } from '../api/client';
 import { useShell } from '../components/shell/ShellContext';
 import { useResource } from '../hooks/useResource';
@@ -13,6 +13,7 @@ import { ConfidenceMeter } from '../components/ui/ConfidenceMeter';
 import { EntityGroups } from '../components/report/EntityGroups';
 import { AssignControl } from '../components/tasks/AssignControl';
 import { ResolveButton } from '../components/tasks/ResolveButton';
+import { TaskActionButton } from '../components/tasks/TaskActionButton';
 import { LOW_CONFIDENCE_THRESHOLD } from '../config';
 import { formatDateTime, formatPercent, needsReview, parseConfidence, personName, taskPerson, taskSummary } from '../utils/format';
 import { leastLoaded } from '../utils/insights';
@@ -41,6 +42,13 @@ export function ReportDetailPage() {
 
   async function resolve() {
     const updated = await api.resolveTask(task.task_id);
+    mutate((r) => (r ? { ...r, task: { ...r.task, ...updated } } : r));
+    applyTaskUpdate(task, updated);
+  }
+
+  // Mark done (the assignee) or send back (a supervisor): the task stays open either way.
+  async function update(call) {
+    const updated = await call(task.task_id);
     mutate((r) => (r ? { ...r, task: { ...r.task, ...updated } } : r));
     applyTaskUpdate(task, updated);
   }
@@ -167,7 +175,14 @@ export function ReportDetailPage() {
                   <p>{taskSummary(task)}</p>
                   <div className="detail-block__meta">
                     <AssigneeBadge task={task} currentUserId={me.user_id} usersById={usersById} />
-                    {task.status === 'pending' && <DueBadge task={task} now={now} showNone />}
+                    {task.status === 'pending' && !task.done_at && <DueBadge task={task} now={now} showNone />}
+                    {task.status === 'pending' && task.done_at && (
+                      <span className="field-hint">
+                        <HourglassMedium size={14} aria-hidden="true" /> Marked done <span className="num">{formatDateTime(task.done_at)}</span>
+                        {task.done_by === me.user_id ? ' by you' : taskPerson(task, 'assignee', usersById) ? ` by ${personName(taskPerson(task, 'assignee', usersById))}` : ''}
+                        , awaiting a supervisor’s sign-off
+                      </span>
+                    )}
                     <span className="field-hint">
                       Raised <span className="num">{formatDateTime(task.created_at)}</span>
                     </span>
@@ -184,9 +199,23 @@ export function ReportDetailPage() {
                   </div>
                   {task.status === 'pending' && (
                     <div className="detail-block__actions">
-                      {supervisor && <AssignControl task={task} users={users} currentUserId={me.user_id} suggestion={suggestion} onAssign={assign} />}
-                      {supervisor && <DueControl task={task} now={now} onSave={setDue} />}
-                      <ResolveButton onResolve={resolve} />
+                      {supervisor && !task.done_at && <AssignControl task={task} users={users} currentUserId={me.user_id} suggestion={suggestion} onAssign={assign} />}
+                      {supervisor && !task.done_at && <DueControl task={task} now={now} onSave={setDue} />}
+                      {supervisor ? (
+                        <>
+                          <ResolveButton onResolve={resolve} label={task.done_at ? 'Sign off' : 'Mark resolved'} />
+                          {task.done_at && (
+                            <TaskActionButton onAction={() => update(api.sendBackTask)} label="Send back" busyLabel="Sending back…" icon={ArrowUUpLeft} variant="ghost" />
+                          )}
+                        </>
+                      ) : task.assigned_to === me.user_id && !task.done_at ? (
+                        <>
+                          <TaskActionButton onAction={() => update(api.markTaskDone)} label="Mark done" busyLabel="Marking done…" icon={Check} />
+                          <p className="field-hint">A supervisor then signs it off, or sends it back if more is needed.</p>
+                        </>
+                      ) : (
+                        !task.done_at && <p className="field-hint">The person it’s assigned to marks it done, and a supervisor signs it off.</p>
+                      )}
                     </div>
                   )}
                 </div>

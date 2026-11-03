@@ -12,7 +12,7 @@ import { inShift, byDue, previousShift, shiftAt, shiftLabel, taskSummary } from 
 import { myShiftEvents } from './events';
 
 export function MyTasksPage() {
-  const { me, now, tasks, resolveTask, applyTaskUpdate } = useShell();
+  const { me, now, tasks, markTaskDone, applyTaskUpdate } = useShell();
   const myReports = useMyReports();
   const t = now.getTime();
 
@@ -20,10 +20,11 @@ export function MyTasksPage() {
   const allPending = useMemo(() => (tasks.data ?? []).filter((x) => x.status === 'pending'), [tasks.data]);
   const pending = allPending.filter((x) => matchesShift(x, shiftFilter));
   const byUrgency = (a, b) => byDue(a, b, t);
-  const mine = pending.filter((x) => x.assigned_to === me.user_id).sort(byUrgency);
+  // Tasks still to do first; ones marked done (waiting for sign-off) after them.
+  const mine = pending.filter((x) => x.assigned_to === me.user_id).sort((a, b) => Number(Boolean(a.done_at)) - Number(Boolean(b.done_at)) || byUrgency(a, b));
   const others = pending
     .filter((x) => x.assigned_to !== me.user_id)
-    // Unassigned first: anyone can pick those up.
+    // Unassigned first: they still need an owner.
     .sort((a, b) => Number(Boolean(a.assigned_to)) - Number(Boolean(b.assigned_to)) || byUrgency(a, b));
 
   const shift = shiftAt(now);
@@ -35,8 +36,16 @@ export function MyTasksPage() {
   ];
   const loading = tasks.data === undefined && !tasks.error;
 
+  // Crew mark their own tasks done; a supervisor signs them off. Other people's tasks are read-only.
   const strip = (task) => (
-    <TaskStrip key={task.task_id} task={task} now={now} currentUserId={me.user_id} onResolve={resolveTask} onResolved={applyTaskUpdate} />
+    <TaskStrip
+      key={task.task_id}
+      task={task}
+      now={now}
+      currentUserId={me.user_id}
+      onMarkDone={task.assigned_to === me.user_id ? markTaskDone : undefined}
+      onUpdated={applyTaskUpdate}
+    />
   );
 
   return (
@@ -59,15 +68,17 @@ export function MyTasksPage() {
           {tasks.error && !tasks.data && <ErrorState message="Couldn’t load tasks." onRetry={tasks.reload} />}
           <Section id="mine" title="Assigned to you" count={tasks.data ? mine.length : undefined}>
             {loading && <StripSkeleton rows={3} />}
+            {mine.length > 0 && <p className="field-hint">When you’ve finished a task, mark it done. A supervisor then signs it off, or sends it back if more is needed.</p>}
             {tasks.data && mine.length === 0 && (
               <EmptyState icon={CheckCircle} title="Nothing assigned to you">
-                When your supervisor assigns you a task it appears here first. You can also pick up an open task below.
+                Tasks from the outgoing shift’s handovers are shared out automatically to the incoming shift, and your supervisor can assign you more. They appear here first.
               </EmptyState>
             )}
             {mine.length > 0 && <StripList>{mine.map(strip)}</StripList>}
           </Section>
 
           <Section id="others" title="Other open tasks" count={tasks.data ? others.length : undefined}>
+            {others.length > 0 && <p className="field-hint">For awareness. A supervisor marks each task resolved.</p>}
             {loading && <StripSkeleton rows={3} />}
             {tasks.data && others.length === 0 && (
               <EmptyState icon={Tray} title="No other open tasks">
@@ -100,7 +111,7 @@ export function MyTasksPage() {
                           e.kind === 'submitted' ? (
                             <span className="badge">{categoryMeta(e.label === 'Handover' ? null : e.label).label}</span>
                           ) : (
-                            <span className="badge badge--ok">Resolved by you</span>
+                            <span className="badge badge--ok">Resolved</span>
                           )
                         }
                       />

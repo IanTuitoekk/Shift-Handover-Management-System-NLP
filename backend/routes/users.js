@@ -5,6 +5,7 @@ var controller = require('../controllers/userController');
 var { requireAuth, requireRole } = require('../middleware/auth');
 var { validate } = require('../middleware/validate');
 var { ROLES } = require('../config/roles');
+var { SHIFTS } = require('../config/shifts');
 
 // Everything here is supervisor-only.
 router.use(requireAuth, requireRole('supervisor'));
@@ -33,6 +34,8 @@ router.patch(
     body('email').optional().trim().isEmail().withMessage('A valid email is required').normalizeEmail({ gmail_remove_dots: false }),
     optionalText('staff_number', 50),
     optionalText('station', 100),
+    // The shift they work; '' or null = not rostered.
+    body('shift').optional({ values: 'falsy' }).isIn(SHIFTS).withMessage(`shift must be one of: ${SHIFTS.join(', ')}`),
   ],
   validate,
   controller.updateUser

@@ -74,6 +74,9 @@ function shiftAt(at = new Date()) {
   return { key: 'night', name: 'Night', start, end: new Date(start.getTime() + (24 - DAY_HOURS) * HOUR) };
 }
 
+/** The shift that takes over from `key` ('day' -> 'night', 'night' -> 'day'). */
+const nextShift = (key) => (key === 'day' ? 'night' : 'day');
+
 /** The last `count` shifts, oldest first, ending with the one containing `at`. */
 function recentShifts(count, at = new Date()) {
   const shifts = [shiftAt(at)];
@@ -96,6 +99,7 @@ module.exports = {
   shiftExpression,
   shiftConfig,
   shiftAt,
+  nextShift,
   recentShifts,
   operationalDay,
 };
