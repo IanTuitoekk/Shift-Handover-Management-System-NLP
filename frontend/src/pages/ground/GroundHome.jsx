@@ -17,7 +17,7 @@ import { myShiftEvents } from './events';
 const BRIEFING_LIMIT = 4;
 
 export function GroundHome() {
-  const { me, now, tasks, notifications, markRead, resolveTask, applyTaskUpdate, refreshAll } = useShell();
+  const { me, now, tasks, notifications, markRead, markTaskDone, applyTaskUpdate, refreshAll } = useShell();
   const myReports = useMyReports();
   const location = useLocation();
   const navigate = useNavigate();
@@ -59,7 +59,8 @@ export function GroundHome() {
 
   const pending = useMemo(() => (tasks.data ?? []).filter((x) => x.status === 'pending'), [tasks.data]);
   const byUrgency = (a, b) => byDue(a, b, t);
-  const mine = pending.filter((x) => x.assigned_to === me.user_id).sort(byUrgency);
+  // Tasks still to do first; ones marked done (waiting for sign-off) after them.
+  const mine = pending.filter((x) => x.assigned_to === me.user_id).sort((a, b) => Number(Boolean(a.done_at)) - Number(Boolean(b.done_at)) || byUrgency(a, b));
   const overdueUnassigned = pending.filter((x) => !x.assigned_to && isOverdue(x, t)).sort(byUrgency);
 
   const allAlerts = notifications.data ?? [];
@@ -125,13 +126,13 @@ export function GroundHome() {
             {tasks.error && !tasks.data && <ErrorState message="Couldn’t load your tasks." onRetry={tasks.reload} />}
             {tasks.data && mine.length === 0 && (
               <EmptyState icon={CheckCircle} title="Nothing assigned to you">
-                Your supervisor assigns tasks from new handovers. Open tasks anyone can pick up are in My tasks.
+                Tasks from the outgoing shift’s handovers are shared out automatically to the incoming shift. Your supervisor can also assign you work.
               </EmptyState>
             )}
             {mine.length > 0 && (
               <StripList>
                 {mine.slice(0, BRIEFING_LIMIT).map((task) => (
-                  <TaskStrip key={task.task_id} task={task} now={now} currentUserId={me.user_id} onResolve={resolveTask} onResolved={applyTaskUpdate} />
+                  <TaskStrip key={task.task_id} task={task} now={now} currentUserId={me.user_id} onMarkDone={markTaskDone} onUpdated={applyTaskUpdate} />
                 ))}
               </StripList>
             )}
@@ -141,7 +142,7 @@ export function GroundHome() {
             <Section id="brief-overdue" title="Overdue, not assigned to anyone" count={overdueUnassigned.length} headingLevel={3}>
               <StripList>
                 {overdueUnassigned.slice(0, BRIEFING_LIMIT).map((task) => (
-                  <TaskStrip key={task.task_id} task={task} now={now} currentUserId={me.user_id} onResolve={resolveTask} onResolved={applyTaskUpdate} />
+                  <TaskStrip key={task.task_id} task={task} now={now} currentUserId={me.user_id} />
                 ))}
               </StripList>
             </Section>

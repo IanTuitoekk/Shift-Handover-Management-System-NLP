@@ -11,14 +11,19 @@ across the shift, live.
 **Ground crew**
 - Write a handover, or speak it (transcribed on the server by Whisper, English and Swahili). Spoken
   aircraft registrations ("five Yankee Kilo Zulu Delta") are written out as `5Y-KZD`.
-- See the result straight away: category, confidence, entities, summary.
-- My tasks, the previous shift's handovers to read, alerts, Day/Night filters.
+- Record again: replaces only the last recording's text, keeping anything typed.
+- See the result straight away: category, confidence, entities, summary, and who the task went to.
+- My tasks, the previous shift's handovers to read, alerts, Day/Night filters. Each new task is
+  assigned automatically to the least busy crew member on the **incoming shift** (a day handover
+  goes to the night crew and the other way round; never the writer). Crew mark their own
+  tasks **done**; a supervisor then signs them off.
 
 **Supervisors**
 - Overview of the shift: overdue, unassigned and low-confidence work, trends, recurring aircraft
   and components, team workload.
-- Triage board: assign, unassign, set due times, resolve.
-- Team: workload per person and people management (edit crew details, roles, deactivate,
+- Triage board: an **Awaiting sign-off** lane for tasks crew marked done (sign off, or send back to
+  the assignee), reassign or unassign the automatic assignments, set due times, resolve any task.
+- Team: workload per person and people management (edit crew details and Day/Night roster, roles, deactivate,
   permanent delete with anonymisation of records).
 
 **Everyone**

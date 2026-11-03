@@ -1,23 +1,24 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { CheckCircle, CircleDashed, Clock, Lightbulb, Tray, WarningOctagon } from '@phosphor-icons/react';
+import { CheckCircle, CircleDashed, Clock, HourglassMedium, Lightbulb, Tray, WarningOctagon } from '@phosphor-icons/react';
 import { useShell } from '../../components/shell/ShellContext';
 import { PageHeader, EmptyState, ErrorState } from '../../components/ui/Layout';
 import { StripList, StripSkeleton } from '../../components/ui/Strip';
 import { TaskStrip } from '../../components/tasks/TaskStrip';
-import { byDue, isOverdue, needsOwner } from '../../utils/format';
+import { awaitingSignOff, byDue, isOverdue, needsOwner } from '../../utils/format';
 import { leastLoaded } from '../../utils/insights';
 import { ShiftFilter } from '../../components/ui/ShiftFilter';
 import { matchesShift, useShiftParam } from '../../hooks/useShiftParam';
 
 const BAYS = [
+  { key: 'signoff', title: 'Awaiting sign-off', icon: HourglassMedium, empty: 'Nothing marked done is waiting for you.' },
   { key: 'unassigned', title: 'Unassigned', icon: CircleDashed, empty: 'Every open task has an owner.' },
   { key: 'assigned', title: 'Assigned', icon: Clock, empty: 'Nothing assigned and in progress.' },
   { key: 'overdue', title: 'Overdue', icon: WarningOctagon, empty: 'Nothing past its due time.' },
 ];
 
 export function TriagePage() {
-  const { me, now, tasks, users, usersById, assignTask } = useShell();
+  const { me, now, tasks, users, usersById, assignTask, resolveTask, sendBackTask, applyTaskUpdate } = useShell();
   const [params, setParams] = useSearchParams();
   const view = params.get('view') === 'resolved' ? 'resolved' : 'open';
   const sort = ['newest', 'oldest'].includes(params.get('sort')) ? params.get('sort') : 'due';
@@ -44,10 +45,14 @@ export function TriagePage() {
     sort === 'due' ? byDue(a, b, t) : (sort === 'oldest' ? 1 : -1) * (new Date(a.created_at) - new Date(b.created_at));
   const [shift, setShift] = useShiftParam();
   const pending = all.filter((x) => x.status === 'pending' && matchesAssignee(x) && matchesShift(x, shift));
+  // Done tasks wait in their own lane (oldest first) until a supervisor signs them off or sends them back.
+  const signoff = pending.filter(awaitingSignOff).sort((a, b) => new Date(a.done_at) - new Date(b.done_at));
+  const working = pending.filter((x) => !awaitingSignOff(x));
   const bays = {
-    unassigned: pending.filter((x) => needsOwner(x) && !isOverdue(x, t)).sort(byAge),
-    assigned: pending.filter((x) => !needsOwner(x) && !isOverdue(x, t)).sort(byAge),
-    overdue: pending.filter((x) => isOverdue(x, t)).sort(byAge),
+    signoff,
+    unassigned: working.filter((x) => needsOwner(x) && !isOverdue(x, t)).sort(byAge),
+    assigned: working.filter((x) => !needsOwner(x) && !isOverdue(x, t)).sort(byAge),
+    overdue: working.filter((x) => isOverdue(x, t)).sort(byAge),
   };
   const resolved = all
     .filter((x) => x.status === 'resolved' && matchesAssignee(x) && matchesShift(x, shift))
@@ -63,6 +68,7 @@ export function TriagePage() {
           tasks.data ? (
             <>
               <span className="num">{all.filter((x) => x.status === 'pending').length}</span> open,{' '}
+              <span className="num">{all.filter(awaitingSignOff).length}</span> awaiting sign-off,{' '}
               <span className="num">{all.filter((x) => x.status === 'resolved').length}</span> resolved
             </>
           ) : (
@@ -123,7 +129,7 @@ export function TriagePage() {
                 {title}
                 {tasks.data && <span className="count">{bays[key].length}</span>}
               </h2>
-              {suggestion && key !== 'assigned' && bays[key].length > 0 && (
+              {suggestion && (key === 'unassigned' || key === 'overdue') && bays[key].length > 0 && (
                 <p className="bay__note">
                   <Lightbulb size={14} aria-hidden="true" />
                   Suggested owner: {suggestion.user.full_name}, <span className="num">{suggestion.open}</span> open
@@ -140,8 +146,11 @@ export function TriagePage() {
                       now={now}
                       currentUserId={me.user_id}
                       usersById={usersById}
-                      assign={{ users, suggestion, onAssign: assignTask, showSuggestion: false }}
-                      compact
+                      assign={key === 'signoff' ? undefined : { users, suggestion, onAssign: assignTask, showSuggestion: false }}
+                      onResolve={resolveTask}
+                      onSendBack={key === 'signoff' ? sendBackTask : undefined}
+                      onUpdated={applyTaskUpdate}
+                      compact={key !== 'signoff'}
                     />
                   ))}
                 </StripList>

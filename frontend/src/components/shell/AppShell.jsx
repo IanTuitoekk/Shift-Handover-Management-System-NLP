@@ -1,6 +1,6 @@
 import { Suspense, useCallback, useMemo, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
-import { Bell, CheckCircle, ClipboardText, Moon, NotePencil, Plus, SignOut, Sun, UserCircle, UserCirclePlus } from '@phosphor-icons/react';
+import { ArrowUUpLeft, Bell, CheckCircle, ClipboardText, HourglassMedium, Moon, NotePencil, Plus, SignOut, Sun, UserCircle, UserCirclePlus } from '@phosphor-icons/react';
 import { api, tokenStore } from '../../api/client';
 import { useAuth } from '../../auth/useAuth';
 import { LIVE_REFRESH_MS, REFRESH_MS, setShiftHours } from '../../config';
@@ -9,7 +9,7 @@ import { useInterval, useRefetchOnFocus, useResource } from '../../hooks/useReso
 import { useTheme } from '../../hooks/useTheme';
 import { REPORTS_CHANGED, USERS_CHANGED, useRealtime } from '../../hooks/useRealtime';
 import { roleConfig } from '../../roles';
-import { isOverdue, needsOwner, taskSummary } from '../../utils/format';
+import { awaitingSignOff, isOverdue, needsOwner, personName, taskSummary } from '../../utils/format';
 import { categoryMeta } from '../../utils/categories';
 import { NotificationsDrawer } from '../NotificationsDrawer';
 import { Composer } from '../composer/Composer';
@@ -61,6 +61,7 @@ export function AppShell() {
       ),
     [mutateTasks],
   );
+  const usersById = useMemo(() => new Map((users.data ?? []).map((u) => [u.user_id, u])), [users.data]);
   const live = useRealtime(tokenStore.get(), {
     'handover:created': ({ report, task, notification, submittedBy }) => {
       if (task) {
@@ -73,7 +74,17 @@ export function AppShell() {
         );
       }
       window.dispatchEvent(new CustomEvent(REPORTS_CHANGED));
-      if (submittedBy !== me) {
+      if (submittedBy === me) return;
+      // New tasks are assigned automatically; tell the person who got it.
+      if (task?.assigned_to === me) {
+        pushToast({
+          icon: UserCirclePlus,
+          title: 'A task was assigned to you',
+          text: report?.summary ?? taskSummary(task),
+          to: `/reports/${report?.report_id ?? task.report_id}`,
+          linkLabel: 'Open report',
+        });
+      } else {
         pushToast({
           icon: ClipboardText,
           title: `New handover: ${categoryMeta(report?.category_name).short}`,
@@ -103,11 +114,33 @@ export function AppShell() {
       if (by === me) return;
       upsertTask(task);
     },
+    // The assignee says the work is done: supervisors are asked to sign it off.
+    'task:done': ({ task, by }) => {
+      if (by === me) return;
+      upsertTask(task);
+      if (supervisor) {
+        const who = personName(usersById.get(by));
+        pushToast({
+          icon: HourglassMedium,
+          title: who ? `${who} marked a task done` : 'A task was marked done',
+          text: `Needs your sign-off: ${taskSummary(task)}`,
+          to: '/triage?lane=signoff',
+          linkLabel: 'Review',
+        });
+      }
+    },
+    'task:sent-back': ({ task, by }) => {
+      if (by === me) return;
+      upsertTask(task);
+      if (task.assigned_to === me) {
+        pushToast({ icon: ArrowUUpLeft, tone: 'neutral', title: 'A supervisor sent a task back to you', text: taskSummary(task), to: `/reports/${task.report_id}`, linkLabel: 'Open report' });
+      }
+    },
     'task:resolved': ({ task, by }) => {
       if (by === me) return;
       upsertTask(task);
       if (task.assigned_to === me) {
-        pushToast({ icon: CheckCircle, tone: 'ok', title: 'A colleague resolved one of your tasks', text: taskSummary(task) });
+        pushToast({ icon: CheckCircle, tone: 'ok', title: 'A supervisor resolved one of your tasks', text: taskSummary(task) });
       }
     },
     // A supervisor changed this user's role: reload the profile so the shell switches view.
@@ -154,6 +187,8 @@ export function AppShell() {
 
   // Task actions shared by every page. Strips call resolveTask, animate out, then applyTaskUpdate.
   const resolveTask = useCallback((task) => api.resolveTask(task.task_id), []);
+  const markTaskDone = useCallback((task) => api.markTaskDone(task.task_id), []);
+  const sendBackTask = useCallback((task) => api.sendBackTask(task.task_id), []);
   const applyTaskUpdate = useCallback(
     (task, updated) => {
       mutateTasks((list = []) => list.map((t) => (t.task_id === task.task_id ? { ...t, ...(updated ?? {}) } : t)));
@@ -170,13 +205,12 @@ export function AppShell() {
     [mutateTasks, reloadTasks],
   );
 
-  const usersById = useMemo(() => new Map((users.data ?? []).map((u) => [u.user_id, u])), [users.data]);
   const unread = (notifications.data ?? []).filter((n) => !n.is_read).length;
   const pending = (tasks.data ?? []).filter((t) => t.status === 'pending');
   const badges = {
     unread,
-    myTasks: pending.filter((t) => t.assigned_to === user?.user_id).length,
-    needsAction: pending.filter((t) => needsOwner(t) || isOverdue(t, now.getTime())).length,
+    myTasks: pending.filter((t) => t.assigned_to === user?.user_id && !t.done_at).length,
+    needsAction: pending.filter((t) => needsOwner(t) || isOverdue(t, now.getTime()) || awaitingSignOff(t)).length,
   };
 
   const ctx = {
@@ -191,6 +225,8 @@ export function AppShell() {
     usersById,
     markRead,
     resolveTask,
+    markTaskDone,
+    sendBackTask,
     applyTaskUpdate,
     assignTask,
     refreshAll,

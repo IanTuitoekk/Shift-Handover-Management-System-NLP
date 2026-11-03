@@ -1,4 +1,4 @@
-// Supervisor work: live updates, assigning and unassigning, crew resolving, report filters.
+// Supervisor work: live updates, automatic and manual assigning, mark done and sign-off, report filters.
 const { test, expect, statePath, api, tag, env } = require('../support/fixtures');
 const db = require('../support/db');
 
@@ -18,30 +18,58 @@ async function taskFor(note) {
   return row;
 }
 
-test('a new handover reaches the supervisor live; assigning reaches the crew live; crew resolve it', async ({ browser, request }) => {
+test('a night handover goes to the incoming day crew live; the assignee marks it done and a supervisor signs it off', async ({ browser, request }) => {
   const sup = await (await browser.newContext({ storageState: statePath('supervisor') })).newPage();
   const crew = await (await browser.newContext({ storageState: statePath('crew') })).newPage();
   await sup.goto('/triage');
   await crew.goto('/my-tasks');
   await expect(sup.getByRole('heading', { name: /Unassigned/ })).toBeVisible();
+  // Both pages must be connected for live updates before anything happens.
+  await expect(sup.getByText('Live updates on')).toBeAttached();
+  await expect(crew.getByText('Live updates on')).toBeAttached();
 
-  // Someone else on the crew hands over; the supervisor is told without reloading.
+  // Amina (nights) hands over; the supervisor is told without reloading, and the task is already
+  // Juma's, the only one rostered on the incoming day shift, and Juma is told live too.
   const note = tag('Live');
-  await api(request, 'crew2', 'POST', '/handovers', { narrative_text: `Main gear tyre worn on 5Y-KQB at stand 3. ${note}` });
+  await api(request, 'crew2', 'POST', '/handovers', { narrative_text: `Main gear tyre worn on 5Y-KQB at stand 3. ${note}`, shift: 'Night' });
   await expect(sup.locator('.toast').filter({ hasText: 'New handover' })).toBeVisible();
-  const strip = sup.locator('#bay-unassigned .strip').filter({ hasText: 'Main gear tyre worn on 5Y-KQB' });
-  await expect(strip).toBeVisible();
-
-  // Assign to Juma; Juma sees it arrive.
-  await strip.locator('select').selectOption(await userId(env.USERS.crew.email));
-  await strip.getByRole('button', { name: 'Assign' }).click();
   await expect(crew.locator('.toast').filter({ hasText: 'A task was assigned to you' })).toBeVisible();
+  const task = await taskFor(note);
+  expect(task.assigned_to).toBe(await userId(env.USERS.crew.email));
+  await expect(sup.locator('#bay-assigned .strip').filter({ hasText: 'Main gear tyre worn on 5Y-KQB' })).toBeVisible();
   const mine = crew.locator('#mine .strip').filter({ hasText: 'Main gear tyre worn on 5Y-KQB' });
   await expect(mine).toBeVisible();
 
-  // Juma resolves it (two steps, so it can't happen by accident).
-  await mine.getByRole('button', { name: 'Mark resolved' }).click();
-  await mine.getByRole('button', { name: 'Confirm resolved' }).click();
+  // Ground crew can't resolve, not even the assignee: no button, and the API refuses.
+  await expect(mine.getByRole('button', { name: 'Mark resolved' })).toHaveCount(0);
+  for (const who of ['crew', 'crew2']) {
+    expect((await api(request, who, 'PATCH', `/tasks/${task.task_id}/resolve`)).status).toBe(403);
+  }
+
+  // Amina can't mark Juma's task done either.
+  expect((await api(request, 'crew2', 'PATCH', `/tasks/${task.task_id}/done`)).status).toBe(403);
+
+  // Juma marks it done: it waits for sign-off, and the supervisor is told live.
+  await mine.getByRole('button', { name: 'Mark done' }).click();
+  await expect(mine).toContainText('Done, awaiting sign-off');
+  await expect(mine.getByRole('button', { name: 'Mark done' })).toHaveCount(0);
+  await expect(sup.locator('.toast').filter({ hasText: `${env.USERS.crew.full_name} marked a task done` })).toBeVisible();
+  const signoff = sup.locator('#bay-signoff .strip').filter({ hasText: 'Main gear tyre worn on 5Y-KQB' });
+  await expect(signoff).toBeVisible();
+  await expect(sup.locator('#bay-assigned .strip').filter({ hasText: 'Main gear tyre worn on 5Y-KQB' })).toHaveCount(0);
+
+  // Not finished: the supervisor sends it back, and it's Juma's to do again.
+  await signoff.getByRole('button', { name: 'Send back' }).click();
+  await expect(signoff).toHaveCount(0);
+  await expect(crew.locator('.toast').filter({ hasText: 'A supervisor sent a task back to you' })).toBeVisible();
+  await expect(mine.getByRole('button', { name: 'Mark done' })).toBeVisible();
+
+  // Done again; this time the supervisor signs it off (two steps, so it can't happen by accident).
+  await mine.getByRole('button', { name: 'Mark done' }).click();
+  await signoff.getByRole('button', { name: 'Sign off' }).click();
+  await signoff.getByRole('button', { name: 'Confirm resolved' }).click();
+  await expect(signoff).toHaveCount(0);
+  await expect(crew.locator('.toast').filter({ hasText: 'A supervisor resolved one of your tasks' })).toBeVisible();
   await expect(mine).toHaveCount(0);
   await expect.poll(async () => (await taskFor(note)).status).toBe('resolved');
   await sup.context().close();
@@ -51,13 +79,22 @@ test('a new handover reaches the supervisor live; assigning reaches the crew liv
 test.describe('as supervisor', () => {
   test.use({ storageState: statePath('supervisor') });
 
-  test('a task can be returned to the unassigned list', async ({ page, request }) => {
+  test('with nobody else on the incoming shift the task waits unassigned; a supervisor assigns and unassigns it', async ({ page, request }) => {
+    // Juma (days) hands over a day shift: Amina is the only one on nights.
     const note = tag('Unassign');
-    await api(request, 'crew2', 'POST', '/handovers', { narrative_text: `Brake pads low on 5Y-KQC at stand 9. ${note}` });
-    const task = await taskFor(note);
-    await api(request, 'supervisor', 'PATCH', `/tasks/${task.task_id}/assign`, { assigned_to: await userId(env.USERS.crew.email) });
+    await api(request, 'crew', 'POST', '/handovers', { narrative_text: `Brake pads low on 5Y-KQC at stand 9. ${note}`, shift: 'Day' });
+    expect((await taskFor(note)).assigned_to).toBe(await userId(env.USERS.crew2.email));
+    // Juma hands over a night shift: the day crew is only Juma himself, so nobody gets it.
+    const lone = tag('Lone');
+    await api(request, 'crew', 'POST', '/handovers', { narrative_text: `Cabin light out on 5Y-KQD at stand 2. ${lone}`, shift: 'Night' });
+    expect((await taskFor(lone)).assigned_to).toBeNull();
 
     await page.goto('/triage');
+    const waiting = page.locator('#bay-unassigned .strip').filter({ hasText: 'Cabin light out on 5Y-KQD' });
+    await waiting.locator('select').selectOption(await userId(env.USERS.crew.email));
+    await waiting.getByRole('button', { name: 'Assign' }).click();
+    await expect.poll(async () => (await taskFor(lone)).assigned_to).toBe(await userId(env.USERS.crew.email));
+
     const strip = page.locator('#bay-assigned .strip').filter({ hasText: 'Brake pads low on 5Y-KQC' });
     await strip.locator('select').selectOption('nobody');
     await strip.getByRole('button', { name: 'Unassign' }).click();

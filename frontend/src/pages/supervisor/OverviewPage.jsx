@@ -14,7 +14,7 @@ import { ShiftTrend } from '../../components/charts/ShiftTrend';
 import { useOverviewStats, useRecurringEntities, useReportList } from '../../hooks/useData';
 import { INSIGHT_DAYS, LOW_CONFIDENCE_THRESHOLD, TREND_SHIFTS } from '../../config';
 import { KNOWN_CATEGORIES, categoryMeta } from '../../utils/categories';
-import { byDue, formatAge, formatDateTime, formatPercent, isOverdue, needsOwner, shiftAt } from '../../utils/format';
+import { awaitingSignOff, byDue, formatAge, formatDateTime, formatPercent, isOverdue, needsOwner, shiftAt } from '../../utils/format';
 import { leastLoaded, workload } from '../../utils/insights';
 import { OverviewTiles } from './OverviewTiles';
 
@@ -58,10 +58,11 @@ export function OverviewPage() {
   const pending = allTasks.filter((x) => x.status === 'pending');
   const overdue = pending.filter((x) => isOverdue(x, t));
   const unassigned = pending.filter(needsOwner);
+  const signoff = pending.filter(awaitingSignOff);
   const lowCount = stats?.reports.needs_review ?? 0;
   const shiftCount = stats?.current_shift.reports ?? 0;
 
-  const attention = [...new Set([...overdue, ...unassigned])]
+  const attention = [...new Set([...signoff, ...overdue, ...unassigned])]
     .sort((a, b) => byDue(a, b, t))
     .slice(0, ATTENTION_LIMIT);
 
@@ -83,7 +84,14 @@ export function OverviewPage() {
   const reportsLoading = stats === undefined;
 
   const tiles = [
-    { key: 'open', label: 'Open', value: pending.length, detail: 'Tasks not yet resolved', to: '/triage', linkLabel: 'Open triage' },
+    {
+      key: 'open',
+      label: 'Open',
+      value: pending.length,
+      detail: signoff.length ? `${signoff.length} awaiting your sign-off` : 'Tasks not yet resolved',
+      to: signoff.length ? '/triage?lane=signoff' : '/triage',
+      linkLabel: signoff.length ? 'Sign off' : 'Open triage',
+    },
     {
       key: 'overdue',
       label: 'Overdue',
@@ -134,8 +142,8 @@ export function OverviewPage() {
             {tasksLoading && !tasks.error && <StripSkeleton rows={3} />}
             {tasks.error && !tasks.data && <ErrorState message="Couldn’t load tasks." onRetry={tasks.reload} />}
             {tasks.data && attention.length === 0 && (
-              <EmptyState icon={CheckCircle} title="Nothing overdue or unassigned">
-                Every open task has an owner and is within its due time.
+              <EmptyState icon={CheckCircle} title="Nothing needs attention">
+                Every open task has an owner and is within its due time, and nothing is waiting for sign-off.
               </EmptyState>
             )}
             {attention.length > 0 && (
@@ -147,7 +155,7 @@ export function OverviewPage() {
                     now={now}
                     currentUserId={me.user_id}
                     usersById={usersById}
-                    assign={{ users, suggestion, onAssign: assignTask }}
+                    assign={task.done_at ? undefined : { users, suggestion, onAssign: assignTask }}
                   />
                 ))}
               </StripList>

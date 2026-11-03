@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/useAuth';
 import { PageHeader, Section } from '../components/ui/Layout';
 import { ChangePasswordForm } from '../components/account/ChangePasswordForm';
-import { roleLabel } from '../utils/format';
+import { roleLabel, rosterLabel } from '../utils/format';
 
 /** The signed-in user's own account: details and password (sign-in security settings join this page later). */
 export function AccountPage() {
@@ -76,6 +76,12 @@ export function AccountPage() {
                   <dd className="num">{user.staff_number}</dd>
                 </div>
               )}
+              {user?.role === 'ground_crew' && (
+                <div>
+                  <dt>Shift</dt>
+                  <dd>{rosterLabel(user.shift) ?? 'Not rostered yet'}</dd>
+                </div>
+              )}
               {user?.station && (
                 <div>
                   <dt>Station</dt>
@@ -83,7 +89,7 @@ export function AccountPage() {
                 </div>
               )}
             </dl>
-            <p className="section__hint">Ask a supervisor if your name, email, staff number or station needs to change.</p>
+            <p className="section__hint">Ask a supervisor if your name, email, staff number, station or shift needs to change.</p>
             <button type="button" className="btn btn-secondary account-logout" onClick={logout}>
               <SignOut size={16} aria-hidden="true" />
               Log out

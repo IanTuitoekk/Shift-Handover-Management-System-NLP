@@ -1,7 +1,7 @@
 const pool = require('../config/db');
 
 // Safe to return to clients (never password_hash or the Google id itself).
-const PUBLIC_FIELDS = `user_id, full_name, email, role, is_active, staff_number, station, created_at,
+const PUBLIC_FIELDS = `user_id, full_name, email, role, is_active, staff_number, station, shift, created_at,
   deactivated_at, deactivated_by, deactivation_reason, anonymised_at,
   password_hash IS NOT NULL AS has_password, google_sub IS NOT NULL AS google_linked`;
 
@@ -74,7 +74,7 @@ async function countActiveSupervisors() {
 /** Everyone, active first, for the supervisor's people screen (with who deactivated them). */
 async function listAllUsers() {
   const result = await pool.query(
-    `SELECT u.user_id, u.full_name, u.email, u.role, u.is_active, u.staff_number, u.station, u.created_at,
+    `SELECT u.user_id, u.full_name, u.email, u.role, u.is_active, u.staff_number, u.station, u.shift, u.created_at,
             u.deactivated_at, u.deactivation_reason, u.anonymised_at,
             d.user_id AS deactivated_by_id, d.full_name AS deactivated_by_name
        FROM users u
@@ -88,11 +88,11 @@ async function listAllUsers() {
 }
 
 /**
- * Personal details. Only keys present in `changes` are written (staffNumber/station may be null to
- * clear them).
+ * Personal details. Only keys present in `changes` are written (staffNumber/station/shift may be
+ * null to clear them).
  */
 async function updateUserDetails(userId, changes) {
-  const columns = { fullName: 'full_name', email: 'email', staffNumber: 'staff_number', station: 'station' };
+  const columns = { fullName: 'full_name', email: 'email', staffNumber: 'staff_number', station: 'station', shift: 'shift' };
   const sets = [];
   const params = [userId];
   for (const [key, column] of Object.entries(columns)) {

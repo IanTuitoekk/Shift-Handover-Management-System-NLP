@@ -112,7 +112,7 @@ describe('Filters, stats and smaller API additions', () => {
     expect(s.today.reports_per_hour.reduce((a, b) => a + b, 0)).toBeGreaterThanOrEqual(2);
     expect(s.reports.total).toBeGreaterThanOrEqual(before.reports.total + 2);
     expect(s.categories.find((c) => c.category_name === 'Aircraft Equipment Problem').reports).toBeGreaterThanOrEqual(1);
-    expect(s.tasks).toEqual({ open: expect.any(Number), overdue: expect.any(Number), unassigned: expect.any(Number) });
+    expect(s.tasks).toEqual({ open: expect.any(Number), overdue: expect.any(Number), awaiting_sign_off: expect.any(Number), unassigned: expect.any(Number) });
     expect((await request(app).get('/api/stats/overview').query({ shifts: 0 }).set(auth(sup))).statusCode).toBe(400);
   });
 

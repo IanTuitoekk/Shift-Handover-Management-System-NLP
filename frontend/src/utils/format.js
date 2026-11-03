@@ -109,13 +109,17 @@ export function needsReview(report) {
 }
 
 /** A pending task is overdue once its due time has passed. No due time means never overdue. */
+/** Past its due time. A task marked done isn't overdue: only the supervisor's sign-off is left. */
 export function isOverdue(task, now = Date.now()) {
-  return task.status === 'pending' && Boolean(task.due_at) && new Date(now) > new Date(task.due_at);
+  return task.status === 'pending' && !task.done_at && Boolean(task.due_at) && new Date(now) > new Date(task.due_at);
 }
+
+/** The assignee marked it done; it waits for a supervisor to sign it off or send it back. */
+export const awaitingSignOff = (task) => task.status === 'pending' && Boolean(task.done_at);
 
 /** Due-time state for display: { state: 'overdue' | 'soon' | 'due' | 'none', text }. */
 export function dueInfo(task, now = Date.now()) {
-  if (task.status !== 'pending' || !task.due_at) return { state: 'none', text: 'No due time' };
+  if (task.status !== 'pending' || task.done_at || !task.due_at) return { state: 'none', text: 'No due time' };
   const ms = new Date(task.due_at) - new Date(now);
   if (ms < 0) return { state: 'overdue', text: `Overdue by ${formatAge(task.due_at, now)}` };
   const due = new Date(task.due_at);
@@ -177,6 +181,11 @@ export function taskPerson(task, which, usersById) {
   if (!id) return null;
   const embedded = task[which];
   return embedded?.user_id === id ? embedded : usersById?.get(id) ?? null;
+}
+
+/** 'day' -> 'Day shift', 'night' -> 'Night shift', anything else -> null (not rostered). */
+export function rosterLabel(shift) {
+  return shift === 'day' ? 'Day shift' : shift === 'night' ? 'Night shift' : null;
 }
 
 export function roleLabel(role) {

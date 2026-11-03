@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var { body } = require('express-validator');
-var { listTasks, resolve, assign, setDue } = require('../controllers/taskController');
+var { listTasks, resolve, markDone, sendBack, assign, setDue } = require('../controllers/taskController');
 var { requireAuth, requireRole } = require('../middleware/auth');
 var { validate } = require('../middleware/validate');
 
@@ -13,7 +13,10 @@ const dueValidation = [
 ];
 
 router.get('/', requireAuth, listTasks);
-router.patch('/:taskId/resolve', requireAuth, resolve);
+// The assignee marks their task done; only supervisors sign work off as resolved, or send it back.
+router.patch('/:taskId/done', requireAuth, markDone);
+router.patch('/:taskId/resolve', requireAuth, requireRole('supervisor'), resolve);
+router.patch('/:taskId/send-back', requireAuth, requireRole('supervisor'), sendBack);
 router.patch(
   '/:taskId/assign',
   requireAuth,

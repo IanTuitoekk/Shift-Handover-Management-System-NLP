@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { NotePencil, PaperPlaneTilt, WarningOctagon } from '@phosphor-icons/react';
+import { ArrowCounterClockwise, NotePencil, PaperPlaneTilt, WarningOctagon } from '@phosphor-icons/react';
 import { api } from '../../api/client';
 import { draftStore } from '../../utils/deviceStore';
 import { errorMessage, formatTime, shiftAt } from '../../utils/format';
@@ -36,7 +36,15 @@ export function Composer({ userId, variant = 'hero', onSubmitted, titleId = 'com
   const [resultWarning, setResultWarning] = useState('');
   const [voiceError, setVoiceError] = useState('');
   const [voiceNote, setVoiceNote] = useState('');
+  const [voiceState, setVoiceState] = useState('idle');
+  // The text the last recording added, so "Record again" can swap just that part.
+  const [lastVoice, setLastVoice] = useState(null);
+  const voiceRef = useRef(null);
   const textRef = useRef(null);
+  const latestText = useRef(draft.text);
+  useEffect(() => {
+    latestText.current = draft.text;
+  }, [draft.text]);
   const dirty = useRef(false);
 
   // Persist the draft shortly after typing stops.
@@ -59,14 +67,24 @@ export function Composer({ userId, variant = 'hero', onSubmitted, titleId = 'com
     setDraft((d) => ({ ...d, ...patch }));
   }
 
-  // Adds the transcript after any typed text, then puts the cursor at the end for corrections.
-  function addTranscript({ text, language }) {
+  // Adds the transcript after any typed text (or, for "Record again", in place of the last
+  // recording's text), then puts the cursor at the end for corrections.
+  function addTranscript({ text, language }, context) {
+    const current = latestText.current;
+    const at = context?.replace ? current.lastIndexOf(context.replace) : -1;
+    const next =
+      at >= 0
+        ? current.slice(0, at) + text + current.slice(at + context.replace.length)
+        : current.trim()
+          ? `${current.trimEnd()}\n${text}`
+          : text;
     dirty.current = true;
     setVoiceError('');
     setFieldError('');
-    setDraft((d) => ({ ...d, voice: true, text: d.text.trim() ? `${d.text.trimEnd()}\n${text}` : text }));
+    setLastVoice(text);
+    setDraft((d) => ({ ...d, voice: true, text: next }));
     setVoiceNote(
-      `Added what you said${LANGUAGE_NAMES[language] ? ` (heard as ${LANGUAGE_NAMES[language]})` : ''}. Check it, especially the aircraft registration, and correct anything before submitting.`,
+      `${at >= 0 ? 'Replaced your last recording with' : 'Added'} what you said${LANGUAGE_NAMES[language] ? ` (heard as ${LANGUAGE_NAMES[language]})` : ''}. Check it, especially the aircraft registration, and correct anything before submitting.`,
     );
     requestAnimationFrame(() => {
       const el = textRef.current;
@@ -75,6 +93,9 @@ export function Composer({ userId, variant = 'hero', onSubmitted, titleId = 'com
       el.setSelectionRange(el.value.length, el.value.length);
     });
   }
+
+  // Offered while the last recording's words are still in the text, unedited.
+  const canRecordAgain = Boolean(lastVoice) && draft.text.includes(lastVoice) && voiceState === 'idle' && !submitting;
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -109,6 +130,7 @@ export function Composer({ userId, variant = 'hero', onSubmitted, titleId = 'com
       dirty.current = false;
       setDraft((d) => ({ ...d, text: '', voice: false, savedAt: null }));
       setVoiceNote('');
+      setLastVoice(null);
       setResult(detail);
       onSubmitted?.(detail);
     } catch (err) {
@@ -160,6 +182,20 @@ export function Composer({ userId, variant = 'hero', onSubmitted, titleId = 'com
               Write or speak in English, Swahili or a mix. The language is detected automatically.
             </p>
             {voiceNote && !voiceError && <p className="field-hint composer__voice-note">{voiceNote}</p>}
+            {canRecordAgain && (
+              <button
+                type="button"
+                className="btn btn-secondary composer__redo"
+                onClick={() => voiceRef.current?.start({ replace: lastVoice })}
+                aria-describedby={`${titleId}-redo-hint`}
+              >
+                <ArrowCounterClockwise size={16} aria-hidden="true" />
+                Record again
+                <span id={`${titleId}-redo-hint`} className="visually-hidden">
+                  Replaces only the text from your last recording
+                </span>
+              </button>
+            )}
             {voiceError && (
               <p className="field-error" role="alert">
                 {voiceError}
@@ -171,7 +207,14 @@ export function Composer({ userId, variant = 'hero', onSubmitted, titleId = 'com
               </p>
             )}
           </div>
-          <VoiceInput id={`${titleId}-mic`} onTranscript={addTranscript} onError={setVoiceError} disabled={submitting} />
+          <VoiceInput
+            ref={voiceRef}
+            id={`${titleId}-mic`}
+            onTranscript={addTranscript}
+            onError={setVoiceError}
+            onStateChange={setVoiceState}
+            disabled={submitting}
+          />
         </div>
 
         <CompletenessHints text={draft.text} />

@@ -1,4 +1,4 @@
-const { getAllTasks, getTaskById, resolveTask, assignTask, setTaskDue } = require('../models/taskRegisterModel');
+const { getAllTasks, getTaskById, resolveTask, markTaskDone, sendBackTask, assignTask, setTaskDue } = require('../models/taskRegisterModel');
 const { getUserById } = require('../models/userModel');
 const realtime = require('../realtime');
 const { SHIFTS } = require('../config/shifts');
@@ -25,13 +25,71 @@ const resolve = async (req, res) => {
     if (!existing) {
       return res.status(404).json({ error: 'Task not found' });
     }
+    if (existing.status === 'resolved') {
+      return res.status(409).json({ error: 'This task has already been resolved' });
+    }
     const task = await resolveTask(taskId, req.user.userId);
+    if (!task) {
+      return res.status(409).json({ error: 'This task has already been resolved' });
+    }
     res.json(task);
     // Everyone can list tasks, so everyone's open lists update.
     realtime.toAll('task:resolved', { task, by: req.user.userId });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to resolve task' });
+  }
+};
+
+// The assignee marks their task done; it waits for a supervisor's sign-off.
+const markDone = async (req, res) => {
+  const { taskId } = req.params;
+  try {
+    const existing = await getTaskById(taskId);
+    if (!existing) {
+      return res.status(404).json({ error: 'Task not found' });
+    }
+    if (existing.status === 'resolved') {
+      return res.status(409).json({ error: 'This task has already been resolved' });
+    }
+    if (existing.assigned_to !== req.user.userId) {
+      return res.status(403).json({ error: 'Only the person this task is assigned to can mark it done' });
+    }
+    if (existing.done_at) {
+      return res.status(409).json({ error: 'This task is already waiting for sign-off' });
+    }
+    const task = await markTaskDone(taskId, req.user.userId);
+    if (!task) {
+      return res.status(409).json({ error: 'This task changed meanwhile. Reload and try again.' });
+    }
+    res.json(task);
+    realtime.toAll('task:done', { task, by: req.user.userId });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to mark task done' });
+  }
+};
+
+// Supervisor-only. A task marked done that isn't finished goes back to its assignee.
+const sendBack = async (req, res) => {
+  const { taskId } = req.params;
+  try {
+    const existing = await getTaskById(taskId);
+    if (!existing) {
+      return res.status(404).json({ error: 'Task not found' });
+    }
+    if (existing.status === 'resolved') {
+      return res.status(409).json({ error: 'This task has already been resolved' });
+    }
+    const task = await sendBackTask(taskId);
+    if (!task) {
+      return res.status(409).json({ error: 'This task is not waiting for sign-off' });
+    }
+    res.json(task);
+    realtime.toAll('task:sent-back', { task, by: req.user.userId });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to send task back' });
   }
 };
 
@@ -82,4 +140,4 @@ const setDue = async (req, res) => {
   }
 };
 
-module.exports = { listTasks, resolve, assign, setDue };
+module.exports = { listTasks, resolve, markDone, sendBack, assign, setDue };

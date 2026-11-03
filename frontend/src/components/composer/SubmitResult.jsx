@@ -4,13 +4,14 @@ import { ArrowRight, CheckCircle, WarningOctagon, X } from '@phosphor-icons/reac
 import { CategoryBadge } from '../ui/Badges';
 import { ConfidenceMeter } from '../ui/ConfidenceMeter';
 import { EntityGroups } from '../report/EntityGroups';
-import { formatPercent, formatTime, needsReview, parseConfidence } from '../../utils/format';
+import { formatPercent, formatTime, needsReview, parseConfidence, personName } from '../../utils/format';
 
 /** What the model made of the handover just submitted. `report` is the full report detail. */
 export function SubmitResult({ report, onDismiss }) {
   const ref = useRef(null);
   const low = needsReview(report);
   const confidence = parseConfidence(report);
+  const incoming = report.shift === 'night' ? 'day' : 'night'; // the shift after the one handing over
 
   // Move focus to the result so screen reader and keyboard users land on it.
   useEffect(() => {
@@ -53,7 +54,11 @@ export function SubmitResult({ report, onDismiss }) {
       <EntityGroups entities={report.entities} />
 
       <div className="result__foot">
-        <span className="field-hint">A task and an alert were raised for the next crew.</span>
+        <span className="field-hint">
+          {report.task?.assignee
+            ? `A task was raised and assigned to ${personName(report.task.assignee)} on the incoming ${incoming} shift, and the crew was alerted.`
+            : `A task and an alert were raised. Nobody is rostered on the incoming ${incoming} shift yet, so a supervisor will assign it.`}
+        </span>
         <Link to={`/reports/${report.report_id}`} className="btn btn-ghost">
           Open full report
           <ArrowRight size={16} aria-hidden="true" />

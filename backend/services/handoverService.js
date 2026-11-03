@@ -3,9 +3,10 @@ const { createSubmission, updateProcessingStatus } = require('../models/handover
 const { createReport } = require('../models/handoverReportModel');
 const { createEntities } = require('../models/reportEntityModel');
 const { getCategoryByName } = require('../models/incidentCategoryModel');
-const { createTask } = require('../models/taskRegisterModel');
+const { createTask, pickAssignee, getTaskByReportId } = require('../models/taskRegisterModel');
 const { createNotification } = require('../models/notificationModel');
 const { detectLanguage } = require('../utils/languageDetect');
+const { SHIFTS, shiftAt, nextShift } = require('../config/shifts');
 
 const INFERENCE_URL = process.env.INFERENCE_SERVICE_URL;
 
@@ -39,12 +40,18 @@ async function processHandover({ userId, inputType, content, languageVariant, sh
       }))
     );
 
-    const task = await createTask({
+    // The task goes straight to the least busy crew member on the incoming shift (the one after the
+    // shift handing over); supervisors can reassign it.
+    const handingOver = SHIFTS.includes(String(shift).toLowerCase()) ? String(shift).toLowerCase() : shiftAt().key;
+    await createTask({
       reportId: report.report_id,
+      assignedTo: await pickAssignee({ shift: nextShift(handingOver), excludeUserId: userId }),
       description: `New ${inferenceResult.incident_category} incident reported: ${
         inferenceResult.summary || content.slice(0, 200)
       }`,
     });
+
+    const task = await getTaskByReportId(report.report_id); // with the assignee's name
 
     const notification = await createNotification({
       reportId: report.report_id,

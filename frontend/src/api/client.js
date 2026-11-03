@@ -89,6 +89,8 @@ export const api = {
 
   listTasks: (status) => client.get('/tasks', { params: status ? { status } : {} }).then((r) => r.data),
   resolveTask: (taskId) => client.patch(`/tasks/${taskId}/resolve`).then((r) => r.data),
+  markTaskDone: (taskId) => client.patch(`/tasks/${taskId}/done`).then((r) => r.data),
+  sendBackTask: (taskId) => client.patch(`/tasks/${taskId}/send-back`).then((r) => r.data),
   assignTask: (taskId, assignedTo) =>
     client.patch(`/tasks/${taskId}/assign`, { assigned_to: assignedTo }).then((r) => r.data),
 

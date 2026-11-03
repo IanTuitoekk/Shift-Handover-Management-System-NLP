@@ -1,4 +1,4 @@
-import { ArrowsClockwise, CalendarBlank, CheckCircle, CircleDashed, Clock, PencilSimpleLine, SealCheck, UserCircle, WarningOctagon } from '@phosphor-icons/react';
+import { ArrowsClockwise, CalendarBlank, CheckCircle, CircleDashed, Clock, HourglassMedium, PencilSimpleLine, SealCheck, UserCircle, WarningOctagon } from '@phosphor-icons/react';
 import { categoryMeta } from '../../utils/categories';
 import { dueInfo, formatDateTime, isOverdue, personName, roleLabel, taskPerson } from '../../utils/format';
 
@@ -26,7 +26,7 @@ export function ReviewedBadge({ report }) {
   );
 }
 
-/** Task status: overdue (critical), pending, resolved. */
+/** Task status: overdue (critical), pending, awaiting sign-off, resolved. */
 export function TaskStatusBadge({ task, now }) {
   if (task.status === 'resolved') {
     return (
@@ -36,6 +36,7 @@ export function TaskStatusBadge({ task, now }) {
       </span>
     );
   }
+  if (task.done_at) return <SignOffBadge task={task} />;
   if (isOverdue(task, now)) {
     return (
       <span className="badge badge--critical">
@@ -88,6 +89,16 @@ export function AssigneeBadge({ task, currentUserId, usersById }) {
     <span className="badge">
       <UserCircle size={14} aria-hidden="true" />
       {name ?? 'Assigned to a colleague'}
+    </span>
+  );
+}
+
+/** The assignee marked the task done; a supervisor still has to sign it off. */
+export function SignOffBadge({ task }) {
+  return (
+    <span className="badge badge--ok" title={task.done_at ? `Marked done ${formatDateTime(task.done_at)}` : undefined}>
+      <HourglassMedium size={14} aria-hidden="true" />
+      Done, awaiting sign-off
     </span>
   );
 }

@@ -25,7 +25,7 @@ async function changeRole(userId, role) {
   return userModel.updateUserRole(userId, role);
 }
 
-/** Personal details of ground crew: full name, email, staff number, station. */
+/** Personal details of ground crew: full name, email, staff number, station, shift. */
 async function updateDetails(userId, changes) {
   const target = await userModel.getUserById(userId);
   if (!target) return null;
