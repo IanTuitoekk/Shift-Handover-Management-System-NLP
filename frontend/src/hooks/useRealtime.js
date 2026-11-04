@@ -45,5 +45,7 @@ export function useRealtime(token, handlers) {
 
 /** Lets pages that hold their own report lists know a new report exists. */
 export const REPORTS_CHANGED = 'kq:reports-changed';
+/** Fired on window when a supervisor changed a shift plan. */
+export const SHIFT_PLANS_CHANGED = 'kq:shift-plans-changed';
 /** Fired on window when the server says the user directory changed (supervisors only). */
 export const USERS_CHANGED = 'kq:users-changed';

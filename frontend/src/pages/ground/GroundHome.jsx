@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { ArrowRight, BellSimpleSlash, CheckCircle, Sun } from '@phosphor-icons/react';
+import { ArrowRight, ArrowsLeftRight, BellSimpleSlash, CheckCircle, Sun } from '@phosphor-icons/react';
+import { api } from '../../api/client';
+import { useResource } from '../../hooks/useResource';
+import { SHIFT_PLANS_CHANGED } from '../../hooks/useRealtime';
 import { useShell } from '../../components/shell/ShellContext';
 import { Composer } from '../../components/composer/Composer';
 import { ShiftRail } from '../../components/ui/ShiftRail';
@@ -11,7 +14,7 @@ import { StripList, StripSkeleton } from '../../components/ui/Strip';
 import { TaskStrip } from '../../components/tasks/TaskStrip';
 import { AlertStrips } from '../../components/NotificationsDrawer';
 import { useMyReports } from '../../hooks/useData';
-import { firstName, formatAge, formatTime, inShift, byDue, isOverdue, previousShift, shiftAt } from '../../utils/format';
+import { firstName, formatAge, formatTime, inShift, byDue, isOverdue, previousShift, shiftAt, shiftTitle, formatWeekdayDay } from '../../utils/format';
 import { myShiftEvents } from './events';
 
 const BRIEFING_LIMIT = 4;
@@ -68,7 +71,7 @@ export function GroundHome() {
     .filter((n) => inShift(n.sent_at, prev))
     .sort((a, b) => Number(a.is_read) - Number(b.is_read) || new Date(b.sent_at) - new Date(a.sent_at));
   const unreadPrevious = fromPrevious.filter((n) => !n.is_read);
-  const olderUnread = allAlerts.filter((n) => !n.is_read && new Date(n.sent_at) < prev.start).length;
+  const olderUnread = allAlerts.filter((n) => !n.is_read && (!prev || new Date(n.sent_at) < prev.start)).length;
 
   const events = myShiftEvents({ myReports: myReports.data?.reports, tasks: tasks.data ?? [], me });
   const tasksLoading = tasks.data === undefined && !tasks.error;
@@ -82,12 +85,16 @@ export function GroundHome() {
     <>
       <PhotoBanner
         photo={PHOTOS.groundHome}
-        title={`${shift.name} shift`}
+        title={shift ? shiftTitle(shift.name) : 'No shift'}
         sub={
-          <>
-            Started <span className="num">{formatTime(shift.start)}</span>, <span className="num">{formatAge(shift.start, now)}</span> in.
-            Hello {firstName(me.full_name)}.
-          </>
+          shift ? (
+            <>
+              Started <span className="num">{formatTime(shift.start)}</span>, <span className="num">{formatAge(shift.start, now)}</span> in.
+              Hello {firstName(me.full_name)}.
+            </>
+          ) : (
+            <>No shift is running now. Hello {firstName(me.full_name)}.</>
+          )
         }
       />
       <ShiftRail
@@ -108,6 +115,8 @@ export function GroundHome() {
 
         <div className="briefing" aria-label="Your briefing">
           <h2 className="briefing__title">Your briefing</h2>
+
+          <HandoverPartners />
 
           <Section
             id="brief-mine"
@@ -150,7 +159,7 @@ export function GroundHome() {
 
           <Section
             id="brief-previous"
-            title={`From the ${prev.name.toLowerCase()} shift`}
+            title={prev ? `From the ${shiftTitle(prev.name)}` : 'From the previous shift'}
             count={notifications.data ? unreadPrevious.length : undefined}
             headingLevel={3}
             action={
@@ -164,7 +173,7 @@ export function GroundHome() {
             {notifications.data === undefined && !notifications.error && <StripSkeleton rows={2} />}
             {notifications.error && !notifications.data && <ErrorState message="Couldn’t load handovers to read." onRetry={notifications.reload} />}
             {notifications.data && fromPrevious.length === 0 && (
-              <EmptyState icon={prev.name === 'Day' ? Sun : BellSimpleSlash} title={`No handovers from the ${prev.name.toLowerCase()} shift`}>
+              <EmptyState icon={prev && prev.start.getHours() >= 5 && prev.start.getHours() < 17 ? Sun : BellSimpleSlash} title={prev ? `No handovers from the ${shiftTitle(prev.name)}` : 'No handovers from a previous shift'}>
                 {olderUnread > 0 ? `You have ${olderUnread} older unread alert${olderUnread === 1 ? '' : 's'}.` : 'You’re up to date.'}
               </EmptyState>
             )}
@@ -180,5 +189,37 @@ export function GroundHome() {
         </div>
       </div>
     </>
+  );
+}
+
+/** From the supervisor's shift plans: who this person takes over from, and who takes over from them. */
+function HandoverPartners() {
+  const { data, reload } = useResource('shift-plans:me', () => api.myShiftPlans());
+  useEffect(() => {
+    window.addEventListener(SHIFT_PLANS_CHANGED, reload);
+    return () => window.removeEventListener(SHIFT_PLANS_CHANGED, reload);
+  }, [reload]);
+  const lines = (data ?? []).flatMap((s) => {
+    const when = `${s.current ? 'this' : 'the'} ${shiftTitle(s.name)} (${formatWeekdayDay(s.start)})`;
+    const out = [];
+    if (s.on_shift) out.push(s.takes_over_from ? `On ${when}, you take over from ${s.takes_over_from.full_name}.` : `You’re planned on ${when}.`);
+    if (s.taken_over_by.length) {
+      const names = s.taken_over_by.map((p) => p.full_name).join(' and ');
+      out.push(`${names} ${s.taken_over_by.length === 1 ? 'takes' : 'take'} over from you on ${when}, so your handover tasks go to ${s.taken_over_by.length === 1 ? 'them' : 'one of them'}.`);
+    }
+    return out.map((text) => ({ key: `${s.date}:${s.key}:${text}`, text }));
+  });
+  if (!lines.length) return null;
+  return (
+    <Section id="brief-partners" title="Your handover" headingLevel={3}>
+      <div className="partners">
+        {lines.map((l) => (
+          <p key={l.key} className="notice">
+            <ArrowsLeftRight size={18} aria-hidden="true" />
+            <span>{l.text}</span>
+          </p>
+        ))}
+      </div>
+    </Section>
   );
 }

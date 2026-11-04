@@ -6,7 +6,7 @@ import { PageHeader, Section, EmptyState, ErrorState } from '../../components/ui
 import { StripList } from '../../components/ui/Strip';
 import { TaskStrip } from '../../components/tasks/TaskStrip';
 import { BarList } from '../../components/charts/BarList';
-import { byDue, needsOwner, roleLabel, shiftAt } from '../../utils/format';
+import { byDue, needsOwner, operationalDay, roleLabel, shiftAt } from '../../utils/format';
 import { leastLoaded, workload } from '../../utils/insights';
 import { useWorkload } from '../../hooks/useData';
 import { PeoplePanel } from '../../components/people/PeoplePanel';
@@ -15,12 +15,13 @@ export function TeamPage() {
   const { me, now, tasks, users, usersById, assignTask } = useShell();
   const t = now.getTime();
   const shift = shiftAt(now);
+  const since = shift?.start ?? operationalDay(now).start; // between shifts: since the operational day began
   const all = tasks.data ?? [];
   const rows = users?.data ? workload(users.data, all, t) : [];
   const suggestion = users?.data ? leastLoaded(users.data, all) : null;
   const unassigned = all.filter(needsOwner);
   // Handovers and resolved tasks this shift come from the server; open/overdue from the live task list.
-  const perPerson = useWorkload(shift.start.toISOString());
+  const perPerson = useWorkload(since.toISOString());
   const { reload: reloadWorkload } = perPerson;
   const resolvedCount = all.filter((x) => x.status === 'resolved').length;
   useEffect(() => reloadWorkload(), [resolvedCount, reloadWorkload]);

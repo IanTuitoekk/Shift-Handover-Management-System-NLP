@@ -20,7 +20,7 @@ test('a typed day-shift handover is analysed and its task goes to the incoming n
   await expect(result).toContainText('Hydraulic pump leak on 5Y-KZD at stand 7.');
   await expect(page.getByLabel('What does the next crew need to know?')).toHaveValue(''); // draft cleared
   // Amina is the only one rostered on nights.
-  await expect(result).toContainText(`assigned to ${env.USERS.crew2.full_name} on the incoming night shift`);
+  await expect(result).toContainText(`assigned to ${env.USERS.crew2.full_name} on the Night shift`);
 
   // The task shows up for everyone straight away; the writer can see it but not resolve it.
   await page.getByRole('link', { name: /My tasks/ }).click();

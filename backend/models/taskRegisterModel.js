@@ -1,15 +1,15 @@
 const pool = require('../config/db');
-const { shiftExpression } = require('../config/shifts');
 
 // New tasks are due DEFAULT_TASK_DUE_HOURS after they are raised unless a due time is given.
 const DEFAULT_TASK_DUE_HOURS = Number(process.env.DEFAULT_TASK_DUE_HOURS) || 12;
 
-async function createTask({ reportId, description, assignedTo, dueAt }) {
+// `assignedByRule` records how an automatic assignment was made (see services/assignmentService.js).
+async function createTask({ reportId, description, assignedTo, dueAt, assignedByRule = null }) {
   const result = await pool.query(
-    `INSERT INTO task_register (report_id, description, assigned_to, due_at)
-     VALUES ($1, $2, $3, COALESCE($4::timestamptz, now() + make_interval(hours => $5::int)))
+    `INSERT INTO task_register (report_id, description, assigned_to, due_at, assigned_by_rule)
+     VALUES ($1, $2, $3, COALESCE($4::timestamptz, now() + make_interval(hours => $5::int)), $6)
      RETURNING *`,
-    [reportId, description, assignedTo || null, dueAt || null, DEFAULT_TASK_DUE_HOURS]
+    [reportId, description, assignedTo || null, dueAt || null, DEFAULT_TASK_DUE_HOURS, assignedTo ? assignedByRule : null]
   );
   return result.rows[0];
 }
@@ -25,28 +25,28 @@ const REPORT_CONTEXT = `json_build_object(
   'category_name', c.category_name, 'summary', r.summary, 'category_confidence', r.category_confidence::text) AS report`;
 
 /**
- * Tasks newest first, each with the `shift` ('day' | 'night') of the handover that raised it,
+ * Tasks newest first, each with the `shift_id` / `shift_name` of the handover that raised it,
  * `report` ({ category_name, summary, category_confidence }) and
  * `assignee` / `resolver` ({ user_id, full_name, is_active, anonymised } or null).
- * Optional filters: `status` and `shift`.
+ * Optional filters: `status`, and `shift` (a shift id, or 'none').
  */
 /**
- * Who a new task goes to: the active ground crew member rostered on `shift` ('day' | 'night') with
+ * Who a new task goes to: the active ground crew member rostered on shift `shiftId` with
  * the fewest open tasks, never `excludeUserId` (the person who wrote the handover). Ties go to
  * whoever was last given a task longest ago, so equal crews take turns. Returns a user id, or null
  * if nobody is rostered on that shift.
  */
-async function pickAssignee({ shift, excludeUserId = null }) {
+async function pickAssignee({ shiftId, excludeUserId = null }) {
   const result = await pool.query(
     `SELECT u.user_id
      FROM users u
      LEFT JOIN task_register t ON t.assigned_to = u.user_id
-     WHERE u.role = 'ground_crew' AND u.is_active AND u.anonymised_at IS NULL AND u.shift = $2
+     WHERE u.role = 'ground_crew' AND u.is_active AND u.anonymised_at IS NULL AND u.shift_id = $2
        AND ($1::uuid IS NULL OR u.user_id <> $1)
      GROUP BY u.user_id
      ORDER BY COUNT(t.task_id) FILTER (WHERE t.status = 'pending'), MAX(t.created_at) NULLS FIRST, u.user_id
      LIMIT 1`,
-    [excludeUserId, shift]
+    [excludeUserId, shiftId]
   );
   return result.rows[0]?.user_id ?? null;
 }
@@ -58,12 +58,13 @@ async function getAllTasks(status, shift) {
     params.push(status);
     conditions.push(`t.status = $${params.length}`);
   }
-  if (shift) {
+  if (shift === 'none') conditions.push('s.shift_id IS NULL');
+  else if (shift) {
     params.push(shift);
-    conditions.push(`${shiftExpression('s')} = $${params.length}`);
+    conditions.push(`s.shift_id = $${params.length}`);
   }
   const result = await pool.query(
-    `SELECT t.*, ${shiftExpression('s')} AS shift, ${person('ua')} AS assignee, ${person('ur')} AS resolver, ${REPORT_CONTEXT}
+    `SELECT t.*, s.shift_id, s.shift_name, ${person('ua')} AS assignee, ${person('ur')} AS resolver, ${REPORT_CONTEXT}
      FROM task_register t
      LEFT JOIN handover_reports r ON t.report_id = r.report_id
      LEFT JOIN incident_categories c ON r.category_id = c.category_id
@@ -136,7 +137,7 @@ async function sendBackTask(taskId) {
 // A new owner starts afresh, so "done" from the previous assignee is cleared.
 async function assignTask(taskId, assignedTo) {
   const result = await pool.query(
-    `UPDATE task_register SET assigned_to = $1, needs_reassignment = false, updated_at = now(),
+    `UPDATE task_register SET assigned_to = $1, needs_reassignment = false, updated_at = now(), assigned_by_rule = NULL,
        done_at = CASE WHEN assigned_to IS DISTINCT FROM $1 THEN NULL ELSE done_at END,
        done_by = CASE WHEN assigned_to IS DISTINCT FROM $1 THEN NULL ELSE done_by END
      WHERE task_id = $2 RETURNING *`,

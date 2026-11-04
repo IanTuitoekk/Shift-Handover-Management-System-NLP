@@ -1,5 +1,6 @@
 import {
   Bell,
+  CalendarCheck,
   ClipboardText,
   House,
   Kanban,
@@ -30,6 +31,7 @@ export const ROLE_CONFIG = {
       { to: '/', label: 'Overview', icon: SquaresFour, end: true },
       { to: '/triage', label: 'Triage', icon: Kanban, badge: 'needsAction' },
       { to: '/reports', label: 'Reports', icon: ClipboardText },
+      { to: '/shifts', label: 'Shifts', icon: CalendarCheck },
       { to: '/team', label: 'Team', icon: UsersThree },
     ],
   },

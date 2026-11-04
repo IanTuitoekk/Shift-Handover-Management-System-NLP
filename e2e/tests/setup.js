@@ -13,8 +13,10 @@ setup('create accounts and sign in', async ({ request }) => {
   // Sign-up always makes ground crew; promote the supervisor directly (like `npm run set-role`).
   await db.query(`UPDATE users SET role = 'supervisor' WHERE email = $1`, [env.USERS.supervisor.email]);
   // Roster the crew (like Team → Manage): Juma on days, Amina on nights.
-  await db.query(`UPDATE users SET shift = 'day' WHERE email = $1`, [env.USERS.crew.email]);
-  await db.query(`UPDATE users SET shift = 'night' WHERE email = $1`, [env.USERS.crew2.email]);
+  const roster = (email, shift) =>
+    db.query(`UPDATE users SET shift_id = (SELECT shift_id FROM shifts WHERE name = $2 AND is_active) WHERE email = $1`, [email, shift]);
+  await roster(env.USERS.crew.email, 'Day');
+  await roster(env.USERS.crew2.email, 'Night');
 
   for (const role of Object.keys(env.USERS)) {
     const res = await request.post(`${env.API_URL}/auth/login`, { data: { email: env.USERS[role].email, password: env.PASSWORD } });

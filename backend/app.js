@@ -12,6 +12,9 @@ var userRouter = require('./routes/users');
 var statsRouter = require('./routes/stats');
 var insightsRouter = require('./routes/insights');
 var configRouter = require('./routes/config');
+var shiftPlanRouter = require('./routes/shiftPlans');
+var shiftRouter = require('./routes/shifts');
+var { shiftsReady } = require('./config/shifts');
 var helmet = require('helmet');
 
 
@@ -33,6 +36,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(helmet());
 
+// Every endpoint can depend on the shifts, so load them before the first request is handled.
+app.use('/api', (req, res, next) => shiftsReady().then(() => next(), next));
+
 app.use('/', indexRouter);
 app.use('/api/handovers', handoverRouter);
 app.use('/api/auth', authRouter);
@@ -42,6 +48,8 @@ app.use('/api/users', userRouter);
 app.use('/api/stats', statsRouter);
 app.use('/api/insights', insightsRouter);
 app.use('/api/config', configRouter);
+app.use('/api/shift-plans', shiftPlanRouter);
+app.use('/api/shifts', shiftRouter);
 
 // 404 handler
 app.use(function (req, res) {

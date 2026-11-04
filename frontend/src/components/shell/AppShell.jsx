@@ -3,11 +3,12 @@ import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { ArrowUUpLeft, Bell, CheckCircle, ClipboardText, HourglassMedium, Moon, NotePencil, Plus, SignOut, Sun, UserCircle, UserCirclePlus } from '@phosphor-icons/react';
 import { api, tokenStore } from '../../api/client';
 import { useAuth } from '../../auth/useAuth';
-import { LIVE_REFRESH_MS, REFRESH_MS, setShiftHours } from '../../config';
+import { LIVE_REFRESH_MS, REFRESH_MS } from '../../config';
+import { setShiftClock } from '../../utils/shiftClock';
 import { useNow } from '../../hooks/useData';
 import { useInterval, useRefetchOnFocus, useResource } from '../../hooks/useResource';
 import { useTheme } from '../../hooks/useTheme';
-import { REPORTS_CHANGED, USERS_CHANGED, useRealtime } from '../../hooks/useRealtime';
+import { REPORTS_CHANGED, SHIFT_PLANS_CHANGED, USERS_CHANGED, useRealtime } from '../../hooks/useRealtime';
 import { roleConfig } from '../../roles';
 import { awaitingSignOff, isOverdue, needsOwner, personName, taskSummary } from '../../utils/format';
 import { categoryMeta } from '../../utils/categories';
@@ -36,17 +37,19 @@ export function AppShell() {
   const notifications = useResource('notifications', api.listNotifications);
   // GET /api/users is supervisor-only; ground crew never request it.
   const users = useResource(supervisor ? 'users' : null, api.listUsers);
-  // Shift times come from the server so every screen agrees with the backend's counts. Until they
-  // arrive (or if the request fails) the defaults in config.js apply; the shell re-renders once set.
+  // Shifts and their windows come from the server, which alone decides which shift a moment belongs
+  // to. Until they arrive every screen shows "No shift"; the shell re-renders once they are set.
   const shiftConfig = useResource('config:shifts', api.shiftConfig);
-  if (shiftConfig.data) setShiftHours(shiftConfig.data);
+  setShiftClock(shiftConfig.data);
+  const { reload: reloadShiftConfig } = shiftConfig;
 
   const { reload: reloadTasks, mutate: mutateTasks } = tasks;
   const { reload: reloadNotifications, mutate: mutateNotifications } = notifications;
   const refreshAll = useCallback(() => {
     reloadTasks();
     reloadNotifications();
-  }, [reloadTasks, reloadNotifications]);
+    reloadShiftConfig(); // keeps the shift windows around now up to date
+  }, [reloadTasks, reloadNotifications, reloadShiftConfig]);
   useRefetchOnFocus(refreshAll);
 
   // Real-time push. Our own actions are already applied locally, so their echoes are skipped.
@@ -66,7 +69,7 @@ export function AppShell() {
     'handover:created': ({ report, task, notification, submittedBy }) => {
       if (task) {
         const context = report && { category_name: report.category_name, summary: report.summary, category_confidence: report.category_confidence };
-        upsertTask({ shift: report?.shift, report: context, ...task });
+        upsertTask({ shift_id: report?.shift_id, shift_name: report?.shift_name, report: context, ...task });
       }
       if (notification) {
         mutateNotifications((list = []) =>
@@ -108,6 +111,13 @@ export function AppShell() {
         });
       }
     },
+    // A supervisor added, edited or deactivated a shift: new windows everywhere.
+    'shifts:changed': () => {
+      reloadShiftConfig();
+      window.dispatchEvent(new CustomEvent(SHIFT_PLANS_CHANGED));
+    },
+    // Who works which shift changed: the Shifts page and crew home pages refresh.
+    'shift-plans:changed': () => window.dispatchEvent(new CustomEvent(SHIFT_PLANS_CHANGED)),
     // A supervisor corrected a report: report lists, stats and that report's page refresh.
     'report:reviewed': () => window.dispatchEvent(new CustomEvent(REPORTS_CHANGED)),
     'task:updated': ({ task, by }) => {
@@ -164,7 +174,10 @@ export function AppShell() {
     'tasks:reassignment-needed': () => tasks.reload(),
     // This person reset their password elsewhere, or a supervisor deactivated or removed them.
     'session:ended': ({ reason } = {}) => signOut(reason),
-    reconnected: refreshAll,
+    reconnected: () => {
+      refreshAll();
+      window.dispatchEvent(new CustomEvent(SHIFT_PLANS_CHANGED));
+    },
   });
   // With a live connection, polling is only a safety net; without one it keeps screens fresh.
   useInterval(refreshAll, live ? REFRESH_MS : LIVE_REFRESH_MS);

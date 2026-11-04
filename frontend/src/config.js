@@ -11,13 +11,8 @@ export const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? '';
 export const LOW_CONFIDENCE_THRESHOLD = 0.6;
 
 
-// Shift boundaries in local time (24h clock): day shift runs from `day` until `night`; night
-// shift covers the rest. These are defaults; the app replaces them with the server's
-// GET /api/config/shifts at start-up (setShiftHours), so frontend and backend always agree.
-export const SHIFT_HOURS = { day: 6, night: 18 };
-export function setShiftHours({ day_start_hour: day, night_start_hour: night }) {
-  if (Number.isInteger(day) && Number.isInteger(night) && day < night) Object.assign(SHIFT_HOURS, { day, night });
-}
+// Shifts are set up by supervisors. The app never works shift times out itself: it uses the
+// shift windows the server sends (GET /api/config/shifts), held in utils/shiftClock.js.
 
 // Recurring aircraft and components on the overview look back this many days.
 export const INSIGHT_DAYS = 30;

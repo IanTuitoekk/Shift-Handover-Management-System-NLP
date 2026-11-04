@@ -283,10 +283,9 @@ working around missing data, with the endpoint or field that would remove the wo
    to 500) or `before`; "Mark all as read" is one request.
 10. ~~**Unassign.**~~ **Done (14 Oct).** `{ "assigned_to": null }`; the assign control offers
     "Nobody (unassign)".
-11. ~~**Shift definitions.**~~ **Done (14 Oct).** `GET /api/config/shifts` (from `DAY_SHIFT_START`,
-    `NIGHT_SHIFT_START`, `SHIFT_TIMEZONE` in the backend `.env`); the app loads it at start-up
-    (`setShiftHours`). The browser still uses its own clock's time zone for shift windows, which
-    matches the server for crews in Kenya.
+11. ~~**Shift definitions.**~~ **Done (14 Oct); replaced (4 Nov).** Supervisors manage named shifts
+    (Shifts page, `/api/shifts`). The app takes every shift window from `GET /api/config/shifts`
+    (`utils/shiftClock.js`) and never works shift times out itself.
 
 ## Voice input
 

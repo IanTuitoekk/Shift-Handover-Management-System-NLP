@@ -11,7 +11,7 @@ CREATE TABLE users (
     password_changed_at  TIMESTAMPTZ,
     staff_number   VARCHAR(50),
     station        VARCHAR(100),
-    shift          VARCHAR(10) CHECK (shift IN ('day', 'night')),  -- rostered shift; NULL = not rostered
+    shift          VARCHAR(10) CHECK (shift IN ('day', 'night')),  -- no longer used: see users.shift_id (migrations)
     deactivated_at       TIMESTAMPTZ,
     deactivated_by       UUID REFERENCES users(user_id) ON DELETE SET NULL,
     deactivation_reason  TEXT,
@@ -86,6 +86,9 @@ CREATE TABLE task_register (
     done_at      TIMESTAMPTZ,  -- assignee marked it done; awaiting a supervisor's sign-off
     done_by      UUID REFERENCES users(user_id) ON DELETE SET NULL
 );
+
+-- Shifts, shift plans and each handover's shift: see migrations/2026-11-04-shifts.sql (applied on
+-- every setup, including a fresh one).
 
 -- NotificationService
 CREATE TABLE notifications (

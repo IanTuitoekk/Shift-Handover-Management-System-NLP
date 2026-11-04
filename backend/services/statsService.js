@@ -1,9 +1,9 @@
 const pool = require('../config/db');
-const { shiftAt, recentShifts, operationalDay } = require('../config/shifts');
+const { shiftAt, recentShifts, operationalDay, shiftsReady } = require('../config/shifts');
 const { NEEDS_REVIEW } = require('../models/handoverReportModel');
 
 const HOUR = 3600 * 1000;
-const window = (s) => ({ key: s.key, name: s.name, start: s.start.toISOString(), end: s.end.toISOString() });
+const window = (s) => ({ shift_id: s.shift_id, name: s.name, start: s.start.toISOString(), end: s.end.toISOString() });
 
 /**
  * Everything the supervisor overview counts, in one query round:
@@ -17,7 +17,9 @@ const window = (s) => ({ key: s.key, name: s.name, start: s.start.toISOString(),
  * Report times are generated_at; shift windows use SHIFT_TIMEZONE.
  */
 async function overview({ at = new Date(), trendShifts = 6 } = {}) {
+  await shiftsReady();
   const shifts = recentShifts(trendShifts, at);
+  const running = Boolean(shiftAt(at));
   const day = operationalDay(at);
 
   // One COUNT pair per shift window: $1/$2 for the first, $3/$4 for the next, ...
@@ -30,7 +32,8 @@ async function overview({ at = new Date(), trendShifts = 6 } = {}) {
     .join(', ');
 
   const [perShift, perHour, totals, categories, tasks] = await Promise.all([
-    pool.query(`SELECT ${columns} FROM handover_reports r WHERE r.generated_at >= $1`, params),
+    // No shifts set up: nothing to count per shift.
+    shifts.length ? pool.query(`SELECT ${columns} FROM handover_reports r WHERE r.generated_at >= $1`, params) : { rows: [{}] },
     pool.query(
       `SELECT FLOOR(EXTRACT(EPOCH FROM r.generated_at - $1::timestamptz) / 3600)::int AS hour, COUNT(*)::int AS n
        FROM handover_reports r WHERE r.generated_at >= $1 AND r.generated_at < $2 GROUP BY 1`,
@@ -59,7 +62,8 @@ async function overview({ at = new Date(), trendShifts = 6 } = {}) {
 
   return {
     generated_at: at.toISOString(),
-    current_shift: recent[recent.length - 1],
+    // null when no shift covers `at` (a gap between shifts, or none set up).
+    current_shift: running ? recent[recent.length - 1] : null,
     recent_shifts: recent,
     today: { start: day.start.toISOString(), end: day.end.toISOString(), reports_per_hour: reportsPerHour },
     reports: totals.rows[0],
@@ -95,9 +99,11 @@ async function recurringEntities({ types, since, minReports = 2, limit = 6 }) {
 
 /**
  * Per active person: open and overdue tasks now, plus tasks resolved and handovers submitted since
- * `since` (default: start of the current shift).
+ * `since` (default: start of the current shift, or of the operational day between shifts).
  */
-async function workload({ since = shiftAt().start } = {}) {
+async function workload({ since } = {}) {
+  await shiftsReady();
+  since ??= shiftAt()?.start ?? operationalDay().start;
   const result = await pool.query(
     `SELECT u.user_id, u.full_name, u.role,
             (SELECT COUNT(*)::int FROM task_register t WHERE t.assigned_to = u.user_id AND t.status = 'pending') AS open,

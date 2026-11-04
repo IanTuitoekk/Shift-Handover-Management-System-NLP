@@ -9,7 +9,7 @@ import { useReportList } from '../hooks/useData';
 import { ShiftFilter } from '../components/ui/ShiftFilter';
 import { useShiftParam } from '../hooks/useShiftParam';
 import { KNOWN_CATEGORIES, categoryMeta } from '../utils/categories';
-import { shiftAt, shiftLabel } from '../utils/format';
+import { formatWeekdayDay, operationalDay, shiftAt, shiftLabel } from '../utils/format';
 import { LOW_CONFIDENCE_THRESHOLD } from '../config';
 
 const PAGE = 40;
@@ -34,7 +34,8 @@ const DATE_RANGES = {
 function dateParams(range, from, to, now) {
   const minute = new Date(now);
   minute.setSeconds(0, 0);
-  if (range === 'shift') return { from: shiftAt(now).start.toISOString() };
+  // Between shifts, "this shift" means since the operational day began.
+  if (range === 'shift') return { from: (shiftAt(now)?.start ?? operationalDay(now).start).toISOString() };
   if (range === '24h') return { from: new Date(minute - 86_400_000).toISOString() };
   if (range === '7d') return { from: new Date(minute - 7 * 86_400_000).toISOString() };
   if (range === 'custom') {
@@ -48,14 +49,21 @@ function dateParams(range, from, to, now) {
   return {};
 }
 
-/** Groups reports (already newest first) by the shift they were processed in. */
+/**
+ * Groups reports (already newest first) by the shift they were processed in: `shift_window`, which
+ * the server works out. Reports processed when no shift was running are grouped by day.
+ */
 function groupByShift(reports) {
   const groups = [];
   for (const r of reports) {
-    const s = shiftAt(new Date(r.generated_at));
+    const w = r.shift_window;
+    const key = w ? `${w.shift_id}:${w.start}` : `none:${new Date(r.generated_at).toDateString()}`;
     const last = groups[groups.length - 1];
-    if (last && last.shift.key === s.key) last.reports.push(r);
-    else groups.push({ shift: s, reports: [r] });
+    if (last && last.key === key) last.reports.push(r);
+    else {
+      const title = w ? shiftLabel({ name: w.name, start: new Date(w.start) }) : `No shift, ${formatWeekdayDay(r.generated_at)}`;
+      groups.push({ key, title, reports: [r] });
+    }
   }
   return groups;
 }
@@ -105,7 +113,7 @@ export function ReportsPage() {
   const groups = groupByShift(shown);
   const activeFilters =
     shift !== 'all' || (supervisor && (category !== 'all' || confidence !== 'all' || submitter !== 'all' || date !== 'all'));
-  const counts = list && { all: list.shift_counts.day + list.shift_counts.night, ...list.shift_counts };
+  const counts = list && { all: Object.values(list.shift_counts).reduce((a, b) => a + b, 0), ...list.shift_counts };
 
   return (
     <>
@@ -210,7 +218,7 @@ export function ReportsPage() {
           </EmptyState>
         )}
         {groups.map((g) => (
-          <Section key={g.shift.key} id={`shift-${g.shift.start.getTime()}`} title={shiftLabel(g.shift)} count={g.reports.length}>
+          <Section key={g.key} id={`shift-${g.key.replace(/[^\w-]/g, '-')}`} title={g.title} count={g.reports.length}>
             <StripList>
               {g.reports.map((r) => (
                 <ReportStrip key={r.report_id} report={r} now={now} showDay={false} currentUserId={me.user_id} />

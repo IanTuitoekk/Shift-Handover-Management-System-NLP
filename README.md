@@ -13,17 +13,22 @@ across the shift, live.
   aircraft registrations ("five Yankee Kilo Zulu Delta") are written out as `5Y-KZD`.
 - Record again: replaces only the last recording's text, keeping anything typed.
 - See the result straight away: category, confidence, entities, summary, and who the task went to.
-- My tasks, the previous shift's handovers to read, alerts, Day/Night filters. Each new task is
-  assigned automatically to the least busy crew member on the **incoming shift** (a day handover
-  goes to the night crew and the other way round; never the writer). Crew mark their own
-  tasks **done**; a supervisor then signs them off.
+- My tasks, the previous shift's handovers to read, alerts, shift filters. Each new task goes
+  automatically to the **incoming shift** (a day handover goes to the night crew and the other way
+  round; never the writer): to the person the shift plan says takes over from the writer, else the
+  least busy person on that shift. Home shows who you take over from and who takes over from you.
+  Crew mark their own tasks **done**; a supervisor then signs them off.
 
 **Supervisors**
 - Overview of the shift: overdue, unassigned and low-confidence work, trends, recurring aircraft
   and components, team workload.
 - Triage board: an **Awaiting sign-off** lane for tasks crew marked done (sign off, or send back to
   the assignee), reassign or unassign the automatic assignments, set due times, resolve any task.
-- Team: workload per person and people management (edit crew details and Day/Night roster, roles, deactivate,
+- Shifts: set up the station's shifts (any number, each with a name and start and end times; a
+  shift may run past midnight; overlaps are refused; a shift with handovers can only be deactivated, an unused one can be deleted), then plan
+  who works each run, up to 60 days ahead, and who each person takes over from. Without a plan, the
+  roster is used. Old reports keep the shift name they were written under.
+- Team: workload per person and people management (edit crew details and the shift they're rostered on, roles, deactivate,
   permanent delete with anonymisation of records).
 
 **Everyone**

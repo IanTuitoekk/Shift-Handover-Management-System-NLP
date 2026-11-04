@@ -30,10 +30,8 @@ export function MyTasksPage() {
   const shift = shiftAt(now);
   const prev = previousShift(now);
   const events = myShiftEvents({ myReports: myReports.data?.reports, tasks: tasks.data ?? [], me });
-  const timeline = [
-    { shift, items: events.filter((e) => inShift(e.at, shift)) },
-    { shift: prev, items: events.filter((e) => inShift(e.at, prev)) },
-  ];
+  // This shift and the one before (either may be missing between shifts).
+  const timeline = [shift, prev].filter(Boolean).map((s) => ({ shift: s, items: events.filter((e) => inShift(e.at, s)) }));
   const loading = tasks.data === undefined && !tasks.error;
 
   // Crew mark their own tasks done; a supervisor signs them off. Other people's tasks are read-only.
