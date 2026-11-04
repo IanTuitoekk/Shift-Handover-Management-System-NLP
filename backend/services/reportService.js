@@ -5,13 +5,22 @@ const { getNotificationByReportId } = require('../models/notificationModel');
 const { getSubmissionById } = require('../models/handoverSubmissionModel');
 const { getCategoryByName } = require('../models/incidentCategoryModel');
 const { saveReview, getReview } = require('../models/reportReviewModel');
+const { shiftAt } = require('../config/shifts');
 
 const ENTITY_TYPES = ['AIRCRAFT', 'COMPONENT', 'ROLE', 'LOCATION', 'TASK', 'TIME'];
 const fail = (message) => Object.assign(new Error(message), { status: 400 });
 
+/**
+ * Reports for the list. Each also gets `shift_window`: the run of the shift it was processed in
+ * ({ shift_id, name, start, end }, or null), so the app can group reports by shift without working
+ * shift times out itself. A report's own `shift_name` is the shift it was written for.
+ */
 async function listReports(options = {}) {
-  return getAllReports(options);
+  const result = await getAllReports(options);
+  return { ...result, reports: result.reports.map((r) => ({ ...r, shift_window: windowOf(shiftAt(new Date(r.generated_at))) })) };
 }
+
+const windowOf = (o) => (o ? { shift_id: o.shift_id, name: o.name, start: o.start, end: o.end } : null);
 
 async function getReportDetail(reportId) {
   const report = await getReportById(reportId);

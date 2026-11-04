@@ -5,7 +5,7 @@ for (const role of ['crew', 'supervisor']) {
   test(`${role} pages fit a phone screen`, async ({ browser }) => {
     const context = await browser.newContext({ ...test.info().project.use, storageState: statePath(role) });
     const page = await context.newPage();
-    const pages = role === 'crew' ? ['/', '/my-tasks', '/reports', '/alerts', '/account'] : ['/', '/triage', '/reports', '/team'];
+    const pages = role === 'crew' ? ['/', '/my-tasks', '/reports', '/alerts', '/account'] : ['/', '/triage', '/reports', '/shifts', '/team'];
     for (const path of pages) {
       await page.goto(path);
       await page.waitForLoadState('networkidle');

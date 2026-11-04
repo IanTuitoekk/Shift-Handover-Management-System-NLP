@@ -49,10 +49,10 @@ signing up in the app: `npm run set-role -- <email> supervisor`.
 | POST | /api/auth/reset-password | No (rate-limited) | `{ token, new_password }` from the emailed link. Ends every session of that account |
 | POST | /api/handovers | Yes | Submit a handover narrative for NLP processing (`input_type`: `text` or `voice`). The task it raises is assigned automatically (see Due times, assignment and sign-off) |
 | POST | /api/handovers/transcribe | Yes (20 per 10 min per person) | Voice input: multipart `audio` (≤ 10 MB) and optional `language` (`en`/`sw`). Returns `{ text, language, language_probability, duration }` from the inference service's Whisper. Nothing is saved; the recording is kept in memory only. 503 if the inference service is down |
-| GET | /api/handovers | Yes | List handover reports (`limit` ≤ 100, `offset`). Filters: `submitted_by=me` or a user id, `shift=day|night`, `category=<name>|unclassified`, `review=true|false` (below `LOW_CONFIDENCE_THRESHOLD`, default 0.6, or unclassified), `min_confidence`, `max_confidence` (0–1, max exclusive), `from`, `to` (ISO, `to` exclusive), `sort=newest|confidence`. Returns `{ reports, total, needs_review, shift_counts: { day, night }, limit, offset }`; each report includes `submitted_by` and `shift` |
+| GET | /api/handovers | Yes | List handover reports (`limit` ≤ 100, `offset`). Filters: `submitted_by=me` or a user id, `shift=<shift id>|none`, `category=<name>|unclassified`, `review=true|false` (below `LOW_CONFIDENCE_THRESHOLD`, default 0.6, or unclassified), `min_confidence`, `max_confidence` (0–1, max exclusive), `from`, `to` (ISO, `to` exclusive), `sort=newest|confidence`. Returns `{ reports, total, needs_review, shift_counts: { day, night }, limit, offset }`; each report includes `submitted_by` and `shift` |
 | PUT | /api/handovers/:reportId/review | Yes (supervisor) | Review the model's analysis: `{ category_name, entities: [{ type, text }] }`. Replaces the report's category and entities (each entity's text must appear in the handover), marks it reviewed (it leaves the "needs review" filter and counts), keeps the model's original answer, and updates the task text if the category changed. Returns the report detail |
 | GET | /api/handovers/:reportId | Yes | Get full detail for one report (entities, task, notification, submitted_by, and `submission`: the original text, shift, detected language and submission time) |
-| GET | /api/tasks | Yes | List tasks (optional `status`, `shift=day|night`); each task includes the `shift` of the handover that raised it, `needs_reassignment`, `done_at` / `done_by` (marked done, awaiting sign-off), and `assignee` / `resolver` as `{ user_id, full_name, is_active, anonymised }` |
+| GET | /api/tasks | Yes | List tasks (optional `status`, `shift=<shift id>|none`); each task includes the `shift_id` / `shift_name` of the handover that raised it, `needs_reassignment`, `done_at` / `done_by` (marked done, awaiting sign-off), and `assignee` / `resolver` as `{ user_id, full_name, is_active, anonymised }` |
 | PATCH | /api/tasks/:taskId/done | Yes | The assignee marks their task done (403 for anyone else); it stays pending, waiting for a supervisor's sign-off. 409 if resolved or already done |
 | PATCH | /api/tasks/:taskId/resolve | Yes (supervisor) | Sign a task off as resolved, whether or not it was marked done; 409 if already resolved |
 | PATCH | /api/tasks/:taskId/send-back | Yes (supervisor) | Not finished: clears "done" and returns the task to its assignee; 409 unless it is waiting for sign-off |
@@ -63,11 +63,19 @@ signing up in the app: `npm run set-role -- <email> supervisor`.
 | PATCH | /api/notifications/read | Yes | Mark many read: `{ "notif_ids": [...] }` (up to 500) or `{ "before": "ISO" }`. Only notifications the user can see; returns `{ marked }` |
 | GET | /api/stats/overview | Yes | Supervisor overview counts: `current_shift`, `recent_shifts` (`?shifts=6`), `today.reports_per_hour`, `reports { total, needs_review }`, `categories`, `tasks { open, overdue, unassigned }` |
 | GET | /api/insights/entities | Yes | Entities in two or more reports: `?types=AIRCRAFT,COMPONENT&since=ISO&min_reports=2&limit=6` → `[{ entity_type, entity_text, report_count }]` |
-| GET | /api/config/shifts | No | `{ timezone, day_start_hour, night_start_hour, shifts: [{ key, name, start, end }] }` |
+| GET | /api/config/shifts | No | `{ timezone, shifts: [{ shift_id, name, start_time, end_time }], windows: [{ shift_id, name, start, end }], days: [{ start, end }] }`: the active shifts, their runs from two days ago to two days ahead, and the operational days around now. The app takes all shift times from here |
+| GET | /api/shifts | Yes | The active shifts with counts of `handovers`, `plans` and `rostered` people, and `updated_by_name`; supervisors can add `?all=true` for deactivated ones too |
+| POST | /api/shifts | Yes (supervisor) | Add a shift: `{ name, start_time: 'HH:MM', end_time: 'HH:MM' }` (an end before the start runs past midnight). 400 with `{ field, error }` for a missing name or bad time; 409 for a duplicate active name or an overlap with an active shift |
+| PATCH | /api/shifts/:shiftId | Yes (supervisor) | Change `name`, `start_time`, `end_time` or `is_active` (deactivate or reactivate). Same checks as adding. Old handovers keep the name their shift had |
+| DELETE | /api/shifts/:shiftId | Yes (supervisor) | Delete a shift **no handover has used**, with its plans; people rostered on it become not rostered. Returns `{ deleted, plans_removed, unrostered }`. 409 for a shift with handovers: deactivate it instead |
+| GET | /api/shift-plans | Yes (supervisor) | The current shift and the next ones (`?count=`, default 4, max 14), then every later shift a supervisor has created (`created: true`): `{ crew: [{ user_id, full_name, shift }], max_days_ahead, shifts: [{ date, key, name, start, end, current, plan, previous }] }`. `plan` is null or `{ plan_id, updated_at, updated_by_name, members: [{ user_id, full_name, is_active, anonymised, takes_over_from, takes_over_from_name }] }`; `previous` is the shift before, with its planned `members` (user ids) |
+| GET | /api/shift-plans/me | Yes | Planned shifts coming up (current and next two) that involve the caller: `[{ date, shift_id, name, start, end, current, on_shift, takes_over_from, taken_over_by: [{ user_id, full_name }] }]` |
+| GET | /api/shift-plans/:date/:shiftId | Yes (supervisor) | One shift in the same shape, planned or not, to create its plan. 400 if it has ended or is more than 60 days ahead |
+| PUT | /api/shift-plans/:date/:shiftId | Yes (supervisor) | Create or replace the plan for the run of shift `shiftId` starting on `date` (`YYYY-MM-DD`): `{ members: [{ user_id, takes_over_from }] }`. Active ground crew only; nobody takes over from someone on the same shift; an empty list deletes the plan. 400 for a shift that has ended or is more than 60 days ahead |
 | GET | /api/users | Yes (supervisor) | List active users for task assignment |
 | GET | /api/users/workload | Yes (supervisor) | Per active person: `open`, `overdue`, and `resolved_since` / `handovers_since` since `?since=ISO` (default: start of the current shift) |
 | GET | /api/users/directory | Yes (supervisor) | Everyone with an account, including deactivated and deleted ("Former employee") ones, with `staff_number`, `station`, `deactivated_at`, `deactivated_by { user_id, full_name }`, `deactivation_reason`, `anonymised_at` |
-| PATCH | /api/users/:userId | Yes (supervisor) | Edit a ground crew member's `full_name`, `email`, `staff_number`, `station`, `shift` (`day` / `night`; empty clears the last three). 409 if the email or staff number is taken; 403 for supervisor accounts |
+| PATCH | /api/users/:userId | Yes (supervisor) | Edit a ground crew member's `full_name`, `email`, `staff_number`, `station`, `shift_id` (an active shift to roster them on; empty clears the last three). 409 if the email or staff number is taken; 403 for supervisor accounts |
 | PATCH | /api/users/:userId/role | Yes (supervisor) | Change a role `{ role }` |
 | PATCH | /api/users/:userId/active | Yes (supervisor) | `{ active: false, reason? }` deactivates (signs them out at once, flags their open tasks `needs_reassignment`); `{ active: true }` reactivates |
 | DELETE | /api/users/:userId | Yes (supervisor) | Permanent delete of a **deactivated ground crew** account (see below) |
@@ -141,6 +149,8 @@ REST API and the socket is closed when the token expires.
 |---|---|---|
 | `handover:created` | a handover has been processed | `{ report, task, notification, submittedBy }` |
 | `task:assigned` | a supervisor assigns or reassigns a task | `{ task, by, previousAssignee }` |
+| `shifts:changed` | a supervisor added, edited, deactivated, reactivated or deleted a shift | `{ by }` |
+| `shift-plans:changed` | a supervisor saved or cleared a shift plan | `{ date, shift_id, by }` |
 | `task:done` | the assignee marked a task done (awaiting sign-off) | `{ task, by }` |
 | `task:sent-back` | a supervisor sent a done task back to its assignee | `{ task, by }` |
 | `task:resolved` | a task is resolved | `{ task, by }` |
@@ -155,10 +165,24 @@ Set `FRONTEND_ORIGIN` (comma-separated) to allow other frontend origins; the def
 
 ## Shifts
 
-A report's `shift` is the one chosen on the handover form, or, if none was chosen, the shift its
-submission time falls in. Configure with `DAY_SHIFT_START` (default 6), `NIGHT_SHIFT_START` (18) and
-`SHIFT_TIMEZONE` (`Africa/Nairobi`). The frontend reads the same values from `GET /api/config/shifts`,
-and the overview statistics count shifts in `SHIFT_TIMEZONE`.
+Shifts are named daily windows that supervisors manage on the Shifts page (`shifts` table): any
+number, each with a start and end time (`HH:MM` in `SHIFT_TIMEZONE`, default `Africa/Nairobi`). A
+shift whose end is before its start runs past midnight (22:00 to 06:00). Active shifts can't overlap,
+so every moment belongs to at most one shift; gaps are allowed, and a moment in a gap has **no
+shift** (shown as "No shift", never an error). A shift with handovers can only be deactivated, so
+old reports keep pointing at it; one no handover has used can be deleted.
+
+`config/shifts.js` is the one place that decides which shift a moment belongs to (`shiftAt`), what
+the previous and next shifts are, and the operational day (from the earliest shift start time). Every
+endpoint uses it, and the frontend takes its shift windows from `GET /api/config/shifts` instead of
+working them out. The active shifts are cached in memory and reloaded whenever a supervisor changes
+one (this assumes a single backend process).
+
+Each handover stores the shift it was written for (`handover_submissions.shift_id`, the one chosen
+on the form, else the shift covering the submission time) and a copy of its name (`shift_name`), so
+renaming or editing a shift later doesn't change old reports. The first `npm run db:setup` after
+upgrading seeds Day (06:00 to 18:00) and Night (18:00 to 06:00) and moves existing handovers, rosters
+and plans onto them. `DAY_SHIFT_START` and `NIGHT_SHIFT_START` are no longer used.
 
 ## Due times, assignment and sign-off
 
@@ -167,18 +191,29 @@ raised; supervisors can change or clear it. A pending task past its `due_at` is 
 no due time is never shown as overdue. Existing databases need the migration once:
 `psql -d <db> -f db/migrations/2026-10-12-task-due-at.sql`.
 
-A new task is assigned straight away to the **incoming shift**: the shift after the one handing over
-(the shift chosen on the form, or the one the submission time falls in), so a day handover goes to
-the night crew and a night handover to the day crew. Within that shift it goes to the active ground
-crew member with the fewest open tasks, never the person who wrote the handover; ties go to whoever
-was given a task longest ago. Supervisors roster people on a shift with `PATCH /api/users/:userId`
-(`shift`: `day`, `night`, or null for not rostered). If nobody is rostered on the incoming shift the
-task stays unassigned for a supervisor. Supervisors can reassign or unassign any task.
+A new task is assigned straight away to the **incoming shift**: the first shift that starts when (or
+after) the shift handing over last ended and hasn't ended itself. So a Day handover goes to Night,
+and one written late, after the next shift began, goes to the shift on duty now. Who gets it (`services/assignmentService.js`), never the writer:
+
+1. **`takes_over`**: the supervisor's shift plan for that shift names someone who takes over from
+   the writer.
+2. **`shift_plan`**: otherwise, the least busy active ground crew member on the plan. If the shift
+   is planned, nobody off the plan is chosen.
+3. **`roster`**: with no plan, the least busy active ground crew member rostered on that shift
+   (`users.shift_id`, set with `PATCH /api/users/:userId`, or null for not rostered).
+
+"Least busy" is the fewest open tasks; ties go to whoever was given a task longest ago. The rule
+used is kept in `task_register.assigned_by_rule` (NULL once a supervisor assigns the task). If
+nobody qualifies the task stays unassigned for a supervisor. Supervisors can reassign or unassign
+any task. A run of a shift is named by the date it starts on and the shift id (the Night run
+starting on 3 Nov is `2026-11-03/<Night's id>`). Supervisors can plan any run up to 60 days ahead;
+plans for runs that have ended can't be changed.
 
 Ground crew can't resolve tasks. The assignee marks a task **done** (`done_at`, `done_by`), which puts
 it in the supervisors' sign-off queue; a supervisor then resolves it or sends it back. A task marked
 done is not counted as overdue, and reassigning it clears "done". Existing databases need
-`npm run db:setup` once (adds `users.shift`, `task_register.done_at` and `done_by`).
+`npm run db:setup` once (adds the `shifts`, `shift_plans` and `shift_plan_members` tables, the shift
+columns on handovers and users, and `task_register.done_at`, `done_by` and `assigned_by_rule`).
 
 ## Language detection
 

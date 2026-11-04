@@ -91,6 +91,16 @@ export const api = {
   resolveTask: (taskId) => client.patch(`/tasks/${taskId}/resolve`).then((r) => r.data),
   markTaskDone: (taskId) => client.patch(`/tasks/${taskId}/done`).then((r) => r.data),
   sendBackTask: (taskId) => client.patch(`/tasks/${taskId}/send-back`).then((r) => r.data),
+  // Shifts: named daily windows supervisors manage. Everyone can list the active ones.
+  listShifts: (all = false) => client.get('/shifts', { params: all ? { all: true } : {} }).then((r) => r.data),
+  addShift: (shift) => client.post('/shifts', shift).then((r) => r.data),
+  updateShift: (shiftId, changes) => client.patch(`/shifts/${shiftId}`, changes).then((r) => r.data),
+  deleteShift: (shiftId) => client.delete(`/shifts/${shiftId}`).then((r) => r.data),
+  // Shift plans: who works each shift and who they take over from.
+  listShiftPlans: () => client.get('/shift-plans').then((r) => r.data),
+  myShiftPlans: () => client.get('/shift-plans/me').then((r) => r.data),
+  getShiftPlan: (date, shiftId) => client.get(`/shift-plans/${date}/${shiftId}`).then((r) => r.data),
+  saveShiftPlan: (date, shiftId, members) => client.put(`/shift-plans/${date}/${shiftId}`, { members }).then((r) => r.data),
   assignTask: (taskId, assignedTo) =>
     client.patch(`/tasks/${taskId}/assign`, { assigned_to: assignedTo }).then((r) => r.data),
 

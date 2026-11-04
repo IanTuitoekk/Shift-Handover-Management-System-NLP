@@ -5,6 +5,7 @@ import { ROLES } from '../../config';
 import { useResource } from '../../hooks/useResource';
 import { USERS_CHANGED } from '../../hooks/useRealtime';
 import { errorMessage, formatDateTime, personName, roleLabel, rosterLabel } from '../../utils/format';
+import { activeShifts } from '../../utils/shiftClock';
 import { Section, ErrorState } from '../ui/Layout';
 import { Strip, StripList, StripSkeleton } from '../ui/Strip';
 import { Dialog } from '../ui/Dialog';
@@ -39,7 +40,7 @@ function DetailsForm({ person, onSaved }) {
       email: String(data.get('email') ?? '').trim(),
       staff_number: String(data.get('staff_number') ?? '').trim(),
       station: String(data.get('station') ?? '').trim(),
-      shift: String(data.get('shift') ?? ''),
+      shift_id: String(data.get('shift_id') ?? ''),
     };
     const e = {};
     if (!values.full_name) e.name = 'Enter their full name.';
@@ -102,13 +103,19 @@ function DetailsForm({ person, onSaved }) {
         <label className="field-label" htmlFor="person-shift">
           Shift
         </label>
-        <select id="person-shift" name="shift" className="select" defaultValue={person.shift ?? ''} aria-describedby="person-shift-hint" autoComplete="off">
+        <select id="person-shift" name="shift_id" className="select" defaultValue={person.shift_id ?? ''} aria-describedby="person-shift-hint" autoComplete="off">
           <option value="">Not rostered</option>
-          <option value="day">Day</option>
-          <option value="night">Night</option>
+          {activeShifts().map((s) => (
+            <option key={s.shift_id} value={s.shift_id}>
+              {s.name} ({s.start_time} to {s.end_time})
+            </option>
+          ))}
+          {person.shift_id && !activeShifts().some((s) => s.shift_id === person.shift_id) && (
+            <option value={person.shift_id}>{person.shift_name ?? 'Inactive shift'} (inactive)</option>
+          )}
         </select>
         <p className="field-hint" id="person-shift-hint">
-          Tasks from each handover go to the least busy person on the incoming shift. Not rostered: never assigned automatically.
+          Used when a shift has no plan on the Shifts page: tasks then go to the least busy person rostered on the incoming shift. Not rostered: never assigned automatically.
         </p>
       </div>
       <button type="submit" className="btn btn-primary" disabled={saving}>
@@ -280,7 +287,7 @@ function DeleteDialog({ person, open, onClose, onDeleted }) {
 }
 
 function PersonMeta({ p }) {
-  const extra = [p.staff_number && `Staff ${p.staff_number}`, p.station, p.role === 'ground_crew' && (rosterLabel(p.shift) ?? 'Not rostered')]
+  const extra = [p.staff_number && `Staff ${p.staff_number}`, p.station, p.role === 'ground_crew' && (rosterLabel(p.shift_id, p.shift_name) ?? 'Not rostered')]
     .filter(Boolean)
     .join(' · ');
   return (

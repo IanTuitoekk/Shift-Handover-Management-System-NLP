@@ -59,11 +59,15 @@ describe('Filters, stats and smaller API additions', () => {
   test('GET /api/config/shifts describes the shifts without sign-in', async () => {
     const res = await request(app).get('/api/config/shifts');
     expect(res.statusCode).toBe(200);
-    expect(res.body).toMatchObject({ timezone: 'Africa/Nairobi', day_start_hour: 6, night_start_hour: 18 });
+    expect(res.body).toMatchObject({ timezone: 'Africa/Nairobi' });
     expect(res.body.shifts).toEqual([
-      { key: 'day', name: 'Day', start: '06:00', end: '18:00' },
-      { key: 'night', name: 'Night', start: '18:00', end: '06:00' },
+      { shift_id: expect.any(String), name: 'Day', start_time: '06:00', end_time: '18:00' },
+      { shift_id: expect.any(String), name: 'Night', start_time: '18:00', end_time: '06:00' },
     ]);
+    // The windows (runs of each shift) around now, worked out by the server: one covers now.
+    const now = Date.now();
+    expect(res.body.windows.filter((w) => new Date(w.start) <= now && now < new Date(w.end))).toHaveLength(1);
+    expect(res.body.days).toHaveLength(3);
   });
 
   test('report list filters by category, confidence, review and dates, and sorts by confidence', async () => {
@@ -75,7 +79,8 @@ describe('Filters, stats and smaller API additions', () => {
 
     const all = await list({});
     expect(all.body).toMatchObject({ total: 4, needs_review: 2 });
-    expect(all.body.shift_counts.day + all.body.shift_counts.night).toBe(4);
+    expect(Object.values(all.body.shift_counts).reduce((a, b) => a + b, 0)).toBe(4);
+    expect(all.body.shift_counts.none).toBe(4); // inserted directly, without a shift
 
     expect((await list({ category: 'Aircraft Equipment Problem' })).body.total).toBe(2);
     expect((await list({ category: 'unclassified' })).body.total).toBe(1);

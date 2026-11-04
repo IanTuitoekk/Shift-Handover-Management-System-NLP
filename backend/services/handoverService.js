@@ -3,13 +3,14 @@ const { createSubmission, updateProcessingStatus } = require('../models/handover
 const { createReport } = require('../models/handoverReportModel');
 const { createEntities } = require('../models/reportEntityModel');
 const { getCategoryByName } = require('../models/incidentCategoryModel');
-const { createTask, pickAssignee, getTaskByReportId } = require('../models/taskRegisterModel');
+const { createTask, getTaskByReportId } = require('../models/taskRegisterModel');
+const { chooseAssignee } = require('./assignmentService');
 const { createNotification } = require('../models/notificationModel');
 const { detectLanguage } = require('../utils/languageDetect');
-const { SHIFTS, shiftAt, nextShift } = require('../config/shifts');
 
 const INFERENCE_URL = process.env.INFERENCE_SERVICE_URL;
 
+// `shift` is the shift being handed over ({ shift_id, name }), or null when no shift covers now.
 async function processHandover({ userId, inputType, content, languageVariant, shift }) {
   // Crews no longer pick a language; detect it for analysis unless a client still sends one.
   const language = languageVariant || detectLanguage(content);
@@ -40,12 +41,14 @@ async function processHandover({ userId, inputType, content, languageVariant, sh
       }))
     );
 
-    // The task goes straight to the least busy crew member on the incoming shift (the one after the
-    // shift handing over); supervisors can reassign it.
-    const handingOver = SHIFTS.includes(String(shift).toLowerCase()) ? String(shift).toLowerCase() : shiftAt().key;
+    // The task goes straight to the incoming shift: whoever takes over from the writer in the
+    // supervisor's shift plan, else the least busy person on it (see assignmentService). Supervisors
+    // can reassign it.
+    const assignment = await chooseAssignee({ writerId: userId, shiftId: shift?.shift_id ?? null });
     await createTask({
       reportId: report.report_id,
-      assignedTo: await pickAssignee({ shift: nextShift(handingOver), excludeUserId: userId }),
+      assignedTo: assignment.userId,
+      assignedByRule: assignment.rule,
       description: `New ${inferenceResult.incident_category} incident reported: ${
         inferenceResult.summary || content.slice(0, 200)
       }`,
@@ -63,7 +66,7 @@ async function processHandover({ userId, inputType, content, languageVariant, sh
 
     await updateProcessingStatus(submission.submission_id, 'completed');
 
-    return { submission, report, entities, task, notification };
+    return { submission, report, entities, task, notification, assignment: { rule: assignment.rule, shift: assignment.shift } };
   } catch (err) {
     await updateProcessingStatus(submission.submission_id, 'failed');
     throw err;

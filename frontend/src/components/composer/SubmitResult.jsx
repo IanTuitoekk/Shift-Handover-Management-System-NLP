@@ -4,14 +4,29 @@ import { ArrowRight, CheckCircle, WarningOctagon, X } from '@phosphor-icons/reac
 import { CategoryBadge } from '../ui/Badges';
 import { ConfidenceMeter } from '../ui/ConfidenceMeter';
 import { EntityGroups } from '../report/EntityGroups';
-import { formatPercent, formatTime, needsReview, parseConfidence, personName } from '../../utils/format';
+import { formatPercent, formatTime, needsReview, parseConfidence, personName, shiftTitle } from '../../utils/format';
+
+/** Who the handover's task went to, and why (task.assigned_by_rule, see the backend's assignmentService). */
+function assignedMessage(task, incoming) {
+  const on = incoming ? `the ${shiftTitle(incoming)}` : 'the incoming shift';
+  if (!task?.assignee) {
+    return incoming
+      ? `A task and an alert were raised. Nobody is planned or rostered on ${on} yet, so a supervisor will assign it.`
+      : 'A task and an alert were raised. No shifts are set up, so a supervisor will assign it.';
+  }
+  const name = personName(task.assignee);
+  if (task.assigned_by_rule === 'takes_over') return `A task was raised and assigned to ${name}, who takes over from you on ${on}. The crew was alerted.`;
+  if (task.assigned_by_rule === 'shift_plan') return `A task was raised and assigned to ${name}, planned on ${on}. The crew was alerted.`;
+  return `A task was raised and assigned to ${name} on ${on}, and the crew was alerted.`;
+}
 
 /** What the model made of the handover just submitted. `report` is the full report detail. */
 export function SubmitResult({ report, onDismiss }) {
   const ref = useRef(null);
   const low = needsReview(report);
   const confidence = parseConfidence(report);
-  const incoming = report.shift === 'night' ? 'day' : 'night'; // the shift after the one handing over
+  // The shift after the one handing over, as the server decided (`assignment` from the submit response).
+  const incoming = report.assignment?.shift?.name ?? null;
 
   // Move focus to the result so screen reader and keyboard users land on it.
   useEffect(() => {
@@ -55,9 +70,7 @@ export function SubmitResult({ report, onDismiss }) {
 
       <div className="result__foot">
         <span className="field-hint">
-          {report.task?.assignee
-            ? `A task was raised and assigned to ${personName(report.task.assignee)} on the incoming ${incoming} shift, and the crew was alerted.`
-            : `A task and an alert were raised. Nobody is rostered on the incoming ${incoming} shift yet, so a supervisor will assign it.`}
+          {assignedMessage(report.task, incoming)}
         </span>
         <Link to={`/reports/${report.report_id}`} className="btn btn-ghost">
           Open full report

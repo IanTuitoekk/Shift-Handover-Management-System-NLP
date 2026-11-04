@@ -1,13 +1,12 @@
 const { getAllTasks, getTaskById, resolveTask, markTaskDone, sendBackTask, assignTask, setTaskDue } = require('../models/taskRegisterModel');
 const { getUserById } = require('../models/userModel');
 const realtime = require('../realtime');
-const { SHIFTS } = require('../config/shifts');
 
 const listTasks = async (req, res) => {
   const { status } = req.query;
-  const shift = req.query.shift ? String(req.query.shift).toLowerCase() : null;
-  if (shift && !SHIFTS.includes(shift)) {
-    return res.status(400).json({ error: `shift must be one of: ${SHIFTS.join(', ')}` });
+  const shift = req.query.shift ? String(req.query.shift) : null;
+  if (shift && shift !== 'none' && !/^[0-9a-f-]{36}$/i.test(shift)) {
+    return res.status(400).json({ error: 'shift must be a shift id, or none' });
   }
   try {
     const tasks = await getAllTasks(status, shift);

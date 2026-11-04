@@ -15,7 +15,7 @@ import { AssignControl } from '../components/tasks/AssignControl';
 import { ResolveButton } from '../components/tasks/ResolveButton';
 import { TaskActionButton } from '../components/tasks/TaskActionButton';
 import { LOW_CONFIDENCE_THRESHOLD } from '../config';
-import { formatDateTime, formatPercent, needsReview, parseConfidence, personName, taskPerson, taskSummary } from '../utils/format';
+import { shiftTitle, formatDateTime, formatPercent, needsReview, parseConfidence, personName, taskPerson, taskSummary } from '../utils/format';
 import { leastLoaded } from '../utils/insights';
 import { categoryPhoto } from '../assets/photos';
 
@@ -271,7 +271,7 @@ function OriginalHandover({ submission }) {
     <Section id="original" title="Original handover" variant="raised">
       <blockquote className="original">{submission.content}</blockquote>
       <p className="original__meta">
-        {submission.shift && <span>{submission.shift} shift</span>}
+        <span>{submission.shift_name ? shiftTitle(submission.shift_name) : 'No shift'}</span>
         {language && <span>{language}</span>}
         <span>
           Submitted <span className="num">{formatDateTime(submission.submitted_at)}</span>

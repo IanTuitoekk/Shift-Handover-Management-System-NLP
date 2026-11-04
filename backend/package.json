@@ -6,7 +6,7 @@
     "start": "node ./bin/www",
     "dev": "nodemon ./bin/www",
     "pretest": "node scripts/reset-test-db.js",
-    "test": "jest --forceExit",
+    "test": "jest --runInBand --forceExit",
     "set-role": "node scripts/set-role.js",
     "reprocess-entities": "node scripts/reprocess-entities.js",
     "test-email": "node scripts/send-test-email.js",

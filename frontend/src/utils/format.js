@@ -1,4 +1,5 @@
-import { SHIFT_HOURS, LOW_CONFIDENCE_THRESHOLD } from '../config';
+import { LOW_CONFIDENCE_THRESHOLD } from '../config';
+import { findShift, operationalDays, shiftWindows } from './shiftClock';
 
 const timeFormat = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
 const dayFormat = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' });
@@ -43,51 +44,49 @@ export function isToday(value, now = new Date()) {
   return new Date(value).toDateString() === now.toDateString();
 }
 
-/* Shifts ---------------------------------------------------------------- */
+/* Shifts ----------------------------------------------------------------
+ * Shift windows come from the server (utils/shiftClock.js); nothing here works shift times out.
+ * A window is { shift_id, name, start, end, key }. Null means no shift covers that moment.
+ */
 
-/** The shift containing `at`: { name: 'Day' | 'Night', start, end, key }. Hours from SHIFT_HOURS. */
+const withKey = (w) => w && { ...w, key: `${w.shift_id}:${w.start.getTime()}` };
+
+/** The shift window covering `at`, or null ("No shift"). */
 export function shiftAt(at = new Date()) {
-  const { day: DAY, night: NIGHT } = SHIFT_HOURS;
-  const now = new Date(at);
-  const hour = now.getHours();
-  const start = new Date(now);
-  start.setMinutes(0, 0, 0);
-  let name;
-  if (hour >= DAY && hour < NIGHT) {
-    name = 'Day';
-    start.setHours(DAY);
-  } else {
-    name = 'Night';
-    start.setHours(NIGHT);
-    if (hour < DAY) start.setDate(start.getDate() - 1);
-  }
-  const end = new Date(start);
-  end.setHours(end.getHours() + (name === 'Day' ? NIGHT - DAY : 24 - (NIGHT - DAY)));
-  return { name, start, end, key: `${name}-${start.toISOString()}` };
+  const t = new Date(at).getTime();
+  return withKey(shiftWindows().find((w) => w.start.getTime() <= t && t < w.end.getTime()) ?? null);
 }
 
-/** The shift before the one containing `at`. */
+/** The shift window before the one covering `at` (or before `at` itself, between shifts), or null. */
 export function previousShift(at = new Date()) {
-  return shiftAt(new Date(shiftAt(at).start.getTime() - 1));
+  const before = (shiftAt(at)?.start ?? new Date(at)).getTime();
+  const ended = shiftWindows().filter((w) => w.end.getTime() <= before);
+  return withKey(ended[ended.length - 1] ?? null);
 }
 
 export function inShift(value, shift) {
+  if (!shift) return false;
   const t = new Date(value).getTime();
   return t >= shift.start.getTime() && t < shift.end.getTime();
 }
 
-/** "Night shift, Sat 10 Oct" style label for grouping. */
-export function shiftLabel(shift) {
-  return `${shift.name} shift, ${formatWeekdayDay(shift.start)}`;
+/** "Night shift" for "Night"; a name that already ends in "shift" is left alone. */
+export function shiftTitle(name) {
+  return /shift$/i.test(String(name).trim()) ? name : `${name} shift`;
 }
 
-/** The 24h operational day (day-shift start to day-shift start) containing `at`. */
+/** "Night shift, Sat 10 Oct" style label for grouping. */
+export function shiftLabel(shift) {
+  return `${shiftTitle(shift.name)}, ${formatWeekdayDay(shift.start)}`;
+}
+
+/** The 24h operational day containing `at` (from the server; local midnight to midnight as a fallback). */
 export function operationalDay(at = new Date()) {
-  const now = new Date(at);
-  const start = new Date(now);
-  start.setMinutes(0, 0, 0);
-  start.setHours(SHIFT_HOURS.day);
-  if (now.getHours() < SHIFT_HOURS.day) start.setDate(start.getDate() - 1);
+  const t = new Date(at).getTime();
+  const day = operationalDays().find((d) => d.start.getTime() <= t && t < d.end.getTime());
+  if (day) return { start: day.start, end: day.end };
+  const start = new Date(at);
+  start.setHours(0, 0, 0, 0);
   const end = new Date(start);
   end.setDate(end.getDate() + 1);
   return { start, end };
@@ -183,9 +182,14 @@ export function taskPerson(task, which, usersById) {
   return embedded?.user_id === id ? embedded : usersById?.get(id) ?? null;
 }
 
-/** 'day' -> 'Day shift', 'night' -> 'Night shift', anything else -> null (not rostered). */
-export function rosterLabel(shift) {
-  return shift === 'day' ? 'Day shift' : shift === 'night' ? 'Night shift' : null;
+/**
+ * The shift someone is rostered on, e.g. "Night shift", or null when not rostered. `fallbackName` is
+ * used for a shift that is no longer active (the API sends `shift_name` with each person).
+ */
+export function rosterLabel(shiftId, fallbackName = null) {
+  if (!shiftId) return null;
+  const name = findShift(shiftId)?.name ?? fallbackName;
+  return name ? shiftTitle(name) : 'An inactive shift';
 }
 
 export function roleLabel(role) {

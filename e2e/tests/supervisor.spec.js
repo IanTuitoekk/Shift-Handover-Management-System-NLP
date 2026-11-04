@@ -84,7 +84,7 @@ test.describe('as supervisor', () => {
     const note = tag('Unassign');
     await api(request, 'crew', 'POST', '/handovers', { narrative_text: `Brake pads low on 5Y-KQC at stand 9. ${note}`, shift: 'Day' });
     expect((await taskFor(note)).assigned_to).toBe(await userId(env.USERS.crew2.email));
-    // Juma hands over a night shift: the day crew is only Juma himself, so nobody gets it.
+    // Juma hands over a night shift: the day crew is only Juma, so nobody gets it.
     const lone = tag('Lone');
     await api(request, 'crew', 'POST', '/handovers', { narrative_text: `Cabin light out on 5Y-KQD at stand 2. ${lone}`, shift: 'Night' });
     expect((await taskFor(lone)).assigned_to).toBeNull();

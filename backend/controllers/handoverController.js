@@ -2,14 +2,32 @@ const { processHandover } = require('../services/handoverService');
 const { listReports, getReportDetail, reviewReport } = require('../services/reportService');
 const realtime = require('../realtime');
 const { transcribe } = require('../services/transcriptionService');
-const { SHIFTS } = require('../config/shifts');
+const { activeShifts, findShift, shiftAt } = require('../config/shifts');
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * The shift a handover is for: `shift_id`, or `shift` as a shift name (older clients send "Day"),
+ * or else the shift covering now. Null when no shift covers now; { error } for an unknown shift.
+ */
+function handingOverShift({ shift_id, shift }) {
+  const pick = (s) => (s ? { shift_id: s.shift_id, name: s.name } : null);
+  if (shift_id) return UUID.test(String(shift_id)) && findShift(shift_id) ? pick(findShift(shift_id)) : { error: 'Unknown or inactive shift_id' };
+  if (shift) {
+    const named = activeShifts().find((s) => s.name.toLowerCase() === String(shift).trim().toLowerCase());
+    return named ? pick(named) : { error: `Unknown shift: use one of ${activeShifts().map((s) => s.name).join(', ') || '(no shifts set up)'}` };
+  }
+  return pick(shiftAt());
+}
 
 const createHandover = async (req, res) => {
-  const { narrative_text, input_type, language_variant, shift } = req.body;
+  const { narrative_text, input_type, language_variant } = req.body;
 
   if (!narrative_text) {
     return res.status(400).json({ error: 'narrative_text is required' });
   }
+  const shift = handingOverShift(req.body);
+  if (shift?.error) return res.status(400).json({ error: shift.error });
 
   try {
     const result = await processHandover({
@@ -17,7 +35,7 @@ const createHandover = async (req, res) => {
       inputType: input_type || 'text',
       content: narrative_text,
       languageVariant: language_variant || null,
-      shift: shift || null,
+      shift,
     });
 
     res.status(201).json(result);
@@ -27,7 +45,7 @@ const createHandover = async (req, res) => {
       const detail = await getReportDetail(result.report.report_id);
       realtime.toAll('handover:created', {
         report: detail,
-        task: result.task ? { ...result.task, shift: detail.shift } : null,
+        task: result.task ? { ...result.task, shift_id: detail.shift_id, shift_name: detail.shift_name } : null,
         notification: result.notification ? { ...result.notification, is_read: false, read_at: null } : null,
         submittedBy: req.user.userId,
       });
@@ -41,7 +59,7 @@ const createHandover = async (req, res) => {
 };
 
 /**
- * GET /api/handovers. Filters (all optional): submitted_by=me|<user id>, shift=day|night,
+ * GET /api/handovers. Filters (all optional): submitted_by=me|<user id>, shift=<shift id>|none,
  * category=<name>|unclassified, review=true|false, min_confidence, max_confidence (0..1, max
  * exclusive), from, to (ISO times, to exclusive), sort=newest|confidence, limit (max 100), offset.
  */
@@ -54,8 +72,8 @@ const getReports = async (req, res) => {
   const submittedBy = q.submitted_by === 'me' ? req.user.userId : q.submitted_by || null;
   if (submittedBy && !/^[0-9a-f-]{36}$/i.test(submittedBy)) return bad('submitted_by must be "me" or a user id');
 
-  const shift = q.shift ? String(q.shift).toLowerCase() : null;
-  if (shift && !SHIFTS.includes(shift)) return bad(`shift must be one of: ${SHIFTS.join(', ')}`);
+  const shift = q.shift ? String(q.shift) : null;
+  if (shift && shift !== 'none' && !UUID.test(shift)) return bad('shift must be a shift id, or none');
 
   const review = q.review === undefined ? null : q.review === 'true' ? true : q.review === 'false' ? false : 'bad';
   if (review === 'bad') return bad('review must be true or false');

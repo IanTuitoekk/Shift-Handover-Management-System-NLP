@@ -1,4 +1,5 @@
 const userModel = require('../models/userModel');
+const { findShift } = require('../config/shifts');
 const { hashPassword, generateSecretToken } = require('../utils/password');
 
 const fail = (status, message) => Object.assign(new Error(message), { status });
@@ -25,8 +26,9 @@ async function changeRole(userId, role) {
   return userModel.updateUserRole(userId, role);
 }
 
-/** Personal details of ground crew: full name, email, staff number, station, shift. */
+/** Personal details of ground crew: full name, email, staff number, station, rostered shift. */
 async function updateDetails(userId, changes) {
+  if (changes.shiftId && !findShift(changes.shiftId)) throw fail(400, 'Roster people on an active shift');
   const target = await userModel.getUserById(userId);
   if (!target) return null;
   if (target.anonymised_at) throw fail(409, 'This account was deleted and can no longer be edited');

@@ -79,7 +79,7 @@ export function AccountPage() {
               {user?.role === 'ground_crew' && (
                 <div>
                   <dt>Shift</dt>
-                  <dd>{rosterLabel(user.shift) ?? 'Not rostered yet'}</dd>
+                  <dd>{rosterLabel(user.shift_id, user.shift_name) ?? 'Not rostered yet'}</dd>
                 </div>
               )}
               {user?.station && (

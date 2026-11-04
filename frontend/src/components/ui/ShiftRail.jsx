@@ -1,6 +1,6 @@
 import { CheckCircle, PaperPlaneTilt } from '@phosphor-icons/react';
-import { SHIFT_HOURS } from '../../config';
 import { formatTime, operationalDay } from '../../utils/format';
+import { shiftWindows } from '../../utils/shiftClock';
 
 const TICK_HOURS = 3;
 const KIND_META = {
@@ -9,15 +9,23 @@ const KIND_META = {
 };
 
 /**
- * The shift rail: a 24h operational day (day-shift start to day-shift start) with the day and
- * night shifts as two segments, a "now" marker, and either personal event ticks (`events`)
- * or a reports-per-hour histogram (`perHour`, 24 counts).
+ * The shift rail: a 24h operational day with each shift as a segment (gaps between shifts are left
+ * empty), a "now" marker, and either personal event ticks (`events`) or a reports-per-hour
+ * histogram (`perHour`, 24 counts).
  */
 export function ShiftRail({ now, events, perHour, summary }) {
   const { start, end } = operationalDay(now);
   const span = end - start;
   const pos = (t) => `${Math.min(100, Math.max(0, ((new Date(t) - start) / span) * 100))}%`;
-  const dayWidth = ((SHIFT_HOURS.night - SHIFT_HOURS.day) / 24) * 100;
+  // Each shift window within the day; shifts starting in daylight hours get the light tone.
+  const segments = shiftWindows()
+    .filter((w) => w.end > start && w.start < end)
+    .map((w) => {
+      const from = Math.max(w.start, start);
+      const to = Math.min(w.end, end);
+      const hour = w.start.getHours();
+      return { key: `${w.shift_id}:${w.start.getTime()}`, name: w.name, left: ((from - start) / span) * 100, width: ((to - from) / span) * 100, tone: hour >= 5 && hour < 17 ? 'day' : 'night' };
+    });
   const max = perHour ? Math.max(1, ...perHour) : 1;
   const visibleEvents = (events ?? []).filter((e) => new Date(e.at) >= start && new Date(e.at) < end);
 
@@ -31,12 +39,11 @@ export function ShiftRail({ now, events, perHour, summary }) {
   return (
     <figure className="rail" aria-label={summary}>
       <div className="rail__track">
-        <div className="rail__segment rail__segment--day" style={{ width: `${dayWidth}%` }}>
-          <span>Day</span>
-        </div>
-        <div className="rail__segment rail__segment--night" style={{ left: `${dayWidth}%`, width: `${100 - dayWidth}%` }}>
-          <span>Night</span>
-        </div>
+        {segments.map((s) => (
+          <div key={s.key} className={`rail__segment rail__segment--${s.tone}`} style={{ left: `${s.left}%`, width: `${s.width}%` }} title={s.name}>
+            <span>{s.name}</span>
+          </div>
+        ))}
 
         {perHour && (
           <div className="rail__hist" aria-hidden="true">

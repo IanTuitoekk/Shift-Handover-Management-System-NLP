@@ -14,7 +14,7 @@ import { ShiftTrend } from '../../components/charts/ShiftTrend';
 import { useOverviewStats, useRecurringEntities, useReportList } from '../../hooks/useData';
 import { INSIGHT_DAYS, LOW_CONFIDENCE_THRESHOLD, TREND_SHIFTS } from '../../config';
 import { KNOWN_CATEGORIES, categoryMeta } from '../../utils/categories';
-import { awaitingSignOff, byDue, formatAge, formatDateTime, formatPercent, isOverdue, needsOwner, shiftAt } from '../../utils/format';
+import { awaitingSignOff, byDue, formatAge, formatDateTime, formatPercent, isOverdue, needsOwner, shiftAt, shiftTitle } from '../../utils/format';
 import { leastLoaded, workload } from '../../utils/insights';
 import { OverviewTiles } from './OverviewTiles';
 
@@ -60,7 +60,7 @@ export function OverviewPage() {
   const unassigned = pending.filter(needsOwner);
   const signoff = pending.filter(awaitingSignOff);
   const lowCount = stats?.reports.needs_review ?? 0;
-  const shiftCount = stats?.current_shift.reports ?? 0;
+  const shiftCount = stats?.current_shift?.reports ?? 0;
 
   const attention = [...new Set([...signoff, ...overdue, ...unassigned])]
     .sort((a, b) => byDue(a, b, t))
@@ -72,7 +72,7 @@ export function OverviewPage() {
   const trend = useMemo(
     () =>
       (stats?.recent_shifts ?? []).map((s) => ({
-        shift: { key: `${s.key}-${s.start}`, name: s.name, start: new Date(s.start) },
+        shift: { key: `${s.shift_id}-${s.start}`, name: s.name, start: new Date(s.start) },
         value: s.reports,
         lowConfidence: s.low_confidence,
       })),
@@ -113,12 +113,12 @@ export function OverviewPage() {
       to: '/reports?confidence=low',
       linkLabel: 'Review',
     },
-    { key: 'shift', label: 'Reports this shift', value: shiftCount, detail: `Since ${shift.name.toLowerCase()} shift started`, to: '/reports?date=shift', linkLabel: 'View reports' },
+    { key: 'shift', label: 'Reports this shift', value: shiftCount, detail: shift ? `Since the ${shiftTitle(shift.name)} started` : 'No shift is running now', to: '/reports?date=shift', linkLabel: 'View reports' },
   ];
 
   return (
     <>
-      <PhotoBanner photo={PHOTOS.supervisorHome} title={`${shift.name} shift overview`} sub={<span className="num">{formatDateTime(now)}</span>} />
+      <PhotoBanner photo={PHOTOS.supervisorHome} title={shift ? `${shiftTitle(shift.name)} overview` : 'Overview: no shift running'} sub={<span className="num">{formatDateTime(now)}</span>} />
       <ShiftRail
         now={now}
         perHour={stats?.today.reports_per_hour}

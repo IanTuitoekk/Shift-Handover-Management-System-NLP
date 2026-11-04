@@ -3,6 +3,7 @@ import { ArrowCounterClockwise, NotePencil, PaperPlaneTilt, WarningOctagon } fro
 import { api } from '../../api/client';
 import { draftStore } from '../../utils/deviceStore';
 import { errorMessage, formatTime, shiftAt } from '../../utils/format';
+import { activeShifts } from '../../utils/shiftClock';
 import { CompletenessHints } from './CompletenessHints';
 import { SubmitResult } from './SubmitResult';
 import { VoiceInput } from './VoiceInput';
@@ -17,9 +18,17 @@ function initialDraft(userId) {
     text: saved?.text ?? '',
     // True once any of the text came from voice input; the handover is then saved as input_type 'voice'.
     voice: saved?.voice ?? false,
-    shift: saved?.shift ?? shiftAt().name,
+    // A shift id (older drafts saved the name, e.g. "Day"; validShift sorts that out).
+    shift: saved?.shift ?? '',
     savedAt: saved?.savedAt ?? null,
   };
+}
+
+/** `value` if it is an active shift id (or an active shift's name), else the shift running now, else ''. */
+function validShift(value) {
+  const shifts = activeShifts();
+  const match = shifts.find((s) => s.shift_id === value) ?? shifts.find((s) => s.name.toLowerCase() === String(value).toLowerCase());
+  return match?.shift_id ?? shiftAt()?.shift_id ?? '';
 }
 
 /**
@@ -113,7 +122,8 @@ export function Composer({ userId, variant = 'hero', onSubmitted, titleId = 'com
       const created = await api.submitHandover({
         narrative_text: text,
         input_type: draft.voice ? 'voice' : 'text',
-        shift: draft.shift,
+        // Without a shift (none set up) the server uses the shift covering now, if any.
+        shift_id: validShift(draft.shift) || undefined,
       });
       const reportId = created.report.report_id;
       // The create response has no category name; the detail endpoint has everything.
@@ -131,7 +141,7 @@ export function Composer({ userId, variant = 'hero', onSubmitted, titleId = 'com
       setDraft((d) => ({ ...d, text: '', voice: false, savedAt: null }));
       setVoiceNote('');
       setLastVoice(null);
-      setResult(detail);
+      setResult({ ...detail, assignment: created.assignment ?? null });
       onSubmitted?.(detail);
     } catch (err) {
       setFormError(
@@ -227,12 +237,16 @@ export function Composer({ userId, variant = 'hero', onSubmitted, titleId = 'com
             <select
               id={`${titleId}-shift`}
               className="select"
-              value={draft.shift}
+              value={validShift(draft.shift)}
               onChange={(e) => update({ shift: e.target.value })}
               autoComplete="off"
             >
-              <option value="Day">Day</option>
-              <option value="Night">Night</option>
+              {activeShifts().length === 0 && <option value="">No shifts set up</option>}
+              {activeShifts().map((s) => (
+                <option key={s.shift_id} value={s.shift_id}>
+                  {s.name}
+                </option>
+              ))}
             </select>
           </div>
           <span className="composer__saved num" aria-live="polite">

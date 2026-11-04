@@ -2,6 +2,7 @@ const request = require('supertest');
 const app = require('../app');
 const pool = require('../config/db');
 const { pickAssignee } = require('../models/taskRegisterModel');
+const { activeShifts, shiftsReady } = require('../config/shifts');
 
 // Runs against the test database (tests/setupEnv.js). Only this file rosters people on a shift,
 // so automatic assignment can be checked person by person.
@@ -114,9 +115,12 @@ describe('Task assignment and resolving rules', () => {
 
   describe('automatic assignment to the incoming shift', () => {
     const people = {};
-    const roster = (id, shift) => pool.query(`UPDATE users SET shift = $2 WHERE user_id = $1`, [id, shift]);
+    const ids = {}; // the seeded Day and Night shifts
+    const roster = (id, shift) => pool.query(`UPDATE users SET shift_id = $2 WHERE user_id = $1`, [id, ids[shift]]);
 
     beforeAll(async () => {
+      await shiftsReady();
+      for (const s of activeShifts()) ids[s.name.toLowerCase()] = s.shift_id;
       for (const [name, shift] of [['dayWriter', 'day'], ['dayCrew', 'day'], ['nightFree', 'night'], ['nightBusy', 'night'], ['nightOff', 'night'], ['nightSup', 'night']]) {
         people[name] = await account(name, name === 'nightSup' ? 'supervisor' : 'ground_crew');
         await roster(people[name].id, shift);
@@ -127,9 +131,9 @@ describe('Task assignment and resolving rules', () => {
     });
 
     test('the least busy active crew member on that shift; never supervisors, deactivated people or the writer', async () => {
-      expect(await pickAssignee({ shift: 'night' })).toBe(people.nightFree.id);
-      expect(await pickAssignee({ shift: 'night', excludeUserId: people.nightFree.id })).toBe(people.nightBusy.id);
-      expect(await pickAssignee({ shift: 'day', excludeUserId: people.dayWriter.id })).toBe(people.dayCrew.id);
+      expect(await pickAssignee({ shiftId: ids.night })).toBe(people.nightFree.id);
+      expect(await pickAssignee({ shiftId: ids.night, excludeUserId: people.nightFree.id })).toBe(people.nightBusy.id);
+      expect(await pickAssignee({ shiftId: ids.day, excludeUserId: people.dayWriter.id })).toBe(people.dayCrew.id);
     });
 
     test('a day handover goes to the night crew, a night handover to the day crew', async () => {
@@ -148,12 +152,13 @@ describe('Task assignment and resolving rules', () => {
 
     test('supervisors roster crew on a shift; with nobody on the incoming shift the task stays unassigned', async () => {
       const edit = (body) => request(app).patch(`/api/users/${people.dayCrew.id}`).set(auth(sup.token)).send(body);
-      expect((await edit({ shift: 'evening' })).statusCode).toBe(400);
-      expect((await edit({ shift: 'night' })).body.shift).toBe('night');
-      expect((await edit({ shift: '' })).body.shift).toBeNull();
-      expect((await request(app).patch(`/api/users/${people.dayCrew.id}`).set(auth(crew.token)).send({ shift: 'day' })).statusCode).toBe(403);
+      expect((await edit({ shift_id: 'evening' })).statusCode).toBe(400);
+      expect((await edit({ shift_id: '00000000-0000-0000-0000-000000000000' })).statusCode).toBe(400); // not a shift
+      expect((await edit({ shift_id: ids.night })).body).toMatchObject({ shift_id: ids.night, shift_name: 'Night' });
+      expect((await edit({ shift_id: '' })).body.shift_id).toBeNull();
+      expect((await request(app).patch(`/api/users/${people.dayCrew.id}`).set(auth(crew.token)).send({ shift_id: ids.day })).statusCode).toBe(403);
       // Only the writer is left on days now.
-      expect(await pickAssignee({ shift: 'day', excludeUserId: people.dayWriter.id })).toBeNull();
+      expect(await pickAssignee({ shiftId: ids.day, excludeUserId: people.dayWriter.id })).toBeNull();
     });
   });
 });

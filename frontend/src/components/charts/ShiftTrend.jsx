@@ -27,7 +27,7 @@ export function ShiftTrend({ data, label = 'Reports per shift' }) {
       <div className="trend__axis" aria-hidden="true">
         {data.map((d, i) => (
           <span key={d.shift.key} className={i === data.length - 1 ? 'trend__axis--current' : ''}>
-            {d.shift.name === 'Day' ? 'D' : 'N'} {formatDay(d.shift.start)}
+            {d.shift.name.slice(0, 1).toUpperCase()} {formatDay(d.shift.start)}
             {i === data.length - 1 && <span className="trend__now">Now</span>}
           </span>
         ))}

@@ -1,5 +1,4 @@
 const pool = require('../config/db');
-const { shiftExpression } = require('../config/shifts');
 
 async function createReport({ submissionId, summary, categoryId, categoryConfidence }) {
   const result = await pool.query(
@@ -13,7 +12,7 @@ async function createReport({ submissionId, summary, categoryId, categoryConfide
 
 // Who submitted the handover behind each report. Older rows may have no submitter.
 const SELECT_REPORT = `
-  SELECT r.*, c.category_name, ${shiftExpression('s')} AS shift,
+  SELECT r.*, c.category_name, s.shift_id, s.shift_name,
          u.user_id AS submitter_id, u.full_name AS submitter_name, u.role AS submitter_role,
          u.is_active AS submitter_active, u.anonymised_at IS NOT NULL AS submitter_anonymised
   FROM handover_reports r
@@ -53,7 +52,7 @@ const NEEDS_REVIEW = `(r.reviewed_at IS NULL AND (r.category_id IS NULL OR r.cat
 
 /**
  * WHERE conditions for the report list. Every value is a bound parameter; `params` is appended to.
- *   submittedBy  user id          shift  'day' | 'night'
+ *   submittedBy  user id          shift  a shift id, or 'none' (no shift covered the submission)
  *   category     category name, or 'unclassified'
  *   review       true: only reports that need review (NEEDS_REVIEW); false: only ones that don't
  *   minConfidence / maxConfidence  0..1, max is exclusive (classified reports only)
@@ -66,7 +65,8 @@ function reportConditions(filters, params) {
   };
   const c = [];
   if (filters.submittedBy) c.push(add(filters.submittedBy, 's.user_id = ?'));
-  if (filters.shift) c.push(add(filters.shift, `${shiftExpression('s')} = ?`));
+  if (filters.shift === 'none') c.push('s.shift_id IS NULL');
+  else if (filters.shift) c.push(add(filters.shift, 's.shift_id = ?'));
   if (filters.category === 'unclassified') c.push('r.category_id IS NULL');
   else if (filters.category) c.push(add(filters.category, 'c.category_name = ?'));
   if (filters.review === true) c.push(NEEDS_REVIEW);
@@ -87,7 +87,7 @@ const FROM_REPORTS = `FROM handover_reports r
  * lowest confidence first (unscored first). Also returns:
  *   total         matching reports
  *   needs_review  how many of those need review
- *   shift_counts  { day, night } for the same filters without `shift`
+ *   shift_counts  { <shift id>: n, none: n } for the same filters without `shift`
  */
 async function getAllReports({ limit = 20, offset = 0, sort = 'newest', ...filters } = {}) {
   const params = [];
@@ -113,12 +113,12 @@ async function getAllReports({ limit = 20, offset = 0, sort = 'newest', ...filte
   const shiftParams = [];
   const shiftConditions = reportConditions({ ...filters, shift: null }, shiftParams);
   const shiftCounts = await pool.query(
-    `SELECT ${shiftExpression('s')} AS shift, COUNT(*)::int AS n
+    `SELECT COALESCE(s.shift_id::text, 'none') AS shift, COUNT(*)::int AS n
      ${FROM_REPORTS} ${shiftConditions.length ? `WHERE ${shiftConditions.join(' AND ')}` : ''}
      GROUP BY 1`,
     shiftParams
   );
-  const shift_counts = { day: 0, night: 0 };
+  const shift_counts = {};
   for (const row of shiftCounts.rows) shift_counts[row.shift] = row.n;
 
   return {

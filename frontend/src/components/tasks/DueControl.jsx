@@ -51,7 +51,7 @@ export function DueControl({ task, now, onSave }) {
     save(new Date(shown).toISOString());
   }
 
-  const endOfShift = shiftAt(now).end;
+  const endOfShift = shiftAt(now)?.end ?? null;
   const inFourHours = new Date(new Date(now).getTime() + 4 * 3600000);
 
   return (
@@ -73,9 +73,11 @@ export function DueControl({ task, now, onSave }) {
         </button>
       </div>
       <div className="due__shortcuts">
-        <button type="button" className="assign__suggest" onClick={() => setValue(toLocalInput(endOfShift.toISOString()))} disabled={saving}>
-          End of this shift
-        </button>
+        {endOfShift && (
+          <button type="button" className="assign__suggest" onClick={() => setValue(toLocalInput(endOfShift.toISOString()))} disabled={saving}>
+            End of this shift
+          </button>
+        )}
         <button type="button" className="assign__suggest" onClick={() => setValue(toLocalInput(inFourHours.toISOString()))} disabled={saving}>
           In 4 hours
         </button>

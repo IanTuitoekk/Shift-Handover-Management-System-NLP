@@ -22,6 +22,7 @@ const AlertsPage = named(() => import('./pages/ground/AlertsPage'), 'AlertsPage'
 const OverviewPage = named(() => import('./pages/supervisor/OverviewPage'), 'OverviewPage');
 const TriagePage = named(() => import('./pages/supervisor/TriagePage'), 'TriagePage');
 const TeamPage = named(() => import('./pages/supervisor/TeamPage'), 'TeamPage');
+const ShiftsPage = named(() => import('./pages/supervisor/ShiftsPage'), 'ShiftsPage');
 
 /** "/" is each role's own home. */
 function RoleHome() {
@@ -54,6 +55,7 @@ export default function App() {
 
               <Route element={<RoleRoute allow={['supervisor']} />}>
                 <Route path="/triage" element={<TriagePage />} />
+                <Route path="/shifts" element={<ShiftsPage />} />
                 <Route path="/team" element={<TeamPage />} />
               </Route>
             </Route>
