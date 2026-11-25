@@ -23,6 +23,8 @@ services:
     restart: unless-stopped
     environment:
       WHISPER_MODEL: ${WHISPER_MODEL:-large-v3-turbo}
+      WHISPER_BEAM_SIZE: ${WHISPER_BEAM_SIZE:-5}
+      WHISPER_CPU_THREADS: ${WHISPER_CPU_THREADS:-0}
     volumes:
       # The trained weights stay outside the image (they're not in git).
       - ./inference-service/model:/app/model:ro

@@ -24,6 +24,8 @@ MAX_SECONDS = 180
 # so audio is decoded as Swahili only when Swahili clearly wins; otherwise as English (Whisper
 # still writes the Swahili words it hears). Tune with WHISPER_SW_SHARE using the logged detections.
 SWAHILI_SHARE = float(os.environ.get("WHISPER_SW_SHARE", "0.75"))
+BEAM_SIZE = int(os.environ.get("WHISPER_BEAM_SIZE", "5"))
+CPU_THREADS = int(os.environ.get("WHISPER_CPU_THREADS", "0"))  # 0 = library default
 
 # Vocabulary hints for Whisper's spelling. Deliberately NO registrations or sentences: Whisper can
 # copy prompt text into the transcript, and an example like "5Y-KZD ... inavuja" once replaced the
@@ -52,7 +54,7 @@ class Transcriber:
                 from faster_whisper import WhisperModel
 
                 print(f"Loading Whisper ({self.model_name}, {self.compute_type})...")
-                self._model = WhisperModel(self.model_name, device="cpu", compute_type=self.compute_type)
+                self._model = WhisperModel(self.model_name, device="cpu", compute_type=self.compute_type, cpu_threads=CPU_THREADS)
                 print(f"Whisper ready ({self.model_name}).")
         return self._model
 
@@ -107,7 +109,7 @@ class Transcriber:
             print(f"[transcribe] {duration:.1f}s audio; detected {top}; Swahili share {sw_share:.2f} -> decode as {language}")
 
         segments, _info = model.transcribe(
-            audio, language=language, beam_size=5, vad_filter=True, initial_prompt=PROMPTS[language], condition_on_previous_text=False
+            audio, language=language, beam_size=BEAM_SIZE, vad_filter=True, initial_prompt=PROMPTS[language], condition_on_previous_text=False
         )
         text = " ".join(s.text.strip() for s in segments).strip()
         return {
