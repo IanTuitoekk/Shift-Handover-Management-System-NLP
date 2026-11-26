@@ -72,8 +72,8 @@ def _letters_of(word):
     parts = _split_glued(lower)
     if parts:
         return "".join(NATO[p] for p in parts), len(parts)
-    if re.fullmatch(r"[A-Z]{1,3}", word):
-        return word, 0  # capitals count as letters but not as spoken phonetic words
+    if re.fullmatch(r"[A-Z]{1,4}", word):
+        return word, 0  # capitals count as letters ("KZD", "YKZD") but not as spoken phonetic words
     return None
 
 
@@ -96,9 +96,18 @@ def normalise_registrations(text):
     while i < len(tokens):
         word, start, _ = tokens[i]
         j, chars, spoken = i, "", 0
+        glued = re.fullmatch(r"[A-Z]?(5Y[A-Z]{3})", word)
+        if glued:  # written in one piece, sometimes after a stray letter: "5YKZD", "E5YKZD"
+            out.append(text[last:start])
+            out.append(_written(glued.group(1)))
+            last = tokens[i][2]
+            i += 1
+            continue
         digit = DIGITS.get(word.lower(), word if word.isdigit() and len(word) == 1 else None)
         if word.upper() == "5Y":  # nationality mark already written ("5Y KZD")
             digit = "5Y"
+        elif re.fullmatch(r"[A-Z]5", word):  # "five" heard with a stray letter: "E5 YKZD"
+            digit = "5"
         if digit:
             chars, j = digit, i + 1
         end = None
