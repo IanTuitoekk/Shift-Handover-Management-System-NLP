@@ -23,8 +23,6 @@ import os
 import threading
 import time
 
-import numpy as np
-
 from app.phonetic import normalise_registrations
 
 LANGUAGES = ("en", "sw")  # the languages handovers are written in
@@ -57,6 +55,8 @@ PROMPTS = {
 
 def _features_key(features):
     """A fingerprint of a batch of log-Mel features (one 30 s window per chunk)."""
+    import numpy as np  # imported here, like Whisper, so the unit tests need only pytest
+
     features = np.ascontiguousarray(features)
     return features.shape, hashlib.blake2b(features.tobytes(), digest_size=16).digest()
 
@@ -128,6 +128,7 @@ class Transcriber:
         Prepares the pipeline's first batch the way it will (voice activity detection, chunks of up
         to 30 s, log-Mel features) and encodes it once; that output is kept for the pipeline.
         """
+        import numpy as np
         from faster_whisper.audio import pad_or_trim
         from faster_whisper.vad import VadOptions, collect_chunks, get_speech_timestamps
 
