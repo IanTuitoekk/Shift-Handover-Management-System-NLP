@@ -1,3 +1,10 @@
+try:  # local runs read settings from inference-service/.env; Docker passes them in directly
+    from dotenv import load_dotenv
+
+    load_dotenv()
+except ImportError:
+    pass
+
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from pydantic import BaseModel
 from app.model import InferenceModel

@@ -18,6 +18,10 @@ from app.phonetic import normalise_registrations
         ("on 5Y KZD.", "on 5Y-KZD."),
         ("detected on 5 Yankee Kilozulu Delta at stand 7", "detected on 5Y-KZD at stand 7"),
         ("detected on 5 Yankee kilos Zulu Delta at stand 7", "detected on 5Y-KZD at stand 7"),
+        # From Cloudflare Workers AI (26 Nov 2026), mixed English and Swahili:
+        ("E5 YKZD ina hydraulic leak", "5Y-KZD ina hydraulic leak"),
+        ("on 5 YKZD at stand 7", "on 5Y-KZD at stand 7"),
+        ("5YKZD leak, E5YKQA brakes", "5Y-KZD leak, 5Y-KQA brakes"),
     ],
 )
 def test_spoken_registrations_are_written(spoken, written):
@@ -31,6 +35,7 @@ def test_spoken_registrations_are_written(spoken, written):
         "Gate Alpha Bravo",  # two letters isn't a registration
         "The Indian engineer checked the hotel booking",
         "Replacement ordered from the parts store.",
+        "Fit the A5 bracket and the NOTE on page 5 KZD",  # only 5Y + three letters is a registration
     ],
 )
 def test_ordinary_text_is_unchanged(text):
