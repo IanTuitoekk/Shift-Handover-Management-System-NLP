@@ -22,6 +22,8 @@ from app.phonetic import normalise_registrations
         ("E5 YKZD ina hydraulic leak", "5Y-KZD ina hydraulic leak"),
         ("on 5 YKZD at stand 7", "on 5Y-KZD at stand 7"),
         ("5YKZD leak, E5YKQA brakes", "5Y-KZD leak, 5Y-KQA brakes"),
+        # Swahili speech on the live server (26 Nov 2026): a final vowel added to "kebek".
+        ("Ndege 5 yankee kilo kebeke alfa inatatizo la breki", "Ndege 5Y-KQA inatatizo la breki"),
     ],
 )
 def test_spoken_registrations_are_written(spoken, written):

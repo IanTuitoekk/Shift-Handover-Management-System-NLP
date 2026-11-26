@@ -69,6 +69,8 @@ def _letters_of(word):
         return NATO[lower], 1
     if lower.endswith("s") and lower[:-1] in NATO:  # "kilos", "deltas": a mis-heard plural
         return NATO[lower[:-1]], 1
+    if len(lower) >= 5 and lower[-1] in "aeiou" and lower[:-1] in NATO:
+        return NATO[lower[:-1]], 1  # Swahili speech adds a final vowel: "kebeke", "hotelo"
     parts = _split_glued(lower)
     if parts:
         return "".join(NATO[p] for p in parts), len(parts)
